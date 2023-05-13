@@ -1,0 +1,17 @@
+{
+    "cSpell.words": [
+        "asflags",
+        "cflags",
+        "cxxflags",
+        "depfile",
+        "fwbuild",
+        "ldflags",
+        "ldlibs",
+        "ldscript",
+        "srcs"
+    ],
+    "files.associations": {
+        "iosfwd": "cpp"
+    },
+    "cmake.configureOnOpen": false
+}
