@@ -9,7 +9,7 @@ def to_shell(cmdline: str):
     if sys.platform == "win32":
         return f'cmd /c "{cmdline}"'
     else:
-        raise NotImplementedError(f"Can't convert to shell command on {sys.platform}")
+        return cmdline
 
 class program(object):
     def __init__(self, directory, name):
@@ -78,7 +78,7 @@ class gcc(object):
         try:
             return next(gcc.list(prefix, dirs))
         except StopIteration:
-            raise FileExistsError(f"Couldn't find {prefix}gcc toolchain") from None
+            raise FileExistsError(f'Toolchain "{prefix}gcc" not found') from None
 
     def __init__(self, directory, prefix=""):
         self._ar  = program(directory, prefix + "ar")
