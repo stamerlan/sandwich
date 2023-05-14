@@ -4,7 +4,7 @@ import pathlib
 import scripts.fwbuild as fwbuild
 import sys
 
-target_platform = "raspi3" 
+target_platform = "raspi3"
 #target_platform = "win"
 
 hello = fwbuild.cxx_target("hello")
