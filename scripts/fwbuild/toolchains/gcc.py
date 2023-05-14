@@ -172,10 +172,12 @@ class gcc(object):
 
         # Link
         outfile_name = f"$outdir/{target.name}"
-        if not self._prefix and sys.platform == "win32":
+        if self._prefix:
+            outfile_name += ".elf"
+        elif sys.platform == "win32":
             outfile_name += ".exe"
 
-        ld_outputs = [outfile_name]
+        implicit_outputs = []
         add_ldflags = []
         implicit_deps = []
         if target.ldscript:
@@ -183,15 +185,16 @@ class gcc(object):
             implicit_deps.append(str(target.ldscript))
         if target.gen_map:
             mapfile_name = f"$outdir/{target.name}.map"
-            ld_outputs.append(mapfile_name)
+            implicit_outputs.append(mapfile_name)
             add_ldflags.append(f"-Xlinker -Map={mapfile_name}")
 
         ld_rule_vars = {}
         if add_ldflags:
             ld_rule_vars["ldflags"] = ' '.join(f for f in add_ldflags) + " $ldflags"
 
-        n.build(ld_outputs, "ld", objs,
-            implicit=implicit_deps, variables=ld_rule_vars)
+        n.build(outfile_name, "ld", objs,
+            implicit=implicit_deps, implicit_outputs=implicit_outputs,
+            variables=ld_rule_vars)
 
         # Binary
         if target.gen_binary:
