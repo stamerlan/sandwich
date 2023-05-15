@@ -46,14 +46,8 @@ else:
     print(f"Unknown platform '{target_platform}'", file=sys.stderr)
     sys.exit(1)
 
-srcdir = pathlib.Path(__file__).parent
-if os.path.samefile(srcdir, os.getcwd()):
-    outdir = pathlib.Path("bin/")
-else:
-    outdir = pathlib.Path(".")
-outdir.mkdir(parents=True, exist_ok=True)
-
-with open(outdir / "build.ninja", "w") as buildfile:
+fwbuild.outdir.mkdir(parents=True, exist_ok=True)
+with open(fwbuild.outdir / "build.ninja", "w") as buildfile:
     gcc.write_ninja_file(buildfile, hello)
     n = fwbuild.NinjaWriter(buildfile)
     n.newline()
