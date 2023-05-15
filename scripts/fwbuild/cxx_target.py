@@ -25,7 +25,7 @@ class source_file(object):
 
 
 class cxx_target(object):
-    def __init__(self, name: str):
+    def __init__(self, name: str, srcdir: pathlib.Path | str | None = None):
         self._name: str = name
 
         self._asflags = str_list()
@@ -39,9 +39,12 @@ class cxx_target(object):
         self._gen_dasm = False
         self._gen_map = False
 
-        frame = inspect.stack()[1]
-        caller_file = frame[0].f_code.co_filename
-        self._srcdir = pathlib.Path(caller_file).parent
+        if srcdir is not None:
+            self._srcdir = pathlib.Path(srcdir)
+        else:
+            frame = inspect.stack()[1]
+            caller_file = frame[0].f_code.co_filename
+            self._srcdir = pathlib.Path(caller_file).parent
 
     @property
     def asflags(self) -> str_list:
