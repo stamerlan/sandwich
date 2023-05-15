@@ -56,6 +56,4 @@ with open(fwbuild.outdir / "build.ninja", "w") as buildfile:
         command=f"{pathlib.Path(sys.executable).as_posix()} {pathlib.Path(__file__).as_posix()}",
         generator=True,
         description="CONFIGURE")
-    # TODO: Add dependency from fwbuild content
-    n.build("$outdir/build.ninja", "configure",
-            implicit=["$srcdir/configure.py"])
+    n.build("$outdir/build.ninja", "configure", implicit=hello.regen_on)
