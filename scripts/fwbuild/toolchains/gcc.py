@@ -154,20 +154,20 @@ class gcc(object):
         # Compile
         objs = []
         for src in target.sources:
-            if src.filename.is_absolute():
+            if src.path.is_absolute():
                 obj_filename = src.filename.with_suffix(".o").name
-            elif src.filename.parts[0] in ("$outdir", "$srcdir"):
-                obj_filename = pathlib.Path("$outdir", *src.filename.parts[1:])
+            elif src.path.parts[0] in ("$outdir", "$srcdir"):
+                obj_filename = pathlib.Path("$outdir", *src.path.parts[1:])
                 obj_filename = obj_filename.with_suffix(".o").as_posix()
             else:
                 raise RuntimeError(f"{target.name}: Unexpected source file path '{src}'")
 
-            if src.filename.suffix in (".cc", ".cxx", ".cpp"):
+            if src.path.suffix in (".cc", ".cxx", ".cpp"):
                 objs += n.build(obj_filename, "cxx", str(src), **src.vars)
-            elif src.filename.suffix in (".S"):
+            elif src.path.suffix in (".S"):
                 objs += n.build(obj_filename, "as", str(src), **src.vars)
             else:
-                raise RuntimeError(f"{target.name}: Unsupported filename suffix '{src}'")
+                raise RuntimeError(f"{target.name}: Unsupported source file suffix '{src}'")
         n.newline()
 
         # Link

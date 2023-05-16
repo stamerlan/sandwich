@@ -1,72 +1,50 @@
-import inspect
 import pathlib
-from .str_list import str_list
-
-class source_file(object):
-    def __init__(self, filename, **vars):
-        self._filename = pathlib.Path(filename)
-        if (self._filename.parts[0] not in ("$outdir", "$srcdir") and
-           not self._filename.is_absolute()):
-            self._filename = pathlib.Path("$srcdir") / self._filename
-
-        self._vars = {**vars}
-
-    @property
-    def filename(self) -> pathlib.Path:
-        return self._filename
-
-    @property
-    def vars(self) -> dict[str, str]:
-        return self._vars
-
-    def __str__(self) -> str:
-        return self._filename.as_posix()
-
+import fwbuild.utils
 
 class cxx_target(object):
+    """ An executable compiled by C++ compiler """
+
     def __init__(self, name: str, srcdir: pathlib.Path | str | None = None):
         self._name: str = name
 
-        self._asflags = str_list()
-        self._cxxflags = str_list()
-        self._ldflags = str_list()
-        self._ldlibs = str_list()
-        self._ldscript: source_file | None = None
-        self._src: list[source_file] = []
+        self._asflags  = fwbuild.utils.str_list()
+        self._cxxflags = fwbuild.utils.str_list()
+        self._ldflags  = fwbuild.utils.str_list()
+        self._ldlibs   = fwbuild.utils.str_list()
+        self._ldscript: fwbuild.utils.src_path | None = None
+        self._src: list[fwbuild.utils.src_path] = []
 
         self._gen_binary = False
         self._gen_dasm = False
         self._gen_map = False
 
-        self._regen_on = set([__file__])
+        self._regen_on: set[str] = set([__file__])
         self._add_regen_dep()
 
         if srcdir is not None:
             self._srcdir = pathlib.Path(srcdir)
         else:
-            frame = inspect.stack()[1]
-            caller_file = frame[0].f_code.co_filename
-            self._srcdir = pathlib.Path(caller_file).parent
+            self._srcdir = fwbuild.utils.get_caller_filename().parent
 
     @property
-    def asflags(self) -> str_list:
+    def asflags(self) -> fwbuild.utils.str_list:
         self._add_regen_dep()
         return self._asflags
 
     @asflags.setter
     def asflags(self, value):
         self._add_regen_dep()
-        self._asflags = str_list(value)
+        self._asflags = fwbuild.utils.str_list(value)
 
     @property
-    def cxxflags(self) -> str_list:
+    def cxxflags(self) -> fwbuild.utils.str_list:
         self._add_regen_dep()
         return self._cxxflags
 
     @cxxflags.setter
     def cxxflags(self, value):
         self._add_regen_dep()
-        self._cxxflags = str_list(value)
+        self._cxxflags = fwbuild.utils.str_list(value)
 
     @property
     def gen_binary(self) -> bool:
@@ -99,7 +77,7 @@ class cxx_target(object):
         self._gen_map = bool(value)
 
     @property
-    def ldflags(self) -> str_list:
+    def ldflags(self) -> fwbuild.utils.str_list:
         self._add_regen_dep()
         return self._ldflags
 
@@ -108,20 +86,20 @@ class cxx_target(object):
         self._add_regen_dep()
         if value is None:
             self._ldflags = None
-        self._ldflags = str_list(value)
+        self._ldflags = fwbuild.utils.str_list(value)
 
     @property
-    def ldlibs(self) -> str_list:
+    def ldlibs(self) -> fwbuild.utils.str_list:
         self._add_regen_dep()
         return self._ldlibs
 
     @ldlibs.setter
     def ldlibs(self, value):
         self._add_regen_dep()
-        self._ldlibs = str_list(value)
+        self._ldlibs = fwbuild.utils.str_list(value)
 
     @property
-    def ldscript(self) -> source_file | None:
+    def ldscript(self) -> fwbuild.utils.src_path | None:
         self._add_regen_dep()
         return self._ldscript
 
@@ -131,7 +109,7 @@ class cxx_target(object):
         if value is None:
             self._ldscript = None
         else:
-            self._ldscript = source_file(value)
+            self._ldscript = fwbuild.utils.src_path(value)
 
     @property
     def name(self) -> str:
@@ -144,7 +122,7 @@ class cxx_target(object):
         return [x.replace(str(self._srcdir), "$srcdir") for x in sorted(list(self._regen_on))]
 
     @property
-    def sources(self) -> list[source_file]:
+    def sources(self) -> list[fwbuild.utils.src_path]:
         self._add_regen_dep()
         return self._src
 
@@ -157,10 +135,10 @@ class cxx_target(object):
         """ Add source file/files to compile list """
         self._add_regen_dep()
         if isinstance(sources, (str, pathlib.Path)):
-            self._src.append(source_file(sources, **vars))
+            self._src.append(fwbuild.utils.src_path(sources, **vars))
         else:
             for filename in sources:
-                self._src.append(source_file(filename, **vars))
+                self._src.append(fwbuild.utils.src_path(filename, **vars))
 
     def _add_regen_dep(self):
         """ Add a file which called parent function to list of dependencies.
@@ -168,6 +146,4 @@ class cxx_target(object):
         accessed the target has been changed then build file should be
         regenerated.
         """
-        frame = inspect.stack()[2]
-        caller_file = frame[0].f_code.co_filename
-        self._regen_on.add(caller_file)
+        self._regen_on.add(fwbuild.utils.get_caller_filename().as_posix())

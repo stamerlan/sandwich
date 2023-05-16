@@ -1,6 +1,8 @@
 import pathlib
 
 class str_list(object):
+    """ List of strings """
+
     def __init__(self, *items):
         self._data = []
         for i in items:
