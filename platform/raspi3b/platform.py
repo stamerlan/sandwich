@@ -42,7 +42,7 @@ def write_build_files():
     fwbuild.outdir.mkdir(parents=True, exist_ok=True)
     with open(fwbuild.outdir / "build.ninja", "w") as build_file:
         fwbuild.platform._toolchain.write_ninja_file(build_file, _kernel8_target)
-        n = fwbuild.NinjaWriter(build_file)
+        n = fwbuild.utils.ninja_syntax.Writer(build_file)
         n.newline()
 
         n.comment("Regenerate build file if build script changed.")
