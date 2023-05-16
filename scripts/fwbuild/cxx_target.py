@@ -154,12 +154,13 @@ class cxx_target(object):
         return self._srcdir.as_posix()
 
     def src(self, sources, **vars):
+        """ Add source file/files to compile list """
         self._add_regen_dep()
         if isinstance(sources, (str, pathlib.Path)):
             self._src.append(source_file(sources, **vars))
         else:
             for filename in sources:
-                self._src.append(source_file(sources, **vars))
+                self._src.append(source_file(filename, **vars))
 
     def _add_regen_dep(self):
         """ Add a file which called parent function to list of dependencies.
