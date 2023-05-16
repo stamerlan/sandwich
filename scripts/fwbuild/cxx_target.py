@@ -146,4 +146,5 @@ class cxx_target(object):
         accessed the target has been changed then build file should be
         regenerated.
         """
-        self._regen_on.add(fwbuild.utils.get_caller_filename().as_posix())
+        fname = fwbuild.utils.get_caller_filename(2).as_posix()
+        self._regen_on.add(fname)
