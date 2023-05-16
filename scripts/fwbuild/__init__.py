@@ -15,6 +15,3 @@ else:
 
 # Target platform module
 platform = importlib.import_module(".platform-none", __name__)
-
-# TODO: temporary
-from .toolchains.gcc import gcc

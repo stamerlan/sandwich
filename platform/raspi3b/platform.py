@@ -1,12 +1,12 @@
-from fwbuild.toolchains.gcc import gcc
 import atexit
 import fwbuild.targets
+import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
 import sys
 
 _kernel8_target = None
-_toolchain = gcc.find("aarch64-none-elf-")
+_toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 _configure_path = pathlib.Path(sys.modules["__main__"].__file__).as_posix()
 
 def cxx_target(name: str):
