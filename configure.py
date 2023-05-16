@@ -11,12 +11,17 @@ fwbuild.platform.load(fwbuild.srcdir / f"platform/{conf.platform}/platform.py")
 if str(fwbuild.outdir) != ".":
     fwbuild.outdir /= conf.platform
 
-fw = fwbuild.platform.cxx_target("fw")
-fw.cxxflags += "-std=c++23", "-g", "-O3"
-fw.cxxflags += "-fcheck-new", "-flto", "-fno-rtti", "-fno-exceptions"
-fw.cxxflags += "-fno-threadsafe-statics"
-fw.cxxflags += "-Wall", "-Wextra", "-Werror", "-Weffc++",
-fw.cxxflags += "-Wmultiple-inheritance", "-Wvirtual-inheritance"
-fw.cxxflags += "-ffile-prefix-map=$srcdir/="
+app = fwbuild.platform.cxx_target("hello")
+app.gen_dasm = True
+app.gen_map = True
 
-fw.src("src/main.cc")
+app.cxxflags += "-std=c++23", "-g", "-O3"
+app.cxxflags += "-fcheck-new", "-flto", "-fno-rtti", "-fno-exceptions"
+app.cxxflags += "-fno-threadsafe-statics"
+app.cxxflags += "-Wall", "-Wextra", "-Werror", "-Weffc++",
+app.cxxflags += "-Wmultiple-inheritance", "-Wvirtual-inheritance"
+app.cxxflags += "-ffile-prefix-map=$srcdir/="
+
+app.ldflags += "-flto"
+
+app.src("src/main.cc")
