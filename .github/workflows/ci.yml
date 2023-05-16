@@ -15,6 +15,15 @@ jobs:
     strategy:
       matrix:
         platform: [host, raspi3b]
+        include:
+          - platform: host
+            artifacts_name: host-binaries
+            artifacts_path: bin/host/hello
+          - platform: raspi3b
+            artifacts_name: raspi3b-binaries
+            artifacts_path: |
+              bin/raspi3b/kernel8.elf
+              bin/raspi3b/kernel8.bin
 
     steps:
     - name: Check out repo main branch
@@ -23,3 +32,8 @@ jobs:
       run: python3 configure.py --platform ${{ matrix.platform }}
     - name: Build
       run: ninja -C bin/${{ matrix.platform }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.artifacts_name }}
+        path: ${{ matrix.artifacts_path }}
