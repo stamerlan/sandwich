@@ -4,7 +4,7 @@ import scripts.fwbuild as fwbuild
 
 parser = argparse.ArgumentParser(description="Sandwich configuration script")
 parser.add_argument("--platform", choices=["raspi3b", "host"],
-                    default="raspi3b", help="Target platform")
+                    default="host", help="Target platform")
 conf = parser.parse_args()
 
 fwbuild.platform.load(fwbuild.srcdir / f"platform/{conf.platform}/platform.py")
