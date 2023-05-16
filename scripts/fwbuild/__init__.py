@@ -1,7 +1,6 @@
+import importlib
 import pathlib
 import sys
-from .cxx_target import cxx_target
-from .toolchains.gcc import gcc
 
 # Make the package available by name 'fwbuild'
 if __name__ != "fwbuild":
@@ -14,5 +13,10 @@ if srcdir.samefile(pathlib.Path.cwd()):
 else:
     outdir = pathlib.Path(".")
 
+# Target platform module
+platform = importlib.import_module(".platform-none", __name__)
+
 # TODO: temporary
+from .cxx_target import cxx_target
+from .toolchains.gcc import gcc
 from .ninja_syntax import Writer as NinjaWriter
