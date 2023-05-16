@@ -3,6 +3,7 @@ import fwbuild.targets
 import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
+import shlex
 import sys
 
 targets: dict[str, fwbuild.targets.cxx] = {}
@@ -24,6 +25,7 @@ def cxx_target(name: str):
 @atexit.register
 def write_build_files():
     interpreter_path = pathlib.Path(sys.executable).as_posix()
+    cmdline = ' '.join(map(shlex.quote, sys.argv[1:]))
 
     fwbuild.outdir.mkdir(parents=True, exist_ok=True)
     for name, target in targets.items():
@@ -42,7 +44,7 @@ def write_build_files():
 
             n.comment("Regenerate build file if build script changed")
             n.rule("configure",
-                command=f"{interpreter_path} {_configure_path}",
+                command=f"{interpreter_path} {_configure_path} {cmdline}",
                 generator=True,
                 description="CONFIGURE")
             n.build(build_filename, "configure", implicit=target.build_files)
@@ -66,7 +68,7 @@ def write_build_files():
 
             n.comment("Regenerate build file if build script changed")
             n.rule("configure",
-                command=f"{interpreter_path} {_configure_path}",
+                command=f"{interpreter_path} {_configure_path} {cmdline}",
                 generator=True,
                 description="CONFIGURE")
             n.build("$outdir/" + build_filename, "configure",
