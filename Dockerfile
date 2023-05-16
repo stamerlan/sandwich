@@ -5,7 +5,7 @@ RUN apt-get update
 # Install build tools
 RUN apt-get install -y python3
 RUN apt-get install -y ninja-build
-RUN apt-get install -y gcc
+RUN apt-get install -y g++
 
 # Setup aarch64-none-elf 12.2 toolchain
 RUN apt-get install -y wget
