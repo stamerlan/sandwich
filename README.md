@@ -10,7 +10,7 @@ qemu-system-aarch64 -M raspi3b -kernel bin/hello -serial null -serial stdio
     "group": "build",
     "type": "shell",
     "command": "ninja",
-    "args": ["-C",  "bin/"]
+    "args": ["-C",  "bin/host/"]
 }
 ```
 
@@ -20,7 +20,7 @@ qemu-system-aarch64 -M raspi3b -kernel bin/hello -serial null -serial stdio
     "name": "hello.exe",
     "type": "cppdbg",
     "request": "launch",
-    "program": "${workspaceFolder}/bin/hello.exe",
+    "program": "${workspaceFolder}/bin/host/hello.exe",
     "externalConsole": false,
     "args": [],
     "stopAtEntry": false,
@@ -29,4 +29,24 @@ qemu-system-aarch64 -M raspi3b -kernel bin/hello -serial null -serial stdio
     "MIMode": "gdb",
     "miDebuggerPath": "C:/bin/mingw64/bin/gdb.exe"
 }
+```
+
+## Build Docker image
+```
+docker build -t stamerlan/sandwich-build .
+```
+
+## Run Docker image in iteractive mode
+```
+docker run -it --mount src=.,target=/__w,type=bind stamerlan/sandwich-build
+```
+
+## Check Docker images
+```
+docker images
+```
+
+## Push Docker image to Dockerhub
+```
+docker image push stamerlan/sandwich-build
 ```
