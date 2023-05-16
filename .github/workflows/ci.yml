@@ -11,10 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: stamerlan/sandwich-build:latest
+
+    strategy:
+      matrix:
+        platform: [host, raspi3b]
+
     steps:
     - name: Check out repo main branch
       uses: actions/checkout@v3
     - name: Configure
-      run: python3 configure.py --platform raspi3b
+      run: python3 configure.py --platform ${{ matrix.platform }}
     - name: Build
-      run: ninja -C bin/raspi3b
+      run: ninja -C bin/${{ matrix.platform }}
