@@ -4,6 +4,7 @@ import os
 import pathlib
 import subprocess
 import sys
+import typing
 
 def to_shell(cmdline: str):
     if sys.platform == "win32":
@@ -45,7 +46,7 @@ class gcc(object):
                 pass
 
     @staticmethod
-    def find(prefix="", dirs=[]):
+    def find(prefix="", dirs=[]) -> typing.Self:
         try:
             return next(gcc.list(prefix, dirs))
         except StopIteration:
