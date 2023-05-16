@@ -50,4 +50,4 @@ def write_build_files():
             command=f"{interpreter_path} {_configure_path}",
             generator=True,
             description="CONFIGURE")
-        n.build("$outdir/build.ninja", "configure", implicit=_kernel8_target.regen_on)
+        n.build("$outdir/build.ninja", "configure", implicit=_kernel8_target.build_files)
