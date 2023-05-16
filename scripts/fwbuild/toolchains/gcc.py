@@ -1,10 +1,10 @@
+import fwbuild.targets.cxx
 import fwbuild.utils
 import os
 import pathlib
 import subprocess
 import sys
 from ..ninja_syntax import Writer
-from ..cxx_target import cxx_target
 
 def to_shell(cmdline: str):
     if sys.platform == "win32":
@@ -68,7 +68,9 @@ class gcc(object):
     def __str__(self) -> str:
         return f"{self._prefix + 'gcc'} at {self._cc}"
 
-    def write_ninja_file(self, output, target: cxx_target, outdir="."):
+    def write_ninja_file(self, output,
+            target: fwbuild.targets.cxx,
+            outdir: str | pathlib.Path = "."):
         n = Writer(output)
 
         n.comment(f"Build {target.name} using {self._cc}")

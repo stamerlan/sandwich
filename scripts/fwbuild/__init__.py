@@ -17,6 +17,5 @@ else:
 platform = importlib.import_module(".platform-none", __name__)
 
 # TODO: temporary
-from .cxx_target import cxx_target
 from .toolchains.gcc import gcc
 from .ninja_syntax import Writer as NinjaWriter

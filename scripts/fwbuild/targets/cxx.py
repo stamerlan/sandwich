@@ -1,7 +1,7 @@
-import pathlib
 import fwbuild.utils
+import pathlib
 
-class cxx_target(object):
+class cxx(object):
     """ An executable compiled by C++ compiler """
 
     def __init__(self, name: str, srcdir: pathlib.Path | str):
