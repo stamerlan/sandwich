@@ -67,7 +67,7 @@ class gcc(object):
     def __str__(self) -> str:
         return f"{self._prefix + 'gcc'} at {self._cc}"
 
-    def write_ninja_file(self, writer: fwbuild.utils.ninja_writer,
+    def write_ninja_file(self, writer: fwbuild.utils.ninja_syntax.Writer,
             target: fwbuild.targets.cxx,
             outdir: str | pathlib.Path = "."):
         writer.comment(f"Build {target.name} using {self._prefix}gcc")
