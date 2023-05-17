@@ -37,34 +37,13 @@ def write_build_files():
             build_filename = "build.ninja"
             outdir = "."
 
-        with open(fwbuild.outdir / build_filename, "w") as f:
-            toolchain.write_ninja_file(f, target, outdir=outdir)
-
-            n = fwbuild.utils.ninja_syntax.Writer(f)
-            n.newline()
-
-            n.comment("Regenerate build file if build script changed")
-            n.rule("configure",
-                command=f"{interpreter_path} {_configure_path} {cmdline}",
-                generator=True,
-                description="CONFIGURE")
-            n.build(build_filename, "configure",
-                implicit=sorted(fwbuild.conf_files),
-                variables={"topsrcdir": fwbuild.srcdir.as_posix()})
+        with fwbuild.utils.ninja_writer(fwbuild.outdir / build_filename) as writer:
+            toolchain.write_ninja_file(writer, target, outdir=outdir)
 
     if len(targets) > 1:
-        with open(fwbuild.outdir / "build.ninja", "w") as build_file:
-            n = fwbuild.utils.ninja_syntax.Writer(build_file)
+        with fwbuild.utils.ninja_writer(fwbuild.outdir / "build.ninja") as n:
             n.variable("srcdir", fwbuild.srcdir.as_posix())
-            for name, target in targets.items():
-                n.subninja(name + "-build.ninja")
             n.newline()
 
-            n.comment("Regenerate build file if build script changed")
-            n.rule("configure",
-                command=f"{interpreter_path} {_configure_path} {cmdline}",
-                generator=True,
-                description="CONFIGURE")
-            n.build("$outdir/" + build_filename, "configure",
-                implicit=sorted(fwbuild.conf_files),
-                variables={"topsrcdir": fwbuild.srcdir.as_posix()})
+            for name, target in targets.items():
+                n.subninja(name + "-build.ninja")

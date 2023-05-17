@@ -42,16 +42,6 @@ def write_build_files():
     cmdline = ' '.join(map(shlex.quote, sys.argv[1:]))
 
     fwbuild.outdir.mkdir(parents=True, exist_ok=True)
-    with open(fwbuild.outdir / "build.ninja", "w") as build_file:
-        fwbuild.platform._toolchain.write_ninja_file(build_file, _kernel8_target)
-        n = fwbuild.utils.ninja_syntax.Writer(build_file)
-        n.newline()
+    with fwbuild.utils.ninja_writer(fwbuild.outdir / "build.ninja") as writer:
+        fwbuild.platform._toolchain.write_ninja_file(writer, _kernel8_target)
 
-        n.comment("Regenerate build file if build script changed.")
-        n.rule("configure",
-            command=f"{interpreter_path} {_configure_path} {cmdline}",
-            generator=True,
-            description="CONFIGURE")
-        n.build("build.ninja", "configure",
-            implicit=sorted(fwbuild.conf_files),
-            variables={"topsrcdir": fwbuild.srcdir.as_posix()})

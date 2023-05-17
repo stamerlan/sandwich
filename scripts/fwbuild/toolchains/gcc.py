@@ -67,62 +67,60 @@ class gcc(object):
     def __str__(self) -> str:
         return f"{self._prefix + 'gcc'} at {self._cc}"
 
-    def write_ninja_file(self, output,
+    def write_ninja_file(self, writer: fwbuild.utils.ninja_writer,
             target: fwbuild.targets.cxx,
             outdir: str | pathlib.Path = "."):
-        n = fwbuild.utils.ninja_syntax.Writer(output)
+        writer.comment(f"Build {target.name} using {self._prefix}gcc")
+        writer.newline()
 
-        n.comment(f"Build {target.name} using {self._cc}")
-        n.newline()
-
-        n.variable("srcdir", target.srcdir)
+        writer.variable("srcdir", target.srcdir)
         if isinstance(outdir, pathlib.Path):
             outdir = outdir.as_posix()
-        n.variable("outdir", outdir)
-        n.newline()
+        writer.variable("outdir", outdir)
+        writer.newline()
 
-        n.variable("ar", self._ar)
-        n.variable("as", self._cc)
-        n.variable("cc", self._cc)
-        n.variable("cxx", self._cxx)
-        n.variable("objcopy", self._objcopy)
-        n.variable("objdump", self._objdump)
-        n.newline()
+        writer.variable("ar", self._ar)
+        writer.variable("as", self._cc)
+        writer.variable("cc", self._cc)
+        writer.variable("cxx", self._cxx)
+        writer.variable("objcopy", self._objcopy)
+        writer.variable("objdump", self._objdump)
+        writer.newline()
 
-        n.variable("asflags", target.asflags)
-        n.variable("cxxflags", target.cxxflags)
-        n.variable("ldflags", target.ldflags)
-        n.variable("ldlibs", target.ldlibs)
-        n.newline()
+        writer.variable("asflags", target.asflags)
+        writer.variable("cxxflags", target.cxxflags)
+        writer.variable("ldflags", target.ldflags)
+        writer.variable("ldlibs", target.ldlibs)
+        writer.newline()
 
-        n.rule("as",
+        writer.rule("as",
             command="$as -MMD -MT $out -MF $out.d $asflags -c $in -o $out",
             depfile="$out.d",
             deps="gcc",
             description="AS $out")
-        n.newline()
+        writer.newline()
 
-        n.rule("cxx",
+        writer.rule("cxx",
             command="$cxx -MMD -MT $out -MF $out.d $cxxflags -c $in -o $out",
             depfile="$out.d",
             deps="gcc",
             description="CXX $out")
-        n.newline()
+        writer.newline()
 
-        n.rule("objcopy",
+        writer.rule("objcopy",
             command="$objcopy --output-target binary $in $out",
             description="OBJCOPY $out")
-        n.newline()
+        writer.newline()
 
-        n.rule("objdump",
+        writer.rule("objdump",
             command=to_shell("$objdump --source --disassemble-all --demangle --include=$srcdir $in > $out"),
             description="OBJDUMP $out")
-        n.newline()
+        writer.newline()
 
-        n.rule("ld",
+        writer.rule("ld",
             command="$cxx $ldflags -o $out $in $ldlibs",
             description="LD $out")
-        n.newline()
+        writer.newline()
 
         # Compile
         objs = []
@@ -136,12 +134,12 @@ class gcc(object):
                 raise RuntimeError(f"{target.name}: Unexpected source file path '{src}'")
 
             if src.path.suffix in (".cc", ".cxx", ".cpp"):
-                objs += n.build(obj_filename, "cxx", str(src), **src.vars)
+                objs += writer.build(obj_filename, "cxx", str(src), **src.vars)
             elif src.path.suffix in (".S"):
-                objs += n.build(obj_filename, "as", str(src), **src.vars)
+                objs += writer.build(obj_filename, "as", str(src), **src.vars)
             else:
                 raise RuntimeError(f"{target.name}: Unsupported source file suffix '{src}'")
-        n.newline()
+        writer.newline()
 
         # Link
         outfile_name = f"$outdir/{target.name}"
@@ -165,16 +163,16 @@ class gcc(object):
         if add_ldflags:
             ld_rule_vars["ldflags"] = ' '.join(f for f in add_ldflags) + " $ldflags"
 
-        n.build(outfile_name, "ld", objs,
+        writer.build(outfile_name, "ld", objs,
             implicit=implicit_deps, implicit_outputs=implicit_outputs,
             variables=ld_rule_vars)
 
         # Binary
         if target.gen_binary:
             binfile_name = f"$outdir/{target.name}.bin"
-            n.build(binfile_name, "objcopy", outfile_name)
+            writer.build(binfile_name, "objcopy", outfile_name)
 
         # Disassemble
         if target.gen_dasm:
             dasmfile_name = f"$outdir/{target.name}.asm"
-            n.build(dasmfile_name, "objdump", outfile_name)
+            writer.build(dasmfile_name, "objdump", outfile_name)
