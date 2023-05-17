@@ -22,8 +22,6 @@ conf_files: set[str] = set()
 
 def add_conf_file(filename: str | pathlib.Path):
     filename = pathlib.Path(filename)
-    try:
+    if filename.is_relative_to(srcdir):
         filename = pathlib.Path("$topsrcdir", filename.relative_to(srcdir))
-    except ValueError:
-        pass
     conf_files.add(filename.as_posix())
