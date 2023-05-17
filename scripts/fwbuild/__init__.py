@@ -16,8 +16,10 @@ else:
 # Target platform module
 platform = importlib.import_module(".platform-none", __name__)
 
-# Set of files used during configuration. Each path is either absolute or
-# relative to fwbuild.srcdir and starts with $topsrcdir and is
+# Set of files used during configuration. If any file in the list changed
+# configure script has to be run again.
+# Each path is either absolute or relative to fwbuild.srcdir and starts with
+# $topsrcdir.
 conf_files: set[str] = set()
 
 def add_conf_file(filename: str | pathlib.Path):
@@ -25,3 +27,7 @@ def add_conf_file(filename: str | pathlib.Path):
     if filename.is_relative_to(srcdir):
         filename = pathlib.Path("$topsrcdir", filename.relative_to(srcdir))
     conf_files.add(filename.as_posix())
+
+# Add this file and platform-none.py to conf_files
+add_conf_file(__file__)
+add_conf_file(pathlib.Path(__file__).parent / "platform-none.py")
