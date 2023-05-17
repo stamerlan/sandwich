@@ -148,6 +148,8 @@ class gcc(object):
         elif sys.platform == "win32":
             outfile_name += ".exe"
 
+        default_targets = [outfile_name]
+
         implicit_outputs = []
         add_ldflags = []
         implicit_deps = []
@@ -171,8 +173,13 @@ class gcc(object):
         if target.gen_binary:
             binfile_name = f"$outdir/{target.name}.bin"
             writer.build(binfile_name, "objcopy", outfile_name)
+            default_targets.append(binfile_name)
 
         # Disassemble
         if target.gen_dasm:
             dasmfile_name = f"$outdir/{target.name}.asm"
             writer.build(dasmfile_name, "objdump", outfile_name)
+            default_targets.append(dasmfile_name)
+
+        writer.newline()
+        writer.default(default_targets)
