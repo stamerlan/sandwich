@@ -1,4 +1,5 @@
 import atexit
+import fwbuild
 import fwbuild.targets
 import fwbuild.toolchains
 import fwbuild.utils
@@ -47,23 +48,16 @@ def write_build_files():
                 command=f"{interpreter_path} {_configure_path} {cmdline}",
                 generator=True,
                 description="CONFIGURE")
-            n.build(build_filename, "configure", implicit=target.build_files)
+            n.build(build_filename, "configure",
+                implicit=sorted(fwbuild.conf_files),
+                variables={"topsrcdir": fwbuild.srcdir.as_posix()})
 
     if len(targets) > 1:
         with open(fwbuild.outdir / "build.ninja", "w") as build_file:
             n = fwbuild.utils.ninja_syntax.Writer(build_file)
             n.variable("srcdir", fwbuild.srcdir.as_posix())
-
-            build_files = set()
             for name, target in targets.items():
                 n.subninja(name + "-build.ninja")
-                for f in target.build_files:
-                    fpath = pathlib.Path(f.replace("$srcdir", target.srcdir))
-                    try:
-                        fpath = pathlib.Path("$srcdir", fpath.relative_to(fwbuild.srcdir))
-                    except ValueError:
-                        pass
-                    build_files.add(fpath.as_posix())
             n.newline()
 
             n.comment("Regenerate build file if build script changed")
@@ -72,4 +66,5 @@ def write_build_files():
                 generator=True,
                 description="CONFIGURE")
             n.build("$outdir/" + build_filename, "configure",
-                implicit=sorted(build_files))
+                implicit=sorted(fwbuild.conf_files),
+                variables={"topsrcdir": fwbuild.srcdir.as_posix()})

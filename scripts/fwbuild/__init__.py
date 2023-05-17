@@ -15,3 +15,15 @@ else:
 
 # Target platform module
 platform = importlib.import_module(".platform-none", __name__)
+
+# Set of files used during configuration. Each path is either absolute or
+# relative to fwbuild.srcdir and starts with $topsrcdir and is
+conf_files: set[str] = set()
+
+def add_conf_file(filename: str | pathlib.Path):
+    filename = pathlib.Path(filename)
+    try:
+        filename = pathlib.Path("$topsrcdir", filename.relative_to(srcdir))
+    except ValueError:
+        pass
+    conf_files.add(filename.as_posix())

@@ -52,4 +52,6 @@ def write_build_files():
             command=f"{interpreter_path} {_configure_path} {cmdline}",
             generator=True,
             description="CONFIGURE")
-        n.build("$outdir/build.ninja", "configure", implicit=_kernel8_target.build_files)
+        n.build("build.ninja", "configure",
+            implicit=sorted(fwbuild.conf_files),
+            variables={"topsrcdir": fwbuild.srcdir.as_posix()})
