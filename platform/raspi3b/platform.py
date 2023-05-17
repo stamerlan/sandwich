@@ -7,7 +7,8 @@ import shlex
 import sys
 
 _kernel8_target = None
-_toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
+_toolchain: fwbuild.toolchains.gcc = \
+    fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 _configure_path = pathlib.Path(sys.modules["__main__"].__file__).as_posix()
 
 def cxx_target(name: str):
@@ -43,5 +44,4 @@ def write_build_files():
 
     fwbuild.outdir.mkdir(parents=True, exist_ok=True)
     with fwbuild.utils.ninja_writer(fwbuild.outdir / "build.ninja") as writer:
-        fwbuild.platform._toolchain.write_ninja_file(writer, _kernel8_target)
-
+        _toolchain.write_ninja_file(writer, _kernel8_target)
