@@ -1,7 +1,7 @@
 # sandwich
 
 ## raspi3b Qemu run
-qemu-system-aarch64 -M raspi3b -kernel bin/hello -serial null -serial stdio
+qemu-system-aarch64 -M raspi3b -kernel bin/raspi3b/kernel8.elf -serial null -serial stdio
 
 ## VSCode tasks.json
 ```
