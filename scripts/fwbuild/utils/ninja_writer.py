@@ -40,7 +40,7 @@ class ninja_writer(object):
         self.writer.newline()
         self.writer.comment("Regenerate build file if build script changed")
         self.writer.rule("configure",
-            command=to_shell(f"cd \"{pathlib.Path.cwd()}\" && {sys.executable} {cmd}"),
+            command=to_shell(f"cd \"{pathlib.Path.cwd()}\" && \"{sys.executable}\" {cmd}"),
             generator=True,
             description="CONFIGURE")
         self.writer.build(self.build_file, "configure",
