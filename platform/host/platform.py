@@ -7,7 +7,7 @@ import pathlib
 import shlex
 import sys
 
-targets: dict[str, fwbuild.targets.cxx] = {}
+targets: dict[str, fwbuild.targets.cxx_app] = {}
 toolchain = fwbuild.toolchains.gcc.find()
 _configure_path = pathlib.Path(sys.modules["__main__"].__file__).as_posix()
 
@@ -18,7 +18,7 @@ def cxx_target(name: str):
         raise RuntimeError(f'Target "{name}" already defined')
 
     srcdir = fwbuild.utils.get_caller_filename().parent
-    app = fwbuild.targets.cxx(name, srcdir=srcdir)
+    app = fwbuild.targets.cxx_app(name, srcdir=srcdir)
     targets[name] = app
 
     return app

@@ -1,4 +1,4 @@
-import fwbuild.targets.cxx
+import fwbuild.targets.cxx_app
 import fwbuild.utils
 import os
 import pathlib
@@ -68,7 +68,7 @@ class gcc(object):
         return f"{self._prefix + 'gcc'} at {self._cc}"
 
     def write_ninja_file(self, writer: fwbuild.utils.ninja_syntax.Writer,
-            target: fwbuild.targets.cxx,
+            target: fwbuild.targets.cxx_app,
             outdir: str | pathlib.Path = "."):
         writer.comment(f"Build {target.name} using {self._prefix}gcc")
         writer.newline()

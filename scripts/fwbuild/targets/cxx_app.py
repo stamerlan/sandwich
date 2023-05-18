@@ -1,29 +1,22 @@
-from .target_base import target_base
+from .cxx_module import cxx_module
 import fwbuild
 import fwbuild.utils
 import pathlib
 
-class cxx(target_base):
+class cxx_app(cxx_module):
     """ An executable compiled by C++ compiler """
 
     def __init__(self, name: str, srcdir: pathlib.Path | str):
-        self._name: str = name
+        super().__init__(name, None, srcdir)
+        fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
-        self._asflags  = fwbuild.utils.str_list()
-        self._cxxflags = fwbuild.utils.str_list()
         self._ldflags  = fwbuild.utils.str_list()
         self._ldlibs   = fwbuild.utils.str_list()
         self._ldscript: fwbuild.utils.src_path | None = None
-        self._src: list[fwbuild.utils.src_path] = []
 
         self._gen_binary = False
         self._gen_dasm = False
         self._gen_map = False
-
-        self._srcdir = pathlib.Path(srcdir)
-
-        fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
-        fwbuild.add_conf_file(__file__)
 
     @property
     def asflags(self) -> fwbuild.utils.str_list:

@@ -21,7 +21,7 @@ def cxx_target(name: str):
     if platform_dir.is_relative_to(srcdir):
         platform_dir = pathlib.Path("$srcdir", platform_dir.relative_to(srcdir))
 
-    _kernel8_target = fwbuild.targets.cxx("kernel8", srcdir=srcdir)
+    _kernel8_target = fwbuild.targets.cxx_app("kernel8", srcdir=srcdir)
     _kernel8_target.gen_binary = True
     _kernel8_target.cxxflags += "-march=armv8-a+crc", "-mcpu=cortex-a53"
     _kernel8_target.ldflags += "-nostartfiles", "-specs=nosys.specs"

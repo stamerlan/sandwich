@@ -1,1 +1,1 @@
-from .cxx import cxx
+from .cxx_app import cxx_app
