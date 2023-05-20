@@ -28,7 +28,6 @@ def write_build_files():
     interpreter_path = pathlib.Path(sys.executable).as_posix()
     cmdline = ' '.join(map(shlex.quote, sys.argv[1:]))
 
-    fwbuild.outdir.mkdir(parents=True, exist_ok=True)
     for name, target in targets.items():
         if len(targets) > 1:
             build_filename = name + "-build.ninja"

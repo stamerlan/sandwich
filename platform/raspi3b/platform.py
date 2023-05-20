@@ -42,6 +42,5 @@ def write_build_files():
     interpreter_path = pathlib.Path(sys.executable).as_posix()
     cmdline = ' '.join(map(shlex.quote, sys.argv[1:]))
 
-    fwbuild.outdir.mkdir(parents=True, exist_ok=True)
     with fwbuild.utils.ninja_writer(fwbuild.outdir / "build.ninja") as writer:
         _toolchain.write_ninja_file(writer, _kernel8_target)

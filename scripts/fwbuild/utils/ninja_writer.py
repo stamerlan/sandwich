@@ -30,6 +30,7 @@ class ninja_writer(object):
         self.build_file = filename.as_posix()
 
     def __enter__(self):
+        self.filename.parent.mkdir(parents=True, exist_ok=True)
         self.file = open(self.filename, "w")
         self.writer = fwbuild.utils.ninja_syntax.Writer(self.file, self.width)
         return self.writer
