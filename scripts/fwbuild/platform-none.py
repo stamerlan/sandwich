@@ -1,16 +1,17 @@
 from types import ModuleType
 import fwbuild
-import importlib.util
+import fwbuild.utils
 import pathlib
 import sys
 
 def load(filename: str | pathlib.Path) -> ModuleType:
     filename = pathlib.Path(filename)
+    if not filename.is_absolute():
+        filename = fwbuild.utils.get_caller_filename().parent / filename
+
     mod_name = "fwbuild.platform." + filename.stem
 
-    spec = importlib.util.spec_from_file_location(mod_name, filename.as_posix())
-    mod = importlib.util.module_from_spec(spec)
+    mod = fwbuild.include(filename, mod_name)
     sys.modules[mod_name] = mod
     fwbuild.platform = mod
-    spec.loader.exec_module(mod)
     return mod

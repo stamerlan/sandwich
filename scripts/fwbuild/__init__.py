@@ -1,4 +1,4 @@
-import importlib
+from .include import include
 import pathlib
 import sys
 
@@ -13,9 +13,6 @@ if srcdir.samefile(pathlib.Path.cwd()):
 else:
     outdir = pathlib.Path(".")
 
-# Target platform module
-platform = importlib.import_module(".platform-none", __name__)
-
 # Set of files used during configuration. If any file in the list changed
 # configure script has to be run again.
 # Each path is either absolute or relative to fwbuild.srcdir and starts with
@@ -28,6 +25,9 @@ def add_conf_file(filename: str | pathlib.Path):
         filename = pathlib.Path("$topsrcdir", filename.relative_to(srcdir))
     conf_files.add(filename.as_posix())
 
-# Add this file and platform-none.py to conf_files
+# Add this file and include.py to conf_files
 add_conf_file(__file__)
-add_conf_file(pathlib.Path(__file__).parent / "platform-none.py")
+add_conf_file(pathlib.Path(__file__).parent / "include.py")
+
+# Target platform module
+platform = include("platform-none.py", "fwbuild.platform.none")

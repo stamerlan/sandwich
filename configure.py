@@ -7,7 +7,7 @@ parser.add_argument("--platform", choices=["raspi3b", "host"],
                     default="host", help="Target platform")
 conf = parser.parse_args()
 
-fwbuild.platform.load(fwbuild.srcdir / f"platform/{conf.platform}/platform.py")
+fwbuild.platform.load(f"platform/{conf.platform}/platform.py")
 if str(fwbuild.outdir) != ".":
     fwbuild.outdir /= conf.platform
 
