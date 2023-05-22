@@ -4,7 +4,6 @@ import fwbuild.targets
 import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
-import shlex
 import sys
 
 targets: dict[str, fwbuild.targets.cxx_app] = {}

@@ -3,13 +3,11 @@ import fwbuild.targets
 import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
-import shlex
 import sys
 
 firmware = None
-_toolchain: fwbuild.toolchains.gcc = \
+toolchain: fwbuild.toolchains.gcc = \
     fwbuild.toolchains.gcc.find("aarch64-none-elf-")
-_configure_path = pathlib.Path(sys.modules["__main__"].__file__).as_posix()
 
 class platform_module(fwbuild.targets.cxx_module):
     def __init__(self, target: fwbuild.targets.cxx_app,
@@ -38,7 +36,7 @@ def cxx_target(name: str):
         srcdir = pathlib.Path("$topdir", srcdir.relative_to(fwbuild.topdir))
 
     firmware = fwbuild.targets.cxx_app("kernel8", srcdir)
-    firmware.submodule(platform_module(firmware, _toolchain))
+    firmware.submodule(platform_module(firmware, toolchain))
 
     return firmware
 
@@ -47,5 +45,4 @@ def write_build_files():
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         writer.variable("topdir", fwbuild.topdir.as_posix())
         writer.variable("topout", ".")
-
-        _toolchain.write_ninja_file(writer, firmware)
+        toolchain.write_ninja_file(writer, firmware)
