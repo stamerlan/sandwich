@@ -20,7 +20,7 @@ class cxx_module(target_base):
         self._cxxflags = fwbuild.utils.str_list()
         self._src: list[fwbuild.utils.src_path] = []
 
-        self._modules: list["cxx_module"] = []
+        self._submodules: list["cxx_module"] = []
 
     def __str__(self) -> str:
         lines = []
@@ -32,8 +32,8 @@ class cxx_module(target_base):
             lines.append(f"    {s}")
             for key, value in s.vars.items():
                 lines.append(f"      {key}: {value}")
-        for mod in self.modules:
-            for l in str(mod).split("\n"):
+        for submodule in self.submodules:
+            for l in str(submodule).split("\n"):
                 lines.append("  " + l)
         return "\n".join(lines)
 
@@ -54,8 +54,8 @@ class cxx_module(target_base):
         self._cxxflags = fwbuild.utils.str_list(value)
 
     @property
-    def modules(self) -> list["cxx_module"]:
-        return self._modules
+    def submodules(self) -> list["cxx_module"]:
+        return self._submodules
 
     @property
     def name(self) -> str:
@@ -75,4 +75,4 @@ class cxx_module(target_base):
             self._src.append(fwbuild.utils.src_path(filename, **vars))
 
     def submodule(self, submodule: "cxx_module"):
-        self._modules.append(submodule)
+        self._submodules.append(submodule)
