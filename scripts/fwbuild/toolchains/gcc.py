@@ -26,9 +26,11 @@ def add_compile_build_statements(writer: fwbuild.utils.ninja_syntax.Writer,
 
     objs = []
     for src in module.sources:
-        if (src.path.parts[0] in ("$outdir", "$srcdir", "$topout", "$topdir") or
+        if (src.path.parts[0] in ("$outdir", "$srcdir", "$topdir") or
             src.path.is_absolute()):
             src_fname = src.path
+        elif src.path.parts[0] == "$topout":
+            src_fname = pathlib.Path(*src.path.parts[1:])
         else:
             src_fname = pathlib.Path("$srcdir", src.path)
         obj_fname = pathlib.Path("$outdir", src_fname.stem).with_suffix(".o")

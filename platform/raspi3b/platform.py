@@ -44,5 +44,4 @@ def cxx_target(name: str):
 def write_build_files():
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         writer.variable("topdir", fwbuild.topdir.as_posix())
-        writer.variable("topout", ".")
         toolchain.write_ninja_file(writer, firmware)

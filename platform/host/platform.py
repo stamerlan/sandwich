@@ -26,7 +26,6 @@ def cxx_target(name: str):
 def write_build_files():
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         writer.variable("topdir", fwbuild.topdir.as_posix())
-        writer.variable("topout", ".")
         writer.newline()
 
         for name, target in targets.items():
@@ -34,6 +33,6 @@ def write_build_files():
                 toolchain.write_ninja_file(writer, target)
             else:
                 build_filename = pathlib.Path(name, f"{name}-build.ninja")
-                writer.subninja(f"$topout/{build_filename.as_posix()}")
+                writer.subninja(f"${build_filename.as_posix()}")
                 with fwbuild.utils.ninja_writer(fwbuild.topout / build_filename) as target_writer:
                     toolchain.write_ninja_file(target_writer, target, build_filename.parent)
