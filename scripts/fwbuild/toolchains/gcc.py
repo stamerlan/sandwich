@@ -1,9 +1,12 @@
+import fwbuild
 import fwbuild.targets.cxx_app
 import fwbuild.utils
 import os
 import pathlib
 import subprocess
 import sys
+
+fwbuild.add_conf_file(__file__)
 
 class program_ld(fwbuild.utils.program):
     @property
