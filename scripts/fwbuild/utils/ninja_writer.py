@@ -43,7 +43,6 @@ class ninja_writer(object):
             generator=True,
             description="CONFIGURE")
         self.writer.build(self.build_file, "configure",
-            implicit=sorted(fwbuild.conf_files),
-            variables={"topdir": fwbuild.topdir.as_posix()})
+            implicit=sorted(fwbuild.conf_files))
 
         self.file.close()
