@@ -6,38 +6,46 @@ import pathlib
 import shlex
 import sys
 
-_kernel8_target = None
+firmware = None
 _toolchain: fwbuild.toolchains.gcc = \
     fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 _configure_path = pathlib.Path(sys.modules["__main__"].__file__).as_posix()
 
+class platform_module(fwbuild.targets.cxx_module):
+    def __init__(self, target: fwbuild.targets.cxx_app,
+                 toolchain : fwbuild.toolchains.gcc):
+        super().__init__()
+        self.src("startup.S", "init.cc")
+        self.src("retarget.cc", variables={"cxxflags": "$cxxflags -fno-lto"})
+
+        # Add necessary flags to target
+        target.gen_binary = True
+        target.cxxflags += "-march=armv8-a+crc", "-mcpu=cortex-a53"
+        target.ldflags += "-nostartfiles", "-specs=nosys.specs"
+        target.ldflags += "-flto"
+        if toolchain.ld.version >= (2, 39):
+            target.ldflags += "-Wl,--no-warn-rwx-segment"
+        target.ldscript = "$topdir/platform/raspi3b/raspi3b.ld"
+        target.ldlibs += "-lgcc"
+
 def cxx_target(name: str):
-    global _kernel8_target
-    if _kernel8_target is not None:
+    global firmware
+    if firmware is not None:
         raise RuntimeError("raspi3b target supports one target only")
 
     srcdir = fwbuild.utils.get_caller_filename().parent
-    platform_dir = pathlib.Path(__file__).parent
-    if platform_dir.is_relative_to(srcdir):
-        platform_dir = pathlib.Path("$srcdir", platform_dir.relative_to(srcdir))
+    if srcdir.is_relative_to(fwbuild.topdir):
+        srcdir = pathlib.Path("$topdir", srcdir.relative_to(fwbuild.topdir))
 
-    _kernel8_target = fwbuild.targets.cxx_app("kernel8", srcdir=srcdir)
-    _kernel8_target.gen_binary = True
-    _kernel8_target.cxxflags += "-march=armv8-a+crc", "-mcpu=cortex-a53"
-    _kernel8_target.ldflags += "-nostartfiles", "-specs=nosys.specs"
-    _kernel8_target.ldflags += "-flto"
-    if _toolchain.ld.version >= (2, 39):
-        _kernel8_target.ldflags += "-Wl,--no-warn-rwx-segment"
-    _kernel8_target.ldscript = platform_dir / "raspi3b.ld"
-    _kernel8_target.ldlibs += "-lgcc"
+    firmware = fwbuild.targets.cxx_app("kernel8", srcdir)
+    firmware.submodule(platform_module(firmware, _toolchain))
 
-    _kernel8_target.src([platform_dir / "startup.S", platform_dir / "init.cc"])
-    _kernel8_target.src(platform_dir / "retarget.cc",
-        variables={"cxxflags": "$cxxflags -fno-lto"})
-
-    return _kernel8_target
+    return firmware
 
 @atexit.register
 def write_build_files():
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
-        _toolchain.write_ninja_file(writer, _kernel8_target)
+        writer.variable("topdir", fwbuild.topdir.as_posix())
+        writer.variable("topout", fwbuild.topout.as_posix())
+
+        _toolchain.write_ninja_file(writer, firmware)
