@@ -36,12 +36,10 @@ class ninja_writer(object):
         return self.writer
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        cmd = ' '.join(map(shlex.quote, sys.argv))
-
         self.writer.newline()
         self.writer.comment("Regenerate build file if build script changed")
         self.writer.rule("configure",
-            command=to_shell(f"cd \"{pathlib.Path.cwd()}\" && \"{sys.executable}\" {cmd}"),
+            command=fwbuild.utils.shell_cmd().cd(pathlib.Path.cwd()).cmd(sys.executable, sys.argv),
             generator=True,
             description="CONFIGURE")
         self.writer.build(self.build_file, "configure",

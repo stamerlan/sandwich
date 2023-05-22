@@ -5,11 +5,6 @@ import pathlib
 import subprocess
 import sys
 
-def to_shell(cmdline: str):
-    if sys.platform == "win32":
-        return f'cmd /c "{cmdline}"'
-    else:
-        return cmdline
 class program_ld(fwbuild.utils.program):
     @property
     def version(self):
@@ -146,7 +141,9 @@ class gcc(object):
         writer.newline()
 
         writer.rule("objdump",
-            command=to_shell("$objdump --source --disassemble-all --demangle --include=$srcdir $in > $out"),
+            command=fwbuild.utils.shell_cmd(
+                "$objdump --source --disassemble-all --demangle --include=$topdir $in",
+                stdout="$out"),
             description="OBJDUMP $out")
         writer.newline()
 
