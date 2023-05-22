@@ -25,8 +25,8 @@ class ninja_writer(object):
         self.writer = None
 
         filename = pathlib.Path(filename)
-        if filename.is_relative_to(fwbuild.outdir):
-            filename = filename.relative_to(fwbuild.outdir)
+        if filename.is_relative_to(fwbuild.topout):
+            filename = filename.relative_to(fwbuild.topout)
         self.build_file = filename.as_posix()
 
     def __enter__(self):
@@ -46,6 +46,6 @@ class ninja_writer(object):
             description="CONFIGURE")
         self.writer.build(self.build_file, "configure",
             implicit=sorted(fwbuild.conf_files),
-            variables={"topsrcdir": fwbuild.srcdir.as_posix()})
+            variables={"topdir": fwbuild.topdir.as_posix()})
 
         self.file.close()

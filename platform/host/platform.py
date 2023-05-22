@@ -36,7 +36,7 @@ def write_build_files():
             build_filename = "build.ninja"
             outdir = "."
 
-        with fwbuild.utils.ninja_writer(fwbuild.outdir / build_filename) as writer:
+        with fwbuild.utils.ninja_writer(fwbuild.topout / build_filename) as writer:
             toolchain.write_ninja_file(writer, target, outdir=outdir)
 
     if len(targets) > 1:

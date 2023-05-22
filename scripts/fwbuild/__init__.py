@@ -6,23 +6,23 @@ import sys
 if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
-# Setup default srcdir and outdir
-srcdir = pathlib.Path(sys.modules["__main__"].__file__).parent
-if srcdir.samefile(pathlib.Path.cwd()):
-    outdir = pathlib.Path("bin/")
+# Setup top source directory and top output directory
+topdir = pathlib.Path(sys.modules["__main__"].__file__).parent
+if topdir.samefile(pathlib.Path.cwd()):
+    topout = pathlib.Path("bin/")
 else:
-    outdir = pathlib.Path(".")
+    topout = pathlib.Path(".")
 
 # Set of files used during configuration. If any file in the list changed
 # configure script has to be run again.
-# Each path is either absolute or relative to fwbuild.srcdir and starts with
-# $topsrcdir.
+# Each path is either absolute or relative to fwbuild.topdir and starts with
+# $topdir.
 conf_files: set[str] = set()
 
 def add_conf_file(filename: str | pathlib.Path):
     filename = pathlib.Path(filename)
-    if filename.is_relative_to(srcdir):
-        filename = pathlib.Path("$topsrcdir", filename.relative_to(srcdir))
+    if filename.is_relative_to(topdir):
+        filename = pathlib.Path("$topdir", filename.relative_to(topdir))
     conf_files.add(filename.as_posix())
 
 # Add this file and include.py to conf_files
