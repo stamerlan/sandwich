@@ -8,7 +8,6 @@ import sys
 
 targets: dict[str, fwbuild.targets.cxx_app] = {}
 toolchain = fwbuild.toolchains.gcc.find()
-_configure_path = pathlib.Path(sys.modules["__main__"].__file__).as_posix()
 
 def cxx_target(name: str):
     global targets
