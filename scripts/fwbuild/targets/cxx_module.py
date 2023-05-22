@@ -30,8 +30,8 @@ class cxx_module(target_base):
             for key, value in s.vars.items():
                 lines.append(f"      {key}: {value}")
         for mod in self.modules:
-            for l in str(mod):
-                lines.append(f"  {l}")
+            for l in str(mod).split("\n"):
+                lines.append("  " + l)
         return "\n".join(lines)
 
     @property
