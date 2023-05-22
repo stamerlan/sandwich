@@ -4,13 +4,11 @@ import fwbuild.utils
 import pathlib
 
 class cxx_module(target_base):
-    def __init__(self, name: str, parent: "cxx_module",
-                 srcdir: pathlib.Path | str):
+    def __init__(self, name: str, srcdir: pathlib.Path | str):
         super().__init__()
         fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
         self._name = name
-        self._parent = parent
         self._srcdir = pathlib.Path(srcdir)
 
         self._asflags  = fwbuild.utils.str_list()
@@ -59,10 +57,6 @@ class cxx_module(target_base):
         return self._name
 
     @property
-    def parent(self) -> Optional["cxx_module"]:
-        return self._parent
-
-    @property
     def sources(self) -> list[fwbuild.utils.src_path]:
         return self._src
 
@@ -76,6 +70,6 @@ class cxx_module(target_base):
             self._src.append(fwbuild.utils.src_path(filename, **vars))
 
     def submodule(self, name: str, srcdir: pathlib.Path | str) -> "cxx_module":
-        submod = cxx_module(name, self, srcdir)
+        submod = cxx_module(name, srcdir)
         self._modules.append(submod)
         return submod
