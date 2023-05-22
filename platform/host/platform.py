@@ -25,9 +25,6 @@ def cxx_target(name: str):
 
 @atexit.register
 def write_build_files():
-    interpreter_path = pathlib.Path(sys.executable).as_posix()
-    cmdline = ' '.join(map(shlex.quote, sys.argv[1:]))
-
     for name, target in targets.items():
         if len(targets) > 1:
             build_filename = name + "-build.ninja"
