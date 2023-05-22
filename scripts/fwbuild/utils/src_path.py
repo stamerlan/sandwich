@@ -4,7 +4,14 @@ class src_path(object):
     """ Source file path """
 
     def __init__(self, path: str | pathlib.Path, **vars):
-        self._path = pathlib.Path(path)
+        path = pathlib.Path(path)
+        if (path.parts[0] in ("$outdir", "$srcdir", "$topdir") or
+                path.is_absolute()):
+            self._path = path
+        elif path.parts[0] == "$topout":
+            self._path = pathlib.Path(*path.parts[1:])
+        else:
+            self._path = pathlib.Path("$srcdir", path)
         self._vars = {**vars}
 
     @property

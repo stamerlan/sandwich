@@ -26,22 +26,13 @@ def add_compile_build_statements(writer: fwbuild.utils.ninja_syntax.Writer,
 
     objs = []
     for src in module.sources:
-        if (src.path.parts[0] in ("$outdir", "$srcdir", "$topdir") or
-            src.path.is_absolute()):
-            src_fname = src.path
-        elif src.path.parts[0] == "$topout":
-            src_fname = pathlib.Path(*src.path.parts[1:])
-        else:
-            src_fname = pathlib.Path("$srcdir", src.path)
-        obj_fname = pathlib.Path("$outdir", src_fname.stem).with_suffix(".o")
-
-        src_fname = src_fname.as_posix()
-        obj_fname = obj_fname.as_posix()
+        obj_fname = pathlib.Path("$outdir", src.path.stem) \
+            .with_suffix(".o").as_posix()
 
         if src.path.suffix in (".cc", ".cxx", ".cpp"):
-            objs += writer.build(obj_fname, "cxx", src_fname, **src.vars)
+            objs += writer.build(obj_fname, "cxx", str(src), **src.vars)
         elif src.path.suffix in (".S"):
-            objs += writer.build(obj_fname, "as", src_fname, **src.vars)
+            objs += writer.build(obj_fname, "as", str(src), **src.vars)
         else:
             raise RuntimeError(f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
 
