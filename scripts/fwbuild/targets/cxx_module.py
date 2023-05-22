@@ -17,6 +17,8 @@ class cxx_module(target_base):
         self._cxxflags = fwbuild.utils.str_list()
         self._src: list[fwbuild.utils.src_path] = []
 
+        self._modules: list["cxx_module"] = []
+
     @property
     def asflags(self) -> fwbuild.utils.str_list:
         return self._asflags
@@ -32,6 +34,10 @@ class cxx_module(target_base):
     @cxxflags.setter
     def cxxflags(self, value):
         self._cxxflags = fwbuild.utils.str_list(value)
+
+    @property
+    def modules(self) -> list["cxx_module"]:
+        return self._modules
 
     @property
     def name(self) -> str:
@@ -52,3 +58,8 @@ class cxx_module(target_base):
         else:
             for filename in sources:
                 self._src.append(fwbuild.utils.src_path(filename, **vars))
+
+    def submodule(self, name: str, srcdir: pathlib.Path | str) -> "cxx_module":
+        submod = cxx_module(name, self, srcdir)
+        self._modules.append(submod)
+        return submod
