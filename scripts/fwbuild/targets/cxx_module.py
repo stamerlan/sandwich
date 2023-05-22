@@ -22,8 +22,8 @@ class cxx_module(target_base):
     def __str__(self) -> str:
         lines = []
         lines.append(f'Module "{self.name}" at {self.srcdir}')
-        lines.append(f"  asflags: {self.asflags}")
-        lines.append(f"  cxxflags: {self.cxxflags}")
+        lines.append(f"  asflags:    {self.asflags}")
+        lines.append(f"  cxxflags:   {self.cxxflags}")
         lines.append(f"  Sources:")
         for s in self.sources:
             lines.append(f"    {s}")
@@ -70,11 +70,8 @@ class cxx_module(target_base):
     def srcdir(self) -> str:
         return self._srcdir.as_posix()
 
-    def src(self, sources, **vars):
+    def src(self, *sources, **vars):
         """ Add source file/files to compile list """
-        if isinstance(sources, (str, pathlib.Path)):
-            sources = [sources]
-
         for filename in sources:
             self._src.append(fwbuild.utils.src_path(filename, **vars))
 
