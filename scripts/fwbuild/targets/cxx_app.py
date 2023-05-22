@@ -1,6 +1,7 @@
 from .cxx_module import cxx_module
 import fwbuild
 import fwbuild.utils
+import itertools
 import pathlib
 
 class cxx_app(cxx_module):
@@ -18,21 +19,19 @@ class cxx_app(cxx_module):
         self._gen_dasm = False
         self._gen_map = False
 
-    @property
-    def asflags(self) -> fwbuild.utils.str_list:
-        return self._asflags
+    def __str__(self) -> str:
+        lines = []
+        lines.append(f"{self.name} {type(self)} at {self.srcdir}")
+        lines.append(f"  gen_binary: {self.gen_binary}")
+        lines.append(f"  gen_dasm:   {self.gen_dasm}")
+        lines.append(f"  gen_map:    {self.gen_map}")
+        lines.append("")
+        lines.append(f"  ldflags:    {self.ldflags}")
+        lines.append(f"  ldlibs:     {self.ldlibs}")
+        if self.ldscript:
+            lines.append(f"  ldscript:   {self.ldscript}")
 
-    @asflags.setter
-    def asflags(self, value):
-        self._asflags = fwbuild.utils.str_list(value)
-
-    @property
-    def cxxflags(self) -> fwbuild.utils.str_list:
-        return self._cxxflags
-
-    @cxxflags.setter
-    def cxxflags(self, value):
-        self._cxxflags = fwbuild.utils.str_list(value)
+        return "\n".join(itertools.chain(lines, super().__str__().split("\n")[1:]))
 
     @property
     def gen_binary(self) -> bool:
@@ -86,23 +85,3 @@ class cxx_app(cxx_module):
             self._ldscript = None
         else:
             self._ldscript = fwbuild.utils.src_path(value)
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def sources(self) -> list[fwbuild.utils.src_path]:
-        return self._src
-
-    @property
-    def srcdir(self) -> str:
-        return self._srcdir.as_posix()
-
-    def src(self, sources, **vars):
-        """ Add source file/files to compile list """
-        if isinstance(sources, (str, pathlib.Path)):
-            self._src.append(fwbuild.utils.src_path(sources, **vars))
-        else:
-            for filename in sources:
-                self._src.append(fwbuild.utils.src_path(filename, **vars))
