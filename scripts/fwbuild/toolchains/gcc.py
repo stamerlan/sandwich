@@ -20,6 +20,45 @@ class program_ld(fwbuild.utils.program):
         return self._version
 
 
+def add_compile_build_statements(writer: fwbuild.utils.ninja_syntax.Writer,
+                                 module: fwbuild.targets.cxx_module,
+                                 outdir: str | pathlib.Path = ".") -> list[str]:
+    outdir = pathlib.Path(outdir)
+
+    writer.variable("srcdir", module.srcdir)
+    writer.variable("outdir", outdir.as_posix())
+    writer.newline()
+
+    objs = []
+    for src in module.sources:
+        if (src.path.parts[0] in ("$outdir", "$srcdir", "$topout", "$topdir") or
+            src.path.is_absolute()):
+            src_fname = src.path
+        else:
+            src_fname = pathlib.Path("$srcdir", src.path)
+        obj_fname = pathlib.Path("$outdir", src_fname.stem).with_suffix(".o")
+
+        src_fname = src_fname.as_posix()
+        obj_fname = obj_fname.as_posix()
+
+        if src.path.suffix in (".cc", ".cxx", ".cpp"):
+            objs += writer.build(obj_fname, "cxx", src_fname, **src.vars)
+        elif src.path.suffix in (".S"):
+            objs += writer.build(obj_fname, "as", src_fname, **src.vars)
+        else:
+            raise RuntimeError(f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
+
+    for submodule in module.submodules:
+        submodule_buildfile = outdir / submodule.name / f"{submodule.name}-build.ninja"
+        writer.subninja(submodule_buildfile.as_posix())
+        with fwbuild.utils.ninja_writer(fwbuild.topout / submodule_buildfile) as submodule_writer:
+            submodule_objs = add_compile_build_statements(submodule_writer,
+                submodule, submodule_buildfile.parent)
+        for o in submodule_objs:
+            objs.append(o.replace("$outdir/", f"$outdir/{submodule.name}/"))
+
+    return objs
+
 class gcc(object):
     @staticmethod
     def list(prefix="", dirs=[]):
@@ -73,12 +112,6 @@ class gcc(object):
         writer.comment(f"Build {target.name} using {self._prefix}gcc")
         writer.newline()
 
-        writer.variable("srcdir", target.srcdir)
-        if isinstance(outdir, pathlib.Path):
-            outdir = outdir.as_posix()
-        writer.variable("outdir", outdir)
-        writer.newline()
-
         writer.variable("ar", self._ar)
         writer.variable("as", self._cc)
         writer.variable("cc", self._cc)
@@ -123,22 +156,7 @@ class gcc(object):
         writer.newline()
 
         # Compile
-        objs = []
-        for src in target.sources:
-            if src.path.is_absolute():
-                obj_filename = src.filename.with_suffix(".o").name
-            elif src.path.parts[0] in ("$outdir", "$srcdir"):
-                obj_filename = pathlib.Path("$outdir", *src.path.parts[1:])
-                obj_filename = obj_filename.with_suffix(".o").as_posix()
-            else:
-                raise RuntimeError(f"{target.name}: Unexpected source file path '{src}'")
-
-            if src.path.suffix in (".cc", ".cxx", ".cpp"):
-                objs += writer.build(obj_filename, "cxx", str(src), **src.vars)
-            elif src.path.suffix in (".S"):
-                objs += writer.build(obj_filename, "as", str(src), **src.vars)
-            else:
-                raise RuntimeError(f"{target.name}: Unsupported source file suffix '{src}'")
+        objs = add_compile_build_statements(writer, target, outdir)
         writer.newline()
 
         # Link
