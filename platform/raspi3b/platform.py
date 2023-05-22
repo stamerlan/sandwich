@@ -39,8 +39,5 @@ def cxx_target(name: str):
 
 @atexit.register
 def write_build_files():
-    interpreter_path = pathlib.Path(sys.executable).as_posix()
-    cmdline = ' '.join(map(shlex.quote, sys.argv[1:]))
-
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         _toolchain.write_ninja_file(writer, _kernel8_target)
