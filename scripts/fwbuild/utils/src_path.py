@@ -5,10 +5,6 @@ class src_path(object):
 
     def __init__(self, path: str | pathlib.Path, **vars):
         self._path = pathlib.Path(path)
-        if (self._path.parts[0] not in ("$outdir", "$srcdir") and
-           not self._path.is_absolute()):
-            self._path = pathlib.Path("$srcdir") / self._path
-
         self._vars = {**vars}
 
     @property
