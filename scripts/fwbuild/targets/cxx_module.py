@@ -14,7 +14,10 @@ class cxx_module(target_base):
         self._name = name
         if srcdir is None:
             srcdir = fwbuild.utils.get_caller_filename().parent
-        self._srcdir = pathlib.Path(srcdir)
+        srcdir = pathlib.Path(srcdir)
+        if srcdir.is_relative_to(fwbuild.topdir):
+            srcdir = pathlib.Path("$topdir", srcdir.relative_to(fwbuild.topdir))
+        self._srcdir = srcdir
 
         self._asflags  = fwbuild.utils.str_list()
         self._cxxflags = fwbuild.utils.str_list()
