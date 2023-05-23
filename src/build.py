@@ -13,7 +13,8 @@ app.cxxflags += "-ffile-prefix-map=$srcdir/="
 
 app.ldflags += "-flto"
 
+uart_drv = "host" if fwbuild.platform.__name__ == "fwbuild.platform.host" else "bcm2837_aux_uart"
 drivers = fwbuild.include(fwbuild.topdir / "drivers").drivers
-app.submodule(drivers(app))
+app.submodule(drivers(app, uart_drv=uart_drv))
 
 app.src("main.cc")
