@@ -5,7 +5,7 @@ void uart::init(void)
 {
 }
 
-void uart::putchar(int c)
+int uart::putchar(int c)
 {
-	::putchar(c);
+	return ::putchar(c);
 }

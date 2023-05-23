@@ -4,7 +4,7 @@
 namespace uart {
 
 void init(void);
-void putchar(int c);
+int putchar(int c);
 
 } /* namespace uart */
 
