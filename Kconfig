@@ -1,0 +1,9 @@
+choice
+    prompt "Platform"
+
+    config PLATFORM_HOST
+        bool "Host"
+
+    config PLATFORM_RASPI3B
+        bool "Raspberry pi 3B"
+endchoice
