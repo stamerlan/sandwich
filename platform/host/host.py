@@ -23,11 +23,16 @@ def cxx_target(name: str):
 
 @atexit.register
 def write_build_files():
-    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
+    config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
+
+    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja", config_h) as writer:
         writer.variable("topdir", fwbuild.topdir.as_posix())
         writer.newline()
 
         for name, target in targets.items():
+            if config_h is not None:
+                target.cxxflags += "-I." # Output directory
+
             if len(targets) == 1:
                 toolchain.write_ninja_file(writer, target)
             else:

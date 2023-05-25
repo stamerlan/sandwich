@@ -42,6 +42,12 @@ def cxx_target(name: str):
 
 @atexit.register
 def write_build_files():
-    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
+    global firmware
+
+    config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
+    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja", config_h) as writer:
+        if config_h is not None:
+            firmware.cxxflags += "-I." # Output directory
+
         writer.variable("topdir", fwbuild.topdir.as_posix())
         toolchain.write_ninja_file(writer, firmware)
