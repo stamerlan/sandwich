@@ -17,11 +17,7 @@ def kconfig(config: Optional[str | pathlib.Path] = None,
 
     os.environ["srctree"] = str(fwbuild.topdir)
     _kconf = kconfiglib.Kconfig(Kconfig)
-    if config is None:
-        import menuconfig
-        menuconfig.menuconfig(_kconf)
-    else:
-        _kconf.load_config(config)
+    _kconf.load_config(config)
 
     for name, sym in _kconf.syms.items():
         if name == "MODULES":
