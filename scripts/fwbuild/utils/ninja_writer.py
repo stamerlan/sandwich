@@ -17,7 +17,9 @@ class ninja_writer(object):
     call configure script if any file in fwbuild.conf_files has been changed.
     """
 
-    def __init__(self, filename, width=78):
+    def __init__(self, filename: str | pathlib.Path,
+                 config_out_files: None | str | pathlib.Path | list[None | str | pathlib.Path] = None,
+                 width=78):
         self.filename = filename
         self.width = width
 
@@ -28,6 +30,17 @@ class ninja_writer(object):
         if filename.is_relative_to(fwbuild.topout):
             filename = filename.relative_to(fwbuild.topout)
         self.build_file = filename.as_posix()
+
+        self._config_out_files: set[str] = set()
+        if not isinstance(config_out_files, list):
+            config_out_files = [config_out_files]
+        for fname in config_out_files:
+            if fname is None:
+                continue
+            fname = pathlib.Path(fname)
+            if fname.is_relative_to(fwbuild.topout):
+                fname = fname.relative_to(fwbuild.topout)
+            self._config_out_files.add(fname.as_posix())
 
     def __enter__(self):
         self.filename.parent.mkdir(parents=True, exist_ok=True)
@@ -43,6 +56,7 @@ class ninja_writer(object):
             generator=True,
             description="CONFIGURE")
         self.writer.build(self.build_file, "configure",
+            implicit_outputs=sorted(self._config_out_files),
             implicit=sorted(fwbuild.conf_files))
 
         self.file.close()
