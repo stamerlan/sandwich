@@ -52,3 +52,14 @@ def kconfig(config: Optional[str | pathlib.Path] = None,
         fwbuild.add_conf_file(kconf_fname)
 
     return fwbuild.conf
+
+def write_autoconf(filename: str | pathlib.Path, header = None):
+    global _kconf
+
+    if _kconf is None:
+        return None
+
+    filename = pathlib.Path(filename)
+    filename.parent.mkdir(parents=True, exist_ok=True)
+    _kconf.write_autoconf(filename, header)
+    return filename
