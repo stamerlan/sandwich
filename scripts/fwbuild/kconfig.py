@@ -16,7 +16,7 @@ def kconfig(config: Optional[str | pathlib.Path] = None,
         Kconfig = pathlib.Path(Kconfig)
 
     os.environ["srctree"] = str(fwbuild.topdir)
-    _kconf = kconfiglib.Kconfig(Kconfig)
+    _kconf = kconfiglib.Kconfig(Kconfig, warn_to_stderr=False)
     print(_kconf.load_config(config))
 
     for name, sym in _kconf.syms.items():
