@@ -1,4 +1,6 @@
 from .include import include
+from .kconfig import kconfig
+from argparse import Namespace
 import pathlib
 import sys
 
@@ -28,6 +30,10 @@ def add_conf_file(filename: str | pathlib.Path):
 # Add this file and include.py to conf_files
 add_conf_file(__file__)
 add_conf_file(pathlib.Path(__file__).parent / "include.py")
+add_conf_file(pathlib.Path(__file__).parent / "kconfig.py")
 
 # Target platform module
 platform = include("platform-none.py", "fwbuild.platform.none")
+
+# Configuration symbols loaded by fwbuild.kconfig()
+conf = Namespace()
