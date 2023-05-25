@@ -1,0 +1,21 @@
+config HAVE_HOST_UART
+    bool
+config HAVE_BCM2837_UART1
+    bool
+
+choice
+    prompt "UART"
+    optional
+
+    config HOST_UART
+        bool "Host"
+        depends on HAVE_HOST_UART
+        help
+            Standard library putchar() implementation
+
+    config BCM2837_UART1
+        bool "BCM2837 UART1"
+        depends on HAVE_BCM2837_UART1
+        help
+           BCM2837 auxiliary mini UART1
+endchoice

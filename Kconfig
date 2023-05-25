@@ -3,7 +3,11 @@ choice
 
     config PLATFORM_HOST
         bool "Host"
+        select HAVE_HOST_UART
 
     config PLATFORM_RASPI3B
         bool "Raspberry pi 3B"
+        select HAVE_BCM2837_UART1
 endchoice
+
+rsource "drivers/Kconfig"
