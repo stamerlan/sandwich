@@ -1,24 +1,29 @@
 from typing import Optional
+import kconfiglib
 import os
 import pathlib
+
+_kconf: Optional[kconfiglib.Kconfig] = None
 
 def kconfig(config: Optional[str | pathlib.Path] = None,
             Kconfig: Optional[str | pathlib.Path] = None):
     import fwbuild
-    import kconfiglib
+    global _kconf
 
     if Kconfig is None:
         Kconfig = fwbuild.topdir / "Kconfig"
+    else:
+        Kconfig = pathlib.Path(Kconfig)
 
     os.environ["srctree"] = str(fwbuild.topdir)
-    kconf = kconfiglib.Kconfig(Kconfig)
+    _kconf = kconfiglib.Kconfig(Kconfig)
     if config is None:
         import menuconfig
-        menuconfig.menuconfig(kconf)
+        menuconfig.menuconfig(_kconf)
     else:
-        kconf.load_config(config)
+        _kconf.load_config(config)
 
-    for name, sym in kconf.syms.items():
+    for name, sym in _kconf.syms.items():
         if name == "MODULES":
             continue
 
@@ -39,5 +44,11 @@ def kconfig(config: Optional[str | pathlib.Path] = None,
 
             raise RuntimeError(
                 f'Kconfig symbol "{name}" has unexpected type {type_str}')
+
+    for kconf_fname in _kconf.kconfig_filenames:
+        kconf_fname = pathlib.Path(kconf_fname)
+        if not kconf_fname.is_absolute():
+            kconf_fname = Kconfig.parent / kconf_fname
+        fwbuild.add_conf_file(kconf_fname)
 
     return fwbuild.conf
