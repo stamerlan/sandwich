@@ -24,9 +24,9 @@ def cxx_target(name: str):
 @atexit.register
 def write_build_files():
     config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
-    config = fwbuild.write_conf(fwbuild.topout / ".config")
+    fwbuild.write_conf(fwbuild.topout / ".config")
 
-    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja", [config_h, config]) as writer:
+    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         writer.variable("topdir", fwbuild.topdir.as_posix())
         writer.newline()
 
