@@ -1,5 +1,5 @@
 from .include import include
-from .kconfig import kconfig, write_autoconf
+from .kconfig import kconfig, write_autoconf, write_conf
 from argparse import Namespace
 import pathlib
 import sys

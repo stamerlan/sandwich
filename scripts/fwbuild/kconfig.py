@@ -53,7 +53,7 @@ def kconfig(config: Optional[str | pathlib.Path] = None,
 
     return fwbuild.conf
 
-def write_autoconf(filename: str | pathlib.Path, header = None):
+def write_autoconf(filename: str | pathlib.Path, header = None) -> Optional[pathlib.Path]:
     global _kconf
 
     if _kconf is None:
@@ -62,4 +62,15 @@ def write_autoconf(filename: str | pathlib.Path, header = None):
     filename = pathlib.Path(filename)
     filename.parent.mkdir(parents=True, exist_ok=True)
     _kconf.write_autoconf(filename, header)
+    return filename
+
+def write_conf(filename: str | pathlib.Path, header = None):
+    global _kconf
+
+    if _kconf is None:
+        return None
+
+    filename = pathlib.Path(filename)
+    filename.parent.mkdir(parents=True, exist_ok=True)
+    _kconf.write_config(filename, header, save_old=False)
     return filename

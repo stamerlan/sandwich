@@ -45,7 +45,9 @@ def write_build_files():
     global firmware
 
     config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
-    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja", config_h) as writer:
+    config = fwbuild.write_conf(fwbuild.topout / ".config")
+
+    with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja", [config_h, config]) as writer:
         if config_h is not None:
             firmware.cxxflags += "-I." # Output directory
 
