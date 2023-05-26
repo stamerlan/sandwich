@@ -5,13 +5,14 @@ import pathlib
 
 class cxx_module(target_base):
     def __init__(self, name: Optional[str] = None,
-                 srcdir: Optional[pathlib.Path | str] = None):
+                 target = None, srcdir: Optional[pathlib.Path | str] = None):
         super().__init__()
         fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
         if name is None:
             name = fwbuild.utils.get_caller_filename().stem
         self._name = name
+
         if srcdir is None:
             srcdir = fwbuild.utils.get_caller_filename().parent
         srcdir = pathlib.Path(srcdir)
@@ -23,6 +24,7 @@ class cxx_module(target_base):
         self._cxxflags = fwbuild.utils.str_list()
         self._src: list[fwbuild.utils.src_path] = []
 
+        self._target = target
         self._submodules: list["cxx_module"] = []
 
     def __str__(self) -> str:
@@ -89,7 +91,7 @@ class cxx_module(target_base):
                 raise RuntimeError(f'"{mod.__file__}" has no module class "{submodule.stem}"')
             if isinstance(cls, cxx_module):
                 raise RuntimeError(f'Unexpected module class type {cls} defined at "{mod.__file__}"')
-            submodule = cls(*args, **kwargs)
+            submodule = cls(target=self._target, *args, **kwargs)
 
         self._submodules.append(submodule)
         return self._submodules

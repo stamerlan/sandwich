@@ -10,10 +10,10 @@ toolchain: fwbuild.toolchains.gcc = \
     fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 _config_main = sys.modules["__main__"].__file__
 
-class platform_module(fwbuild.targets.cxx_module):
+class platform(fwbuild.targets.cxx_module):
     def __init__(self, target: fwbuild.targets.cxx_app,
                  toolchain : fwbuild.toolchains.gcc):
-        super().__init__()
+        super().__init__(name="platform", target=target)
         self.src("startup.S", "init.cc")
         self.src("retarget.cc", variables={"cxxflags": "$cxxflags -fno-lto"})
 
@@ -34,7 +34,7 @@ def cxx_target(name: str):
 
     srcdir = fwbuild.utils.get_caller_filename().parent
     firmware = fwbuild.targets.cxx_app("kernel8", srcdir)
-    firmware.submodule(platform_module(firmware, toolchain))
+    firmware.submodule(platform(firmware, toolchain))
 
     return firmware
 

@@ -8,7 +8,7 @@ class cxx_app(cxx_module):
     """ An executable compiled by C++ compiler """
 
     def __init__(self, name: str, srcdir: pathlib.Path | str):
-        super().__init__(name, srcdir)
+        super().__init__(name, self, srcdir)
         fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
         self._ldflags  = fwbuild.utils.str_list()
