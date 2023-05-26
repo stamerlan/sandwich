@@ -17,7 +17,7 @@ def cxx_target(name: str):
         raise RuntimeError(f'Target "{name}" already defined')
 
     srcdir = fwbuild.utils.get_caller_filename().parent
-    app = fwbuild.targets.cxx_app(name, srcdir=srcdir)
+    app = fwbuild.targets.cxx_app(name, toolchain, srcdir=srcdir)
     targets[name] = app
 
     return app

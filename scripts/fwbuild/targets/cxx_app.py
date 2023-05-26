@@ -1,4 +1,5 @@
 from .cxx_module import cxx_module
+from typing import Any
 import fwbuild
 import fwbuild.utils
 import itertools
@@ -7,7 +8,7 @@ import pathlib
 class cxx_app(cxx_module):
     """ An executable compiled by C++ compiler """
 
-    def __init__(self, name: str, srcdir: pathlib.Path | str):
+    def __init__(self, name: str, toolchain: Any, srcdir: pathlib.Path | str):
         super().__init__(name, self, srcdir)
         fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
@@ -18,6 +19,8 @@ class cxx_app(cxx_module):
         self._gen_binary = False
         self._gen_dasm = False
         self._gen_map = False
+
+        self._toolchain = toolchain
 
     def __str__(self) -> str:
         lines = []
@@ -85,3 +88,7 @@ class cxx_app(cxx_module):
             self._ldscript = None
         else:
             self._ldscript = fwbuild.utils.src_path(value)
+
+    @property
+    def toolchain(self):
+        return self._toolchain

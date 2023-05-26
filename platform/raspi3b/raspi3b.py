@@ -11,8 +11,7 @@ toolchain: fwbuild.toolchains.gcc = \
 _config_main = sys.modules["__main__"].__file__
 
 class platform(fwbuild.targets.cxx_module):
-    def __init__(self, target: fwbuild.targets.cxx_app,
-                 toolchain : fwbuild.toolchains.gcc):
+    def __init__(self, target: fwbuild.targets.cxx_app):
         super().__init__(name="platform", target=target)
         self.src("startup.S", "init.cc")
         self.src("retarget.cc", variables={"cxxflags": "$cxxflags -fno-lto"})
@@ -22,7 +21,7 @@ class platform(fwbuild.targets.cxx_module):
         target.cxxflags += "-march=armv8-a+crc", "-mcpu=cortex-a53"
         target.ldflags += "-nostartfiles", "-specs=nosys.specs"
         target.ldflags += "-flto"
-        if toolchain.ld.version >= (2, 39):
+        if target.toolchain.ld.version >= (2, 39):
             target.ldflags += "-Wl,--no-warn-rwx-segment"
         target.ldscript = "$topdir/platform/raspi3b/raspi3b.ld"
         target.ldlibs += "-lgcc"
@@ -33,8 +32,8 @@ def cxx_target(name: str):
         raise RuntimeError("raspi3b target supports one target only")
 
     srcdir = fwbuild.utils.get_caller_filename().parent
-    firmware = fwbuild.targets.cxx_app("kernel8", srcdir)
-    firmware.submodule(platform(firmware, toolchain))
+    firmware = fwbuild.targets.cxx_app("kernel8", toolchain, srcdir)
+    firmware.submodule(platform)
 
     return firmware
 
