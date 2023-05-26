@@ -77,18 +77,19 @@ class cxx_module(target_base):
         for filename in sources:
             self._src.append(fwbuild.utils.src_path(filename, **vars))
 
-    def submodule(self, submodule: Union["cxx_module", str, pathlib.Path], *args, **kwargs):
-        if isinstance(submodule, cxx_module):
-            self._submodules.append(submodule)
-            return
+    def submodule(self, submodule: Union["cxx_module", str, pathlib.Path],
+                  *args, **kwargs) -> "cxx_module":
+        if not isinstance(submodule, cxx_module):
+            mod_path = pathlib.Path(submodule)
+            if not mod_path.is_absolute():
+                mod_path = fwbuild.utils.get_caller_filename().parent / mod_path
+            mod = fwbuild.include(mod_path)
+            cls = getattr(mod, mod_path.stem, None)
+            if cls is None:
+                raise RuntimeError(f'"{mod.__file__}" has no module class "{submodule.stem}"')
+            if isinstance(cls, cxx_module):
+                raise RuntimeError(f'Unexpected module class type {cls} defined at "{mod.__file__}"')
+            submodule = cls(*args, **kwargs)
 
-        submodule = pathlib.Path(submodule)
-        if not submodule.is_absolute():
-            submodule = fwbuild.utils.get_caller_filename().parent / submodule
-        mod = fwbuild.include(submodule)
-        cls = getattr(mod, submodule.stem, None)
-        if cls is None:
-            raise RuntimeError(f'"{mod.__file__}" has no module class "{submodule.stem}"')
-        if isinstance(cls, cxx_module):
-            raise RuntimeError(f'Unexpected module class type {cls} defined at "{mod.__file__}"')
-        self._submodules.append(cls(*args, **kwargs))
+        self._submodules.append(submodule)
+        return self._submodules
