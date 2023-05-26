@@ -13,7 +13,6 @@ app.cxxflags += "-ffile-prefix-map=$srcdir/="
 
 app.ldflags += "-flto"
 
-drivers = fwbuild.include(fwbuild.topdir / "drivers").drivers
-app.submodule(drivers(app))
+app.submodule(fwbuild.topdir / "drivers", app)
 
 app.src("main.cc")

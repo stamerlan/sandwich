@@ -1,5 +1,5 @@
 from .target_base import target_base
-from typing import Optional
+from typing import Optional, Union
 import fwbuild.utils
 import pathlib
 
@@ -77,5 +77,18 @@ class cxx_module(target_base):
         for filename in sources:
             self._src.append(fwbuild.utils.src_path(filename, **vars))
 
-    def submodule(self, submodule: "cxx_module"):
-        self._submodules.append(submodule)
+    def submodule(self, submodule: Union["cxx_module", str, pathlib.Path], *args, **kwargs):
+        if isinstance(submodule, cxx_module):
+            self._submodules.append(submodule)
+            return
+
+        submodule = pathlib.Path(submodule)
+        if not submodule.is_absolute():
+            submodule = fwbuild.utils.get_caller_filename().parent / submodule
+        mod = fwbuild.include(submodule)
+        cls = getattr(mod, submodule.stem, None)
+        if cls is None:
+            raise RuntimeError(f'"{mod.__file__}" has no module class "{submodule.stem}"')
+        if isinstance(cls, cxx_module):
+            raise RuntimeError(f'Unexpected module class type {cls} defined at "{mod.__file__}"')
+        self._submodules.append(cls(*args, **kwargs))
