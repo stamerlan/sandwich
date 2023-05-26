@@ -1,5 +1,5 @@
 from .target_base import target_base
-from typing import Optional, Union
+from typing import Optional, Type, Union
 import fwbuild.utils
 import pathlib
 
@@ -79,9 +79,11 @@ class cxx_module(target_base):
         for filename in sources:
             self._src.append(fwbuild.utils.src_path(filename, **vars))
 
-    def submodule(self, submodule: Union["cxx_module", str, pathlib.Path],
+    def submodule(self, submodule: Union["cxx_module", Type["cxx_module"], str, pathlib.Path],
                   *args, **kwargs) -> "cxx_module":
-        if not isinstance(submodule, cxx_module):
+        if isinstance(submodule, type) and issubclass(submodule, cxx_module):
+            submodule = submodule(target=self._target, *args, **kwargs)
+        elif not isinstance(submodule, cxx_module):
             mod_path = pathlib.Path(submodule)
             if not mod_path.is_absolute():
                 mod_path = fwbuild.utils.get_caller_filename().parent / mod_path
