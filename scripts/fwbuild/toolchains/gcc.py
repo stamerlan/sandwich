@@ -1,3 +1,4 @@
+from typing import List
 import fwbuild
 import fwbuild.targets.cxx_app
 import fwbuild.utils
@@ -75,7 +76,7 @@ class gcc(object):
                 pass
 
     @staticmethod
-    def find(prefix="", dirs=[]):
+    def find(prefix="", dirs=[]) -> 'gcc':
         try:
             return next(gcc.list(prefix, dirs))
         except StopIteration:
@@ -91,7 +92,7 @@ class gcc(object):
         self._prefix = prefix
 
     @property
-    def ld(self):
+    def ld(self) -> fwbuild.utils.program:
         return self._ld
 
     def __str__(self) -> str:
