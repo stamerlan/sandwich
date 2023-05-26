@@ -60,7 +60,7 @@ def write_autoconf(filename: str | pathlib.Path, header = None) -> Optional[path
     _kconf.write_autoconf(filename, header)
     return filename
 
-def write_conf(filename: str | pathlib.Path, header = None):
+def write_conf(filename: str | pathlib.Path, header = None) -> Optional[pathlib.Path]:
     global _kconf
 
     if _kconf is None:

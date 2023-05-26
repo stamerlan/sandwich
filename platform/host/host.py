@@ -8,6 +8,7 @@ import sys
 
 targets: dict[str, fwbuild.targets.cxx_app] = {}
 toolchain = fwbuild.toolchains.gcc.find()
+_config_main = sys.modules["__main__"].__file__
 
 def cxx_target(name: str):
     global targets
@@ -24,7 +25,7 @@ def cxx_target(name: str):
 @atexit.register
 def write_build_files():
     config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
-    fwbuild.write_conf(fwbuild.topout / ".config")
+    config   = fwbuild.write_conf(fwbuild.topout / ".config")
 
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         writer.variable("topdir", fwbuild.topdir.as_posix())
@@ -41,3 +42,17 @@ def write_build_files():
                 writer.subninja(f"${build_filename.as_posix()}")
                 with fwbuild.utils.ninja_writer(fwbuild.topout / build_filename) as target_writer:
                     toolchain.write_ninja_file(target_writer, target, build_filename.parent)
+        writer.newline()
+
+        configure_cmd = fwbuild.utils.shell_cmd()
+        if config is not None:
+            configure_cmd.cmd(sys.executable, [_config_main, "-c", ".config"])
+        else:
+            configure_cmd.cd(pathlib.Path.cwd())
+            configure_cmd.cmd(sys.executable, sys.argv)
+
+        writer.comment("Regenerate build file if build script changed")
+        writer.rule("configure", command=configure_cmd, generator=True,
+                    description="CONFIGURE")
+        writer.build("build.ninja", "configure",
+            implicit=sorted(fwbuild.conf_files))

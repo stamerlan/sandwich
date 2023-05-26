@@ -8,6 +8,7 @@ import sys
 firmware = None
 toolchain: fwbuild.toolchains.gcc = \
     fwbuild.toolchains.gcc.find("aarch64-none-elf-")
+_config_main = sys.modules["__main__"].__file__
 
 class platform_module(fwbuild.targets.cxx_module):
     def __init__(self, target: fwbuild.targets.cxx_app,
@@ -45,11 +46,27 @@ def write_build_files():
     global firmware
 
     config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
-    fwbuild.write_conf(fwbuild.topout / ".config")
+    config   = fwbuild.write_conf(fwbuild.topout / ".config")
 
     with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
         if config_h is not None:
             firmware.cxxflags += "-I." # Output directory
 
         writer.variable("topdir", fwbuild.topdir.as_posix())
+        writer.newline()
+
         toolchain.write_ninja_file(writer, firmware)
+        writer.newline()
+
+        configure_cmd = fwbuild.utils.shell_cmd()
+        if config is not None:
+            configure_cmd.cmd(sys.executable, [_config_main, "-c", ".config"])
+        else:
+            configure_cmd.cd(pathlib.Path.cwd())
+            configure_cmd.cmd(sys.executable, sys.argv)
+
+        writer.comment("Regenerate build file if build script changed")
+        writer.rule("configure", command=configure_cmd, generator=True,
+                    description="CONFIGURE")
+        writer.build("build.ninja", "configure",
+            implicit=sorted(fwbuild.conf_files))
