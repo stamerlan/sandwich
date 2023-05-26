@@ -33,9 +33,6 @@ def cxx_target(name: str):
         raise RuntimeError("raspi3b target supports one target only")
 
     srcdir = fwbuild.utils.get_caller_filename().parent
-    if srcdir.is_relative_to(fwbuild.topdir):
-        srcdir = pathlib.Path("$topdir", srcdir.relative_to(fwbuild.topdir))
-
     firmware = fwbuild.targets.cxx_app("kernel8", srcdir)
     firmware.submodule(platform_module(firmware, toolchain))
 
