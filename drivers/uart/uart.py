@@ -10,7 +10,4 @@ class uart(fwbuild.targets.cxx_module):
         elif fwbuild.conf.BCM2837_UART1:
             self.src("src/bcm2837_aux_uart.cc")
 
-        this_dir = pathlib.Path(__file__).parent
-        if this_dir.is_relative_to(fwbuild.topdir):
-            this_dir = pathlib.Path("$topdir", this_dir.relative_to(fwbuild.topdir))
-        target.cxxflags += "-I" + (this_dir / "include").as_posix()
+        target.include_this_dir("include")

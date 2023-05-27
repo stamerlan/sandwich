@@ -22,6 +22,7 @@ class cxx_module(target_base):
 
         self._asflags  = fwbuild.utils.str_list()
         self._cxxflags = fwbuild.utils.str_list()
+        self._includes: list[fwbuild.utils.src_path] = []
         self._src: list[fwbuild.utils.src_path] = []
 
         self._target = target
@@ -59,6 +60,10 @@ class cxx_module(target_base):
         self._cxxflags = fwbuild.utils.str_list(value)
 
     @property
+    def includes(self) -> list[fwbuild.utils.src_path]:
+        return self._includes
+
+    @property
     def submodules(self) -> list["cxx_module"]:
         return self._submodules
 
@@ -73,6 +78,24 @@ class cxx_module(target_base):
     @property
     def srcdir(self) -> str:
         return self._srcdir.as_posix()
+
+    def include_this_dir(self,
+            include_subdir: Optional[str | pathlib.Path] = None):
+        """ Add caller's directory to C preprocessor search path """
+        this_dir = fwbuild.utils.get_caller_filename().parent
+        if this_dir.is_relative_to(fwbuild.topdir):
+            this_dir = pathlib.Path("$topdir",
+                                    this_dir.relative_to(fwbuild.topdir))
+
+        if include_subdir is None:
+            self.include(this_dir)
+        else:
+            self.include(this_dir / include_subdir)
+
+    def include(self, *include_dirs):
+        """ Add directories to C prerprocessor search path """
+        for d in include_dirs:
+            self._includes.append(fwbuild.utils.src_path(d))
 
     def src(self, *sources, **vars):
         """ Add source file/files to compile list """

@@ -1,4 +1,5 @@
 from typing import List
+import itertools
 import fwbuild
 import fwbuild.targets.cxx_app
 import fwbuild.utils
@@ -27,14 +28,21 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
     writer.variable("srcdir", module.srcdir)
     writer.variable("outdir", outdir.as_posix())
 
-    for flag in ["asflags", "cxxflags"]:
-        mod_flags = getattr(module, flag, None)
-        if not mod_flags:
+    flags = {
+        "asflags" : str(module.asflags),
+        "cxxflags": " ".join(itertools.chain(
+                            module.cxxflags,
+                            ['-I' + str(i) for i in module.includes]
+                    ))
+    }
+
+    for flags_name, flags_value in flags.items():
+        if not flags_value:
             continue
-        if flag in set_flags:
-            mod_flags = "$" + flag + mod_flags
-        writer.variable(flag, mod_flags)
-        set_flags.add(flag)
+        if flags_name in set_flags:
+            flags_value = f"${flags_name} ${flags_value}"
+        writer.variable(flags_name, flags_value)
+        set_flags.add(flags_name)
     writer.newline()
 
     objs = []
