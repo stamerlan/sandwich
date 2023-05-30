@@ -51,7 +51,7 @@ def write_build_files():
         writer.variable("topdir", fwbuild.topdir.as_posix())
         writer.newline()
 
-        toolchain.write_ninja_file(writer, firmware)
+        toolchain.write_build_file(writer, firmware)
         writer.newline()
 
         configure_cmd = fwbuild.utils.shell_cmd()

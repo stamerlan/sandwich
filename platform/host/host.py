@@ -36,12 +36,12 @@ def write_build_files():
                 target.cxxflags += "-I." # Output directory
 
             if len(targets) == 1:
-                toolchain.write_ninja_file(writer, target)
+                toolchain.write_build_file(writer, target)
             else:
                 build_filename = pathlib.Path(name, f"{name}-build.ninja")
                 writer.subninja(f"${build_filename.as_posix()}")
                 with fwbuild.utils.ninja_writer(fwbuild.topout / build_filename) as target_writer:
-                    toolchain.write_ninja_file(target_writer, target, build_filename.parent)
+                    toolchain.write_build_file(target_writer, target, build_filename.parent)
         writer.newline()
 
         configure_cmd = fwbuild.utils.shell_cmd()

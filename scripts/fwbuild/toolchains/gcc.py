@@ -115,7 +115,7 @@ class gcc(object):
     def __str__(self) -> str:
         return f"{self._prefix + 'gcc'} at {self._cc}"
 
-    def write_ninja_file(self, writer: fwbuild.utils.ninja_syntax.Writer,
+    def write_build_file(self, writer: fwbuild.utils.ninja_syntax.Writer,
             target: fwbuild.targets.cxx_app,
             outdir: str | pathlib.Path = pathlib.Path()):
         outdir = pathlib.Path(outdir)
