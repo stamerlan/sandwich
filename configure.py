@@ -16,7 +16,7 @@ fwbuild.include("platform")
 
 # Setup output directory
 if str(fwbuild.topout) != ".":
-    fwbuild.topout /= fwbuild.platform.__name__.split(".")[-1]
+    fwbuild.topout /= fwbuild.platform.name
 
 # Add sources
 fwbuild.include("src/build.py")

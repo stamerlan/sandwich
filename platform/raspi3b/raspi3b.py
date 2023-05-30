@@ -5,6 +5,7 @@ import fwbuild.utils
 import pathlib
 import sys
 
+name: str = "raspi3b"
 firmware = None
 toolchain: fwbuild.toolchains.gcc = \
     fwbuild.toolchains.gcc.find("aarch64-none-elf-")

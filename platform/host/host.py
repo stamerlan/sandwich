@@ -6,6 +6,7 @@ import fwbuild.utils
 import pathlib
 import sys
 
+name: str = "host"
 targets: dict[str, fwbuild.targets.cxx_app] = {}
 toolchain = fwbuild.toolchains.gcc.find()
 _config_main = sys.modules["__main__"].__file__
