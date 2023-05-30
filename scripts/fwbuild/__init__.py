@@ -10,10 +10,13 @@ if __name__ != "fwbuild":
 
 # Setup top source directory and top output directory
 topdir = pathlib.Path(sys.modules["__main__"].__file__).parent
-if topdir.samefile(pathlib.Path.cwd()):
-    topout = pathlib.Path("bin/")
-else:
-    topout = pathlib.Path(".")
+topout = pathlib.Path()
+
+def set_topout(*args):
+    global topout
+
+    if topdir.samefile(pathlib.Path.cwd()):
+        topout = pathlib.Path(*args)
 
 # Set of files used during configuration. If any file in the list changed
 # configure script has to be run again.

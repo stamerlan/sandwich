@@ -15,8 +15,7 @@ fwbuild.kconfig(args.config)
 fwbuild.include("platform")
 
 # Setup output directory
-if str(fwbuild.topout) != ".":
-    fwbuild.topout /= fwbuild.platform.name
+fwbuild.set_topout("bin", fwbuild.platform.name)
 
 # Add sources
 fwbuild.include("src/build.py")
