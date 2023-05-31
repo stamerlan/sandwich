@@ -8,6 +8,8 @@ import sys
 if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
+import fwbuild.platform
+
 # Setup top source directory and top output directory
 topdir = pathlib.Path(sys.modules["__main__"].__file__).parent
 topout = pathlib.Path()
@@ -34,9 +36,6 @@ def add_conf_file(filename: str | pathlib.Path):
 add_conf_file(__file__)
 add_conf_file(pathlib.Path(__file__).parent / "include.py")
 add_conf_file(pathlib.Path(__file__).parent / "kconfig.py")
-
-# Target platform module
-platform = include("platform-none.py", "fwbuild.platform.none")
 
 # Configuration symbols loaded by fwbuild.kconfig()
 conf = Namespace()
