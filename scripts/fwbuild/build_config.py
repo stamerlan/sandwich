@@ -54,6 +54,10 @@ class BuildConfig(object):
             kconf_fname = pathlib.Path(kconf_fname)
             if not kconf_fname.is_absolute():
                 kconf_fname = kconfig_file.parent / kconf_fname
+            if kconf_fname.is_relative_to(fwbuild.topdir):
+                kconf_fname = pathlib.Path("$topdir",
+                    kconf_fname.relative_to(fwbuild.topdir))
+
             self._files.add(kconf_fname)
 
         # TODO: Add config_file to self._files
