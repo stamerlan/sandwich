@@ -14,9 +14,11 @@ fwbuild.kconfig(args.config)
 # Load platform-specific code
 #fwbuild.include("platform")
 if fwbuild.conf.PLATFORM_HOST:
-    import fwbuild.platform.host
+    import platforms.host
+    fwbuild.platform = platforms.host.HostPlatform()
 elif fwbuild.conf.PLATFORM_RASPI3B:
-    import fwbuild.platform.raspi3b
+    import platforms.raspi3b
+    fwbuild.platform = platforms.raspi3b.Raspi3bPlatform()
 
 # Setup output directory
 fwbuild.set_topout("bin", fwbuild.platform.name)

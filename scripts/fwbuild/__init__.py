@@ -1,14 +1,15 @@
-from .include import include
-from .kconfig import kconfig, write_autoconf, write_conf
-from argparse import Namespace
-import pathlib
 import sys
 
 # Make the package available by name 'fwbuild'
 if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
-import fwbuild.platform
+from argparse import Namespace
+from fwbuild.include import include
+from fwbuild.kconfig import kconfig, write_autoconf, write_conf
+import atexit
+import fwbuild.platforms
+import pathlib
 
 # Setup top source directory and top output directory
 topdir = pathlib.Path(sys.modules["__main__"].__file__).parent
@@ -39,3 +40,13 @@ add_conf_file(pathlib.Path(__file__).parent / "kconfig.py")
 
 # Configuration symbols loaded by fwbuild.kconfig()
 conf = Namespace()
+
+# Current platform
+platform: fwbuild.platforms.base | None = None
+
+def write_buildfiles(entry_point_filename: str):
+    if all(sys.exc_info()):
+        return
+    if platform is not None:
+        platform.write_buildfiles(entry_point_filename)
+atexit.register(write_buildfiles, sys.modules["__main__"].__file__)
