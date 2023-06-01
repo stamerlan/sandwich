@@ -64,6 +64,21 @@ class Raspi3bPlatform(fwbuild.platforms.base):
 
             writer.comment("Regenerate build file if build script changed")
             writer.rule("configure", command=configure_cmd, generator=True,
-                        description="CONFIGURE")
-            writer.build("build.ninja", "configure",
-                implicit=[p.as_posix() for p in sorted(fwbuild.conf_files | fwbuild.conf.files)])
+                        description="CONFIGURE", depfile="build.ninja.deps")
+            writer.build("build.ninja", "configure")
+
+        with open(fwbuild.topout / "build.ninja.deps", "w") as f:
+            f.write("build.ninja: \\\n")
+            deps = []
+            for d in sorted(fwbuild.conf_files | fwbuild.conf.files):
+                if d.parts[0] == "$topdir":
+                    d = pathlib.Path(fwbuild.topdir, *d.parts[1:])
+                elif d.parts[1] == "$topout":
+                    d = pathlib.Path(*d.parts[1:])
+                deps.append(d.as_posix())
+
+            for fpath in deps:
+                f.write(f"  {fpath} \\\n")
+            f.write("\n")
+            for fpath in deps:
+                f.write(f"{fpath}:\n\n")
