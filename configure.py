@@ -9,7 +9,7 @@ parser.add_argument("-c", "--config", "--cfg", "--conf",
 args = parser.parse_args()
 
 # Load configuration
-fwbuild.kconfig(args.config)
+print(fwbuild.conf.load_kconfig(args.config))
 
 # Load platform-specific code
 #fwbuild.include("platform")

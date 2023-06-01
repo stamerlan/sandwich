@@ -42,8 +42,8 @@ class Raspi3bPlatform(fwbuild.platforms.base):
         return Raspi3bPlatform.firmware
 
     def write_buildfiles(self, entry_point_filename: str):
-        config_h = fwbuild.write_autoconf(fwbuild.topout / "config.h")
-        config   = fwbuild.write_conf(fwbuild.topout / ".config")
+        config_h = fwbuild.conf.write_autoconf(fwbuild.topout / "config.h")
+        config   = fwbuild.conf.write_conf(fwbuild.topout / ".config")
 
         with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
             if config_h is not None:
@@ -66,4 +66,4 @@ class Raspi3bPlatform(fwbuild.platforms.base):
             writer.rule("configure", command=configure_cmd, generator=True,
                         description="CONFIGURE")
             writer.build("build.ninja", "configure",
-                implicit=sorted(fwbuild.conf_files))
+                implicit=[p.as_posix() for p in sorted(fwbuild.conf_files | fwbuild.conf.files)])
