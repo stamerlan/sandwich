@@ -13,6 +13,8 @@ import pathlib
 # Setup top source directory and top output directory
 topdir = pathlib.Path(sys.modules["__main__"].__file__).parent
 topout = pathlib.Path()
+this_dir: pathlib.Path
+root = pathlib.Path(__file__).parent
 
 def set_topout(*args):
     global topout
@@ -38,8 +40,6 @@ conf = fwbuild.build_config.build_config(topdir)
 # Current platform
 import fwbuild.platforms
 platform: fwbuild.platforms.base = None
-
-this_dir: pathlib.Path
 
 def __getattr__(name):
     if name == 'this_dir':
