@@ -46,7 +46,8 @@ class base(object):
                     buildfile_name = pathlib.Path(name, f"{name}-build.ninja")
                     w.subninja(buildfile_name.as_posix())
                     with ninja_writer(fwbuild.topout / buildfile_name) as sub_w:
-                        target.write_buildfile(sub_w)
+                        target.write_buildfile(sub_w, name)
+            w.newline()
 
             w.comment("Regenerate build file if build script changed")
             conf_cmd = fwbuild.utils.shell_cmd()
