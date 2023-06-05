@@ -26,7 +26,7 @@ def set_topout(*args):
         topout = pathlib.Path(*args)
     set_topout.set = True
 
-deps = fwbuild.config_deps.ConfigDeps(topdir,
+deps = fwbuild.config_deps.config_deps(topdir,
     __file__,
     pathlib.Path(__file__).parent / "build_config.py",
     pathlib.Path(__file__).parent / "config_deps.py",
@@ -34,7 +34,7 @@ deps = fwbuild.config_deps.ConfigDeps(topdir,
 )
 
 # Configuration symbols loaded by fwbuild.kconfig()
-conf = fwbuild.build_config.BuildConfig(topdir)
+conf = fwbuild.build_config.build_config(topdir)
 
 # Current platform
 platform = None

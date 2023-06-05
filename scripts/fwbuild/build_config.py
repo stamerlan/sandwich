@@ -5,9 +5,9 @@ import kconfiglib
 import os
 import pathlib
 
-class BuildConfig(object):
+class build_config(object):
     def __init__(self, topdir: str | pathlib.Path):
-        self._deps = fwbuild.config_deps.ConfigDeps(topdir)
+        self._deps = fwbuild.config_deps.config_deps(topdir)
         self._kconf: Optional[kconfiglib.Kconfig] = None
 
     @property

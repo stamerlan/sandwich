@@ -1,6 +1,6 @@
 import pathlib
 
-class ConfigDeps(object):
+class config_deps(object):
     def __init__(self, topdir: pathlib.Path | str, *deps):
         self.topdir = pathlib.Path(topdir)
         self._files: set[pathlib.Path] = set()
