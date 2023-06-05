@@ -7,7 +7,7 @@ def include(filename: str | pathlib.Path, mod_name: str | None = None) -> Module
     filename = pathlib.Path(filename)
     if not filename.is_absolute():
         import fwbuild.utils
-        filename = fwbuild.utils.get_caller_filename().parent / filename
+        filename = fwbuild.utils.caller().dir / filename
 
     if mod_name is None:
         mod_name = "fwbuild.include." + filename.stem

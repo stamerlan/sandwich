@@ -1,4 +1,4 @@
-from .get_caller_filename import get_caller_filename
+from .caller import caller
 from .ninja_writer import ninja_writer
 from .program import program
 from .shell_cmd import shell_cmd

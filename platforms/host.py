@@ -15,5 +15,5 @@ class HostPlatform(fwbuild.platforms.base):
             HostPlatform.toolchain = fwbuild.toolchains.gcc.find()
 
     def cxx_target(self, name: str):
-        srcdir = fwbuild.utils.get_caller_filename().parent
+        srcdir = fwbuild.utils.caller().dir
         return super().cxx_app(name, HostPlatform.toolchain, srcdir)

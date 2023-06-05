@@ -33,7 +33,7 @@ class Raspi3bPlatform(fwbuild.platforms.base):
         if len(Raspi3bPlatform.targets) == 1:
             raise RuntimeError("raspi3b platform supports one target only")
 
-        srcdir = fwbuild.utils.get_caller_filename().parent
+        srcdir = fwbuild.utils.caller().dir
         app = super().cxx_app(name, Raspi3bPlatform.toolchain, srcdir)
         app.submodule(Raspi3bPlatform.platform_module)
         return app

@@ -12,11 +12,11 @@ class cxx_module(target_base):
         super().__init__()
 
         if name is None:
-            name = fwbuild.utils.get_caller_filename().stem
+            name = fwbuild.utils.caller().stem
         self._name = name
 
         if srcdir is None:
-            srcdir = fwbuild.utils.get_caller_filename().parent
+            srcdir = fwbuild.utils.caller().dir
         srcdir = pathlib.Path(srcdir)
         if srcdir.is_relative_to(fwbuild.topdir):
             srcdir = pathlib.Path("$topdir", srcdir.relative_to(fwbuild.topdir))
@@ -84,7 +84,7 @@ class cxx_module(target_base):
     def include_this_dir(self,
             include_subdir: Optional[str | pathlib.Path] = None):
         """ Add caller's directory to C preprocessor search path """
-        this_dir = fwbuild.utils.get_caller_filename().parent
+        this_dir = fwbuild.utils.caller().dir
         if this_dir.is_relative_to(fwbuild.topdir):
             this_dir = pathlib.Path("$topdir",
                                     this_dir.relative_to(fwbuild.topdir))
@@ -111,7 +111,7 @@ class cxx_module(target_base):
         elif not isinstance(submodule, cxx_module):
             mod_path = pathlib.Path(submodule)
             if not mod_path.is_absolute():
-                mod_path = fwbuild.utils.get_caller_filename().parent / mod_path
+                mod_path = fwbuild.utils.caller().dir / mod_path
             mod = fwbuild.include(mod_path)
             cls = getattr(mod, mod_path.stem, None)
             if cls is None:
