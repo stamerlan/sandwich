@@ -17,8 +17,13 @@ topout = pathlib.Path()
 def set_topout(*args):
     global topout
 
+    if hasattr(set_topout, "set"):
+        return
+
+    # Set topout only if build from source tree
     if topdir.samefile(pathlib.Path.cwd()):
         topout = pathlib.Path(*args)
+    set_topout.set = True
 
 # Set of files used during configuration. If any file in the list changed
 # configure script has to be run again.
