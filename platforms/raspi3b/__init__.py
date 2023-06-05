@@ -5,6 +5,8 @@ import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
 
+fwbuild.deps.add(__file__)
+
 class Raspi3bPlatform(fwbuild.platforms.base):
     name: str = "raspi3b"
     toolchain: fwbuild.toolchains.gcc | None = None
@@ -34,6 +36,6 @@ class Raspi3bPlatform(fwbuild.platforms.base):
             raise RuntimeError("raspi3b platform supports one target only")
 
         srcdir = fwbuild.utils.caller().dir
-        app = super().cxx_app(name, Raspi3bPlatform.toolchain, srcdir)
+        app = super().cxx_app("kernel8", Raspi3bPlatform.toolchain, srcdir)
         app.submodule(Raspi3bPlatform.platform_module)
         return app
