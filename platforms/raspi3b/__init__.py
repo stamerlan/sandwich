@@ -4,14 +4,12 @@ import fwbuild.targets
 import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
-import sys
 
 class Raspi3bPlatform(fwbuild.platforms.base):
     name: str = "raspi3b"
-    firmware: fwbuild.targets.cxx_app | None = None
     toolchain: fwbuild.toolchains.gcc | None = None
 
-    class cxx_module(fwbuild.targets.cxx_module):
+    class platform_module(fwbuild.targets.cxx_module):
         def __init__(self, target: fwbuild.targets.cxx_app):
             super().__init__(name="platform", target=target)
             self.src("startup.S", "init.cc")
@@ -24,7 +22,7 @@ class Raspi3bPlatform(fwbuild.platforms.base):
             target.ldflags += "-flto"
             if target.toolchain.ld.version >= (2, 39):
                 target.ldflags += "-Wl,--no-warn-rwx-segment"
-            target.ldscript = pathlib.Path(__file__).parent / "raspi3b.ld"
+            target.ldscript = pathlib.Path(self.srcdir, "raspi3b.ld")
             target.ldlibs += "-lgcc"
 
     def __init__(self):
@@ -32,53 +30,10 @@ class Raspi3bPlatform(fwbuild.platforms.base):
             Raspi3bPlatform.toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 
     def cxx_target(self, name: str):
-        if Raspi3bPlatform.firmware is not None:
+        if len(Raspi3bPlatform.targets) == 1:
             raise RuntimeError("raspi3b platform supports one target only")
 
         srcdir = fwbuild.utils.get_caller_filename().parent
-        Raspi3bPlatform.firmware = fwbuild.targets.cxx_app("kernel8", Raspi3bPlatform.toolchain, srcdir)
-        Raspi3bPlatform.firmware.submodule(Raspi3bPlatform.cxx_module)
-
-        return Raspi3bPlatform.firmware
-
-    def write_buildfiles(self, entry_point_filename: str):
-        config_h = fwbuild.conf.write_autoconf(fwbuild.topout / "config.h")
-        config   = fwbuild.conf.write_conf(fwbuild.topout / ".config")
-
-        with fwbuild.utils.ninja_writer(fwbuild.topout / "build.ninja") as writer:
-            if config_h is not None:
-                Raspi3bPlatform.firmware.cxxflags += "-I." # Output directory
-
-            writer.variable("topdir", fwbuild.topdir.as_posix())
-            writer.newline()
-
-            Raspi3bPlatform.toolchain.write_build_file(writer, Raspi3bPlatform.firmware)
-            writer.newline()
-
-            configure_cmd = fwbuild.utils.shell_cmd()
-            if config is not None:
-                configure_cmd.cmd(sys.executable, [entry_point_filename, "-c", ".config"])
-            else:
-                configure_cmd.cd(pathlib.Path.cwd())
-                configure_cmd.cmd(sys.executable, sys.argv)
-
-            writer.comment("Regenerate build file if build script changed")
-            writer.rule("configure", command=configure_cmd, generator=True,
-                        description="CONFIGURE", depfile="build.ninja.deps")
-            writer.build("build.ninja", "configure")
-
-        with open(fwbuild.topout / "build.ninja.deps", "w") as f:
-            f.write("build.ninja: \\\n")
-            deps = []
-            for d in sorted(fwbuild.deps.files | fwbuild.conf.files):
-                if d.parts[0] == "$topdir":
-                    d = pathlib.Path(fwbuild.topdir, *d.parts[1:])
-                elif d.parts[1] == "$topout":
-                    d = pathlib.Path(*d.parts[1:])
-                deps.append(d.as_posix())
-
-            for fpath in deps:
-                f.write(f"  {fpath} \\\n")
-            f.write("\n")
-            for fpath in deps:
-                f.write(f"{fpath}:\n\n")
+        app = super().cxx_app(name, Raspi3bPlatform.toolchain, srcdir)
+        app.submodule(Raspi3bPlatform.platform_module)
+        return app
