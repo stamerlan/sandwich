@@ -1,13 +1,8 @@
 import fwbuild
 import fwbuild.utils
 import pathlib
-import sys
 
-def to_shell(cmdline: str):
-    if sys.platform == "win32":
-        return f'cmd /c "{cmdline}"'
-    else:
-        return cmdline
+fwbuild.deps.add(__file__)
 
 class ninja_writer(object):
     """ ninja_syntax.Write wrapper """
