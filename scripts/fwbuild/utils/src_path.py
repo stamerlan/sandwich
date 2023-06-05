@@ -1,11 +1,16 @@
+import fwbuild
 import pathlib
+
+fwbuild.deps.add(__file__)
 
 class src_path(object):
     """ Source file path """
 
     def __init__(self, path: str | pathlib.Path, **vars):
         path = pathlib.Path(path)
-        if (path.parts[0] in ("$outdir", "$srcdir", "$topdir") or
+        if (len(path.parts) == 0):
+            self._path = pathlib.Path(".")
+        elif (path.parts[0] in ("$outdir", "$srcdir", "$topdir") or
                 path.is_absolute()):
             self._path = path
         elif path.parts[0] == "$topout":
