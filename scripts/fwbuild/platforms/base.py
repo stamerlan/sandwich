@@ -1,3 +1,7 @@
+import fwbuild
+
+fwbuild.deps.add(__file__)
+
 class base(object):
     """ Base class for platform definition """
 

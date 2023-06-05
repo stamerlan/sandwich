@@ -25,6 +25,6 @@ def include(filename: str | pathlib.Path, mod_name: str | None = None) -> Module
     spec.loader.exec_module(mod)
 
     import fwbuild
-    fwbuild.add_conf_file(mod.__file__)
+    fwbuild.deps.add(mod.__file__)
 
     return mod

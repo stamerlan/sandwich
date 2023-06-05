@@ -1,13 +1,15 @@
 from .target_base import target_base
 from typing import Optional, Type, Union
+import fwbuild
 import fwbuild.utils
 import pathlib
+
+fwbuild.deps.add(__file__)
 
 class cxx_module(target_base):
     def __init__(self, name: Optional[str] = None,
                  target = None, srcdir: Optional[pathlib.Path | str] = None):
         super().__init__()
-        fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
         if name is None:
             name = fwbuild.utils.get_caller_filename().stem

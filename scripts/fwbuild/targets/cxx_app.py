@@ -5,12 +5,13 @@ import fwbuild.utils
 import itertools
 import pathlib
 
+fwbuild.deps.add(__file__)
+
 class cxx_app(cxx_module):
     """ An executable compiled by C++ compiler """
 
     def __init__(self, name: str, toolchain: Any, srcdir: pathlib.Path | str):
         super().__init__(name, self, srcdir)
-        fwbuild.add_conf_file(fwbuild.utils.get_caller_filename())
 
         self._ldflags  = fwbuild.utils.str_list()
         self._ldlibs   = fwbuild.utils.str_list()

@@ -8,7 +8,7 @@ import pathlib
 import subprocess
 import sys
 
-fwbuild.add_conf_file(__file__)
+fwbuild.deps.add(__file__)
 
 class program_ld(fwbuild.utils.program):
     @property

@@ -7,7 +7,7 @@ if __name__ != "fwbuild":
 from fwbuild.include import include
 import atexit
 import fwbuild.build_config
-import fwbuild.platforms
+import fwbuild.config_deps
 import pathlib
 
 # Setup top source directory and top output directory
@@ -25,28 +25,18 @@ def set_topout(*args):
         topout = pathlib.Path(*args)
     set_topout.set = True
 
-# Set of files used during configuration. If any file in the list changed
-# configure script has to be run again.
-# Each path is either absolute or relative to fwbuild.topdir and starts with
-# $topdir.
-conf_files: set[pathlib.Path] = set()
-
-def add_conf_file(filename: str | pathlib.Path):
-    filename = pathlib.Path(filename)
-    if filename.is_relative_to(topdir):
-        filename = pathlib.Path("$topdir", filename.relative_to(topdir))
-    conf_files.add(filename)
-
-# Add this file and include.py to conf_files
-add_conf_file(__file__)
-add_conf_file(pathlib.Path(__file__).parent / "include.py")
-add_conf_file(pathlib.Path(__file__).parent / "build_config.py")
+deps = fwbuild.config_deps.ConfigDeps(topdir,
+    __file__,
+    pathlib.Path(__file__).parent / "build_config.py",
+    pathlib.Path(__file__).parent / "config_deps.py",
+    pathlib.Path(__file__).parent / "include.py",
+)
 
 # Configuration symbols loaded by fwbuild.kconfig()
-conf = fwbuild.build_config.BuildConfig()
+conf = fwbuild.build_config.BuildConfig(topdir)
 
 # Current platform
-platform: fwbuild.platforms.base | None = None
+platform = None
 
 def write_buildfiles(entry_point_filename: str):
     if all(sys.exc_info()):

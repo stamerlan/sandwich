@@ -61,7 +61,7 @@ class HostPlatform(fwbuild.platforms.base):
         with open(fwbuild.topout / "build.ninja.deps", "w") as f:
             f.write("build.ninja: \\\n")
             deps = []
-            for d in sorted(fwbuild.conf_files | fwbuild.conf.files):
+            for d in sorted(fwbuild.deps.files | fwbuild.conf.files):
                 if d.parts[0] == "$topdir":
                     d = pathlib.Path(fwbuild.topdir, *d.parts[1:])
                 elif d.parts[1] == "$topout":

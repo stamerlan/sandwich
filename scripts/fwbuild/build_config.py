@@ -1,17 +1,18 @@
 from typing import Optional
 import fwbuild
+import fwbuild.config_deps
 import kconfiglib
 import os
 import pathlib
 
 class BuildConfig(object):
-    def __init__(self):
-        self._files: set[pathlib.Path] = set()
+    def __init__(self, topdir: str | pathlib.Path):
+        self._deps = fwbuild.config_deps.ConfigDeps(topdir)
         self._kconf: Optional[kconfiglib.Kconfig] = None
 
     @property
     def files(self) -> set[pathlib.Path]:
-        return self._files
+        return self._deps.files
 
     def load_kconfig(self, config_file: Optional[str | pathlib.Path] = None,
                     kconfig_file: Optional[str | pathlib.Path] = None) -> str:
@@ -54,13 +55,9 @@ class BuildConfig(object):
             kconf_fname = pathlib.Path(kconf_fname)
             if not kconf_fname.is_absolute():
                 kconf_fname = kconfig_file.parent / kconf_fname
-            if kconf_fname.is_relative_to(fwbuild.topdir):
-                kconf_fname = pathlib.Path("$topdir",
-                    kconf_fname.relative_to(fwbuild.topdir))
+            self._deps.add(kconf_fname)
 
-            self._files.add(kconf_fname)
-
-        # TODO: Add config_file to self._files
+        # TODO: Add config_file to self._deps
 
         return output
 
