@@ -1,6 +1,7 @@
 from typing import Optional
 import itertools
 import pathlib
+import shlex
 import sys
 
 def _escape(s: str) -> str:
