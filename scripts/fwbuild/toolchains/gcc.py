@@ -144,9 +144,9 @@ class gcc(object):
             command="$objcopy --output-target binary $in $out",
             description="OBJCOPY $out")
         writer.rule("objdump",
-            command=fwbuild.utils.shell_cmd(
-                "$objdump --source --disassemble-all --demangle --include=$topdir $in",
-                stdout="$out"),
+            command=fwbuild.utils.shell_cmd("$objdump",
+                args=["--source", "--disassemble-all", "--demangle",
+                      "--include=$topdir", "$in"], stdout="$out"),
             description="OBJDUMP $out")
         writer.rule("ld",
             command="$cxx $ldflags -o $out $in $ldlibs",
