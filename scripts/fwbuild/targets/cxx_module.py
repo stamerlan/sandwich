@@ -81,19 +81,6 @@ class cxx_module(target_base):
     def srcdir(self) -> str:
         return self._srcdir.as_posix()
 
-    def include_this_dir(self,
-            include_subdir: Optional[str | pathlib.Path] = None):
-        """ Add caller's directory to C preprocessor search path """
-        this_dir = fwbuild.utils.caller().dir
-        if this_dir.is_relative_to(fwbuild.topdir):
-            this_dir = pathlib.Path("$topdir",
-                                    this_dir.relative_to(fwbuild.topdir))
-
-        if include_subdir is None:
-            self.include(this_dir)
-        else:
-            self.include(this_dir / include_subdir)
-
     def include(self, *include_dirs):
         """ Add directories to C prerprocessor search path """
         for d in include_dirs:
