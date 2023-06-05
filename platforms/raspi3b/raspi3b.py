@@ -31,7 +31,7 @@ class Raspi3bPlatform(fwbuild.platforms.base):
         if Raspi3bPlatform.toolchain is None:
             Raspi3bPlatform.toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 
-    def cxx_target(self, name: str):
+    def cxx_app(self, name: str):
         if len(Raspi3bPlatform.targets) == 1:
             raise RuntimeError("raspi3b platform supports one target only")
 

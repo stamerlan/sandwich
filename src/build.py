@@ -2,7 +2,7 @@ import fwbuild
 
 fwbuild.deps.add(__file__)
 
-app = fwbuild.platform.cxx_target("hello")
+app = fwbuild.platform.cxx_app("hello")
 app.gen_dasm = True
 app.gen_map = True
 

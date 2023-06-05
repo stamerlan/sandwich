@@ -36,7 +36,8 @@ deps = fwbuild.config_deps.config_deps(topdir,
 conf = fwbuild.build_config.build_config(topdir)
 
 # Current platform
-platform = None
+import fwbuild.platforms
+platform: fwbuild.platforms.base = None
 
 this_dir: pathlib.Path
 
