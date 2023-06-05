@@ -14,6 +14,6 @@ class host(fwbuild.platforms.base):
         if host.toolchain is None:
             host.toolchain = fwbuild.toolchains.gcc.find()
 
-    def cxx_app(self, name: str):
+    def cxx_app(self, name: str) -> fwbuild.targets.cxx_app:
         srcdir = fwbuild.utils.caller().dir
         return super().cxx_app(name, host.toolchain, srcdir)
