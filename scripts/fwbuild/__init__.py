@@ -5,7 +5,6 @@ if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
 from fwbuild.include import include
-import atexit
 import inspect
 import fwbuild.build_config
 import fwbuild.config_deps
@@ -38,13 +37,6 @@ conf = fwbuild.build_config.build_config(topdir)
 
 # Current platform
 platform = None
-
-def write_buildfiles(entry_point_filename: str):
-    if all(sys.exc_info()):
-        return
-    if platform is not None:
-        platform.write_buildfiles(entry_point_filename)
-atexit.register(write_buildfiles, sys.modules["__main__"].__file__)
 
 this_dir: pathlib.Path
 

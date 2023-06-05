@@ -14,7 +14,6 @@ args = parser.parse_args()
 print(fwbuild.conf.load_kconfig(args.config))
 
 # Load platform-specific code
-#fwbuild.include("platform")
 if fwbuild.conf.PLATFORM_HOST:
     import platforms.host
     fwbuild.platform = platforms.host.HostPlatform()
@@ -27,3 +26,5 @@ fwbuild.set_topout("bin", fwbuild.platform.name)
 
 # Add sources
 import src.build
+
+fwbuild.platform.write_buildfiles(__file__)
