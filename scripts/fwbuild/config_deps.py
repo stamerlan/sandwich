@@ -3,7 +3,6 @@ import pathlib
 class ConfigDeps(object):
     def __init__(self, topdir: pathlib.Path | str, *deps):
         self.topdir = pathlib.Path(topdir)
-        print(f"ConfigDeps@{self.topdir.as_posix()}")
         self._files: set[pathlib.Path] = set()
 
         for d in deps:
