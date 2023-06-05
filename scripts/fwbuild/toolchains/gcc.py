@@ -36,13 +36,13 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
                     ))
     }
 
-    for flags_name, flags_value in flags.items():
-        if not flags_value:
+    for name, value in flags.items():
+        if not value:
             continue
-        if flags_name in set_flags:
-            flags_value = f"${flags_name} ${flags_value}"
-        writer.variable(flags_name, flags_value)
-        set_flags.add(flags_name)
+        if name in set_flags:
+            value = f"${name} {value}"
+        writer.variable(name, value)
+        set_flags.add(name)
     writer.newline()
 
     objs = []
