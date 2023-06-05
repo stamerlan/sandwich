@@ -6,6 +6,7 @@ if __name__ != "fwbuild":
 
 from fwbuild.include import include
 import atexit
+import inspect
 import fwbuild.build_config
 import fwbuild.config_deps
 import pathlib
@@ -44,3 +45,10 @@ def write_buildfiles(entry_point_filename: str):
     if platform is not None:
         platform.write_buildfiles(entry_point_filename)
 atexit.register(write_buildfiles, sys.modules["__main__"].__file__)
+
+this_dir: pathlib.Path
+
+def __getattr__(name):
+    if name == 'this_dir':
+        return pathlib.Path(inspect.stack()[1][0].f_code.co_filename).parent
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
