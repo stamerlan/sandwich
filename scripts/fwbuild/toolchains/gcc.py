@@ -23,7 +23,7 @@ class program_ld(fwbuild.utils.program):
 def compile(writer: fwbuild.utils.ninja_syntax.Writer,
             module: fwbuild.targets.cxx_module,
             outdir: pathlib.Path = pathlib.Path(),
-            set_flags: set[str] = set()) -> list[pathlib.Path]:
+            set_flags: set[str] = set()) -> list[str]:
     writer.comment(f"Module: {module.name}")
     writer.variable("srcdir", module.srcdir)
     writer.variable("outdir", outdir.as_posix())
@@ -48,6 +48,7 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
     objs = []
     for src in module.sources:
         obj_fname = pathlib.Path("$outdir", src.path.stem).with_suffix(".o")
+        full_obj_fname = outdir / obj_fname.name
 
         if src.path.suffix in (".cc", ".cxx", ".cpp"):
             writer.build(obj_fname.as_posix(), "cxx", str(src), **src.vars)
@@ -55,16 +56,14 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
             writer.build(obj_fname.as_posix(), "as", str(src), **src.vars)
         else:
             raise RuntimeError(f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
-        objs.append(obj_fname)
+
+        objs.append(full_obj_fname.as_posix())
 
     for mod in module.submodules:
         buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
         writer.subninja(buildfile.as_posix())
         with fwbuild.utils.ninja_writer(fwbuild.topout / buildfile) as w:
-            for o in compile(w, mod, buildfile.parent, set(set_flags)):
-                if o.parts[0] == "$outdir":
-                    o = pathlib.Path("$outdir", mod.name, *o.parts[1:])
-                objs.append(o)
+            objs.extend(compile(w, mod, buildfile.parent, set(set_flags)))
 
     return objs
 
@@ -154,7 +153,7 @@ class gcc(object):
         writer.newline()
 
         # Compile
-        objs = [o.as_posix() for o in compile(writer, target, outdir)]
+        objs = compile(writer, target, outdir)
         writer.newline()
 
         # Link
