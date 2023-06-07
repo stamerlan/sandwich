@@ -112,12 +112,12 @@ class gcc(object):
         self._objdump = fwbuild.utils.program(directory, prefix + "objdump")
         self._prefix = prefix
 
+    def __str__(self) -> str:
+        return f"{self._prefix + 'gcc'}@{self._cc.path.parent.as_posix()}"
+
     @property
     def ld(self) -> fwbuild.utils.program:
         return self._ld
-
-    def __str__(self) -> str:
-        return f"{self._prefix + 'gcc'} at {self._cc}"
 
     def write_buildfile(self, writer: fwbuild.utils.ninja_syntax.Writer,
             target: fwbuild.targets.cxx_app,
@@ -125,7 +125,7 @@ class gcc(object):
         outdir = pathlib.Path(outdir)
         artifacts = build_artifacts()
 
-        writer.comment(f"Build {target.name} using {self._prefix}gcc")
+        writer.comment(f"Build {target.name} using {self}")
         writer.variable("ar", self._ar)
         writer.variable("as", self._cc)
         writer.variable("cc", self._cc)

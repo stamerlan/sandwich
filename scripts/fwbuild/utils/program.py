@@ -25,5 +25,9 @@ class program(object):
         else:
             raise FileNotFoundError(f'Program "{fname.as_posix()}" is not found')
 
+    @property
+    def path(self) -> pathlib.Path:
+        return self._filename
+
     def __str__(self) -> str:
         return self._filename.as_posix()
