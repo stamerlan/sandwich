@@ -1,4 +1,4 @@
-from typing import List
+from typing import Optional
 import itertools
 import fwbuild
 import fwbuild.targets.cxx_app
@@ -9,6 +9,14 @@ import subprocess
 import sys
 
 fwbuild.deps.add(__file__)
+
+class build_artifacts(object):
+    def __init__(self):
+        self.exe : Optional[pathlib.Path] = None
+        self.objs: list[pathlib.Path] = []
+        self.bin : Optional[pathlib.Path] | None = None
+        self.dasm: Optional[pathlib.Path] = None
+        self.map : Optional[pathlib.Path] = None
 
 class program_ld(fwbuild.utils.program):
     @property
@@ -23,7 +31,7 @@ class program_ld(fwbuild.utils.program):
 def compile(writer: fwbuild.utils.ninja_syntax.Writer,
             module: fwbuild.targets.cxx_module,
             outdir: pathlib.Path = pathlib.Path(),
-            reset_flags: bool = True) -> list[str]:
+            reset_flags: bool = True) -> list[pathlib.Path]:
     writer.comment(f"Module: {module.name}")
     writer.variable("srcdir", module.srcdir)
     writer.variable("outdir", outdir.as_posix())
@@ -46,7 +54,6 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
     objs = []
     for src in module.sources:
         obj_fname = pathlib.Path("$outdir", src.path.stem).with_suffix(".o")
-        full_obj_fname = outdir / obj_fname.name
 
         if src.path.suffix in (".cc", ".cxx", ".cpp"):
             writer.build(obj_fname.as_posix(), "cxx", str(src), **src.vars)
@@ -55,7 +62,7 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
         else:
             raise RuntimeError(f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
 
-        objs.append(full_obj_fname.as_posix())
+        objs.append(pathlib.Path(outdir, *obj_fname.parts[1:]))
 
     for mod in module.submodules:
         buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
@@ -114,8 +121,9 @@ class gcc(object):
 
     def write_buildfile(self, writer: fwbuild.utils.ninja_syntax.Writer,
             target: fwbuild.targets.cxx_app,
-            outdir: str | pathlib.Path = pathlib.Path()):
+            outdir: str | pathlib.Path = pathlib.Path()) -> build_artifacts:
         outdir = pathlib.Path(outdir)
+        artifacts = build_artifacts()
 
         writer.comment(f"Build {target.name} using {self._prefix}gcc")
         writer.variable("ar", self._ar)
@@ -151,22 +159,22 @@ class gcc(object):
         writer.newline()
 
         # Compile
-        objs = compile(writer, target, outdir)
+        artifacts.objs = compile(writer, target, outdir)
         writer.newline()
 
         # Link
-        outfile_name = outdir / target.name
+        artifacts.exe = outdir / target.name
         if self._prefix:
-            outfile_name = outfile_name.with_suffix(".elf")
+            artifacts.exe = artifacts.exe.with_suffix(".elf")
         elif sys.platform == "win32":
-            outfile_name = outfile_name.with_suffix(".exe")
+            artifacts.exe = artifacts.exe.with_suffix(".exe")
 
-        writer.comment(f"Link {outfile_name.as_posix()}")
+        writer.comment(f"Link {artifacts.exe.as_posix()}")
         writer.variable("ldflags", target.ldflags)
         writer.variable("ldlibs", " ".join(["-l" + lib for lib in target.ldlibs]))
         writer.newline()
 
-        default_targets = [outfile_name.as_posix()]
+        default_targets = [artifacts.exe.as_posix()]
         implicit_outputs = []
         add_ldflags = []
         implicit_deps = []
@@ -174,31 +182,35 @@ class gcc(object):
             add_ldflags.append(f"-T {target.ldscript}")
             implicit_deps.append(str(target.ldscript))
         if target.gen_map:
-            mapfile_name = f"$outdir/{target.name}.map"
-            implicit_outputs.append(mapfile_name)
-            add_ldflags.append(f"-Xlinker -Map={mapfile_name}")
+            artifacts.map = artifacts.exe.with_suffix(".map")
+            implicit_outputs.append(artifacts.map.as_posix())
+            add_ldflags.append(f"-Xlinker -Map={artifacts.map.as_posix()}")
 
         ld_rule_vars = {}
         if add_ldflags:
             ld_rule_vars["ldflags"] = ' '.join(f for f in add_ldflags) + " $ldflags"
 
-        writer.build(outfile_name.as_posix(), "ld", objs,
+        writer.build(artifacts.exe.as_posix(), "ld",
+            [p.as_posix() for p in artifacts.objs],
             implicit=implicit_deps, implicit_outputs=implicit_outputs,
             variables=ld_rule_vars)
 
         # Binary
         if target.gen_binary:
-            binfile_name = outfile_name.with_suffix(".bin").as_posix()
-            writer.build(binfile_name, "objcopy", outfile_name.as_posix())
-            default_targets.append(binfile_name)
+            artifacts.bin = artifacts.exe.with_suffix(".bin")
+            writer.build(artifacts.bin.as_posix(), "objcopy",
+                         artifacts.exe.as_posix())
+            default_targets.append(artifacts.bin.as_posix())
 
         # Disassemble
         if target.gen_dasm:
-            dasmfile_name = outfile_name.with_suffix(".asm").as_posix()
-            writer.build(dasmfile_name, "objdump", outfile_name.as_posix())
-            default_targets.append(dasmfile_name)
+            artifacts.dasm = artifacts.exe.with_suffix(".asm")
+            writer.build(artifacts.dasm.as_posix(), "objdump", artifacts.exe.as_posix())
+            default_targets.append(artifacts.dasm.as_posix())
 
         writer.newline()
 
         if target.default_build:
             writer.default(default_targets)
+
+        return artifacts
