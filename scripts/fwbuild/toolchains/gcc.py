@@ -23,7 +23,7 @@ class program_ld(fwbuild.utils.program):
 def compile(writer: fwbuild.utils.ninja_syntax.Writer,
             module: fwbuild.targets.cxx_module,
             outdir: pathlib.Path = pathlib.Path(),
-            set_flags: set[str] = set()) -> list[str]:
+            reset_flags: bool = True) -> list[str]:
     writer.comment(f"Module: {module.name}")
     writer.variable("srcdir", module.srcdir)
     writer.variable("outdir", outdir.as_posix())
@@ -37,12 +37,10 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
     }
 
     for name, value in flags.items():
-        if not value:
-            continue
-        if name in set_flags:
-            value = f"${name} {value}"
-        writer.variable(name, value)
-        set_flags.add(name)
+        if reset_flags:
+            writer.variable(name, value)
+        elif value:
+            writer.variable(name, f"${name} {value}")
     writer.newline()
 
     objs = []
@@ -63,7 +61,7 @@ def compile(writer: fwbuild.utils.ninja_syntax.Writer,
         buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
         writer.subninja(buildfile.as_posix())
         with fwbuild.utils.ninja_writer(fwbuild.topout / buildfile) as w:
-            objs.extend(compile(w, mod, buildfile.parent, set(set_flags)))
+            objs.extend(compile(w, mod, buildfile.parent, False))
 
     return objs
 
