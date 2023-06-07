@@ -28,6 +28,7 @@ class Raspi3bPlatform(fwbuild.platforms.base):
             target.ldlibs += "gcc"
 
     def __init__(self):
+        super().__init__()
         if Raspi3bPlatform.toolchain is None:
             Raspi3bPlatform.toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
 
