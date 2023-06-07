@@ -82,12 +82,23 @@ class base(object):
 
             if len(base.test_targets):
                 w.comment("Tests")
+                tests = []
                 for name, target in base.test_targets.items():
                     buildfile_name = pathlib.Path("tests", name,
                                                   f"{name}-build.ninja")
                     w.subninja(buildfile_name.as_posix())
                     with fwbuild.utils.ninja_writer(fwbuild.topout / buildfile_name) as sub_w:
-                        target.write_buildfile(sub_w, buildfile_name.parent)
+                        artifacts = target.write_buildfile(sub_w, buildfile_name.parent)
+                        assert(artifacts.exe is not None)
+                        tests.append(str(artifacts.exe))
+                w.newline()
+
+                w.comment("Run all tests")
+                test_cmd = fwbuild.utils.shell_cmd()
+                for test in tests:
+                    test_cmd.cmd(test)
+                w.rule("run_tests", command=test_cmd, description="TEST")
+                w.build("test", "run_tests", tests)
                 w.newline()
 
 
