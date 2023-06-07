@@ -30,11 +30,11 @@ class shell_cmd(object):
 
     def cmd(self, exec: str | pathlib.Path, args: list[str] = [],
             stdout: Optional[str | pathlib.Path] = None) -> "shell_cmd":
-        exec = pathlib.Path(exec).as_posix()
+        exec = str(pathlib.Path(exec))
         cmd = ' '.join(map(_escape, itertools.chain([exec], args)))
         if stdout is not None:
             stdout = pathlib.Path(stdout)
-            cmd += " > " + _escape(stdout.as_posix())
+            cmd += " > " + _escape(str(pathlib.Path(stdout)))
             self._call_shell = True
         self._commands.append(cmd)
         self._call_shell = self._call_shell or (len(self._commands) > 1)
