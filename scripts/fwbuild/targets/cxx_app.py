@@ -105,4 +105,4 @@ class cxx_app(cxx_module):
 
     def write_buildfile(self, writer: fwbuild.utils.ninja_syntax.Writer,
                         outdir: str | pathlib.Path = pathlib.Path()):
-        self.toolchain.write_buildfile(writer, self, outdir)
+        return self.toolchain.write_buildfile(writer, self, outdir)
