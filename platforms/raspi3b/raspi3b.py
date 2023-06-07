@@ -25,7 +25,7 @@ class Raspi3bPlatform(fwbuild.platforms.base):
             if target.toolchain.ld.version >= (2, 39):
                 target.ldflags += "-Wl,--no-warn-rwx-segment"
             target.ldscript = pathlib.Path(self.srcdir, "raspi3b.ld")
-            target.ldlibs += "-lgcc"
+            target.ldlibs += "gcc"
 
     def __init__(self):
         if Raspi3bPlatform.toolchain is None:

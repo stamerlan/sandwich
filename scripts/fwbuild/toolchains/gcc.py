@@ -165,7 +165,7 @@ class gcc(object):
 
         writer.comment(f"Link {outfile_name.as_posix()}")
         writer.variable("ldflags", target.ldflags)
-        writer.variable("ldlibs", target.ldlibs)
+        writer.variable("ldlibs", " ".join(["-l" + lib for lib in target.ldlibs]))
         writer.newline()
 
         default_targets = [outfile_name.as_posix()]
