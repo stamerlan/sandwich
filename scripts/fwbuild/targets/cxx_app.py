@@ -20,6 +20,7 @@ class cxx_app(cxx_module):
         self._gen_binary = False
         self._gen_dasm = False
         self._gen_map = False
+        self._default_build = True
 
         self._toolchain = toolchain
 
@@ -36,6 +37,14 @@ class cxx_app(cxx_module):
             lines.append(f"  ldscript:   {self.ldscript}")
 
         return "\n".join(itertools.chain(lines, super().__str__().split("\n")[1:]))
+
+    @property
+    def default_build(self) -> bool:
+        return self._default_build
+
+    @default_build.setter
+    def default_build(self, value: bool):
+        self._default_build = bool(value)
 
     @property
     def gen_binary(self) -> bool:

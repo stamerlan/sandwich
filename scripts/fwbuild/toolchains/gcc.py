@@ -202,4 +202,6 @@ class gcc(object):
             default_targets.append(dasmfile_name)
 
         writer.newline()
-        writer.default(default_targets)
+
+        if target.default_build:
+            writer.default(default_targets)
