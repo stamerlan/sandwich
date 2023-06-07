@@ -3,7 +3,7 @@ FROM ubuntu:latest
 RUN apt-get update
 
 # Install build tools
-RUN apt-get install -y python3 python3-pip ninja-build g++ wget xz-utils
+RUN apt-get install -y python3 python3-pip ninja-build g++ wget xz-utils libgtest-dev
 RUN python3 -m pip install kconfiglib
 
 # Setup aarch64-none-elf 12.2 toolchain
