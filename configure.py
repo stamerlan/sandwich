@@ -15,7 +15,7 @@ print(fwbuild.conf.load_kconfig(args.config))
 
 # Load platform-specific code
 if fwbuild.conf.PLATFORM_HOST:
-    fwbuild.platform = fwbuild.include("platforms/host.py").host()
+    fwbuild.platform = fwbuild.include("platforms/host").host()
 elif fwbuild.conf.PLATFORM_RASPI3B:
     fwbuild.platform = fwbuild.include("platforms/raspi3b").Raspi3bPlatform()
 
