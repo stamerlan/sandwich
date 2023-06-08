@@ -16,5 +16,6 @@ app.cxxflags += "-ffile-prefix-map=$srcdir/="
 app.ldflags += "-flto"
 
 app.submodule(fwbuild.topdir / "drivers")
+app.submodule(fwbuild.topdir / "sandwich")
 
 app.src("main.cc")
