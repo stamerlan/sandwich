@@ -8,6 +8,7 @@ from fwbuild.include import include
 import inspect
 import fwbuild.build_config
 import fwbuild.config_deps
+import fwbuild.platforms
 import pathlib
 
 # Setup top source directory and top output directory
@@ -33,7 +34,6 @@ deps = fwbuild.config_deps.config_deps(topdir)
 conf = fwbuild.build_config.build_config(topdir)
 
 # Current platform
-import fwbuild.platforms
 platform: fwbuild.platforms.base = None
 
 def __getattr__(name):
