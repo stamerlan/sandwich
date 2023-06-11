@@ -2,8 +2,6 @@
 import argparse
 import scripts.fwbuild as fwbuild
 
-fwbuild.deps.add(__file__)
-
 # Parse command line
 parser = argparse.ArgumentParser(description="Sandwich configuration script")
 parser.add_argument("-c", "--config", "--cfg", "--conf",

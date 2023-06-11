@@ -4,10 +4,11 @@ import pathlib
 import sys
 
 class config_deps(object):
-    def __init__(self, topdir: pathlib.Path | str, *deps):
+    def __init__(self, topdir: pathlib.Path | str, *deps: pathlib.Path | str):
         self.topdir = pathlib.Path(topdir)
         self._files: set[pathlib.Path] = set()
 
+        # Add fwbuild package files
         fwbuild_dir = pathlib.Path(sys.modules["fwbuild"].__file__).parent
         for root, dirs, files in os.walk(fwbuild_dir, followlinks=True):
             for name in files:
@@ -15,6 +16,10 @@ class config_deps(object):
             with contextlib.suppress(ValueError):
                 dirs.remove("__pycache__")
 
+        # Add configuration script
+        self.add(sys.modules["__main__"].__file__)
+
+        # Add additional dependencies
         for d in deps:
             self.add(d)
 
@@ -23,7 +28,7 @@ class config_deps(object):
         return self._files
 
     def add(self, *args: pathlib.Path | str):
-        filename = pathlib.Path(*args)
-        if filename.is_relative_to(self.topdir):
-            filename = pathlib.Path("$topdir", filename.relative_to(self.topdir))
-        self._files.add(filename)
+        fname = pathlib.Path(*args)
+        if fname.is_relative_to(self.topdir):
+            fname = pathlib.Path("$topdir", fname.relative_to(self.topdir))
+        self._files.add(fname)
