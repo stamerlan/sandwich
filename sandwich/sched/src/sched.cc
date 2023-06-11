@@ -1,4 +1,4 @@
-#include <sched/sched.h>
+#include <sandwich/sched.h>
 #include <type_traits>
 
 static_assert(std::is_standard_layout_v<sandwich::sched::task_t>);

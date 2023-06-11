@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <uart.h>
-#include <sched/sched.h>
+#include <sandwich/sched.h>
 
 static bool test(void)
 {

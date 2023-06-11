@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <sched/sched.h>
+#include <sandwich/sched.h>
 
 static bool task_a_ret;
 static int task_a_cnt;
