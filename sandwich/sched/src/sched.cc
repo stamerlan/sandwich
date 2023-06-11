@@ -1,5 +1,6 @@
 #include <sched/sched.h>
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <type_traits>
 
