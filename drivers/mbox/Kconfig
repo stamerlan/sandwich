@@ -1,0 +1,6 @@
+config HAVE_BCM2837_MBOX
+    bool
+
+config BCM2837_MBOX
+    bool "BCM2837 mailbox"
+    depends on HAVE_BCM2837_MBOX

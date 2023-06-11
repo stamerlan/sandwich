@@ -1,3 +1,4 @@
 menu "Drivers"
+rsource "mbox/Kconfig"
 rsource "uart/Kconfig"
 endmenu

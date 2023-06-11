@@ -7,6 +7,7 @@ choice
 
     config PLATFORM_RASPI3B
         bool "Raspberry pi 3B"
+        select HAVE_BCM2837_MBOX
         select HAVE_BCM2837_UART1
 endchoice
 
