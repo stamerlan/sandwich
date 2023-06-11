@@ -2,8 +2,6 @@ import fwbuild
 import inspect
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class caller(object):
     def __init__(self, frame_nr = 1):
         """ This object constructr's caller """

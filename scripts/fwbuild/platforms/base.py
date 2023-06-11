@@ -6,8 +6,6 @@ import fwbuild.utils
 import pathlib
 import sys
 
-fwbuild.deps.add(__file__)
-
 class base(object):
     """ Base class for platform definition """
 

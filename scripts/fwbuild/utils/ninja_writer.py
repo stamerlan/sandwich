@@ -2,8 +2,6 @@ import fwbuild
 import fwbuild.utils
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class ninja_writer(object):
     """ ninja_syntax.Write wrapper """
 

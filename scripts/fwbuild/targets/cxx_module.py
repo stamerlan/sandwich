@@ -4,8 +4,6 @@ import fwbuild
 import fwbuild.utils
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class cxx_module(target_base):
     def __init__(self, name: Optional[str] = None,
                  target = None, srcdir: Optional[pathlib.Path | str] = None):

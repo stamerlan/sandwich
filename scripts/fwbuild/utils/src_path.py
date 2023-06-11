@@ -1,8 +1,6 @@
 import fwbuild
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class src_path(object):
     """ Source file path """
 

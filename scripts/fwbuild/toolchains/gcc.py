@@ -8,8 +8,6 @@ import pathlib
 import subprocess
 import sys
 
-fwbuild.deps.add(__file__)
-
 class build_artifacts(object):
     def __init__(self):
         self.exe : Optional[pathlib.Path] = None

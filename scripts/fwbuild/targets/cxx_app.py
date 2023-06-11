@@ -5,8 +5,6 @@ import fwbuild.utils
 import itertools
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class cxx_app(cxx_module):
     """ An executable compiled by C++ compiler """
 
