@@ -5,8 +5,6 @@ import fwbuild.toolchains
 import fwbuild.utils
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class Raspi3bPlatform(fwbuild.platforms.base):
     name: str = "raspi3b"
     toolchain: fwbuild.toolchains.gcc | None = None
