@@ -3,18 +3,9 @@
 
 namespace sandwich::sched {
 
-enum class task_state {
-	sleep,
-	ready,
-	run,
-};
-
 struct task_t {
 	const char *name;
-	struct task_t *next, *prev;
-
-	task_state state;
-
+	struct task_t *next;
 	bool (*fn)(void);
 };
 
@@ -45,8 +36,6 @@ void run(void);
 	sandwich::sched::task_t sandwich_task_ ## handler = { \
 		.name  = #handler,                            \
 		.next  = nullptr,                             \
-		.prev  = nullptr,                             \
-		.state = sandwich::sched::task_state::sleep,  \
 		.fn    = handler                              \
 	}
 
