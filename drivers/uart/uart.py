@@ -2,8 +2,6 @@ import fwbuild
 import fwbuild.targets
 import pathlib
 
-fwbuild.deps.add(__file__)
-
 class uart(fwbuild.targets.cxx_module):
     def __init__(self, target: fwbuild.targets.cxx_app):
         super().__init__("uart", target)
