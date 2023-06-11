@@ -32,6 +32,8 @@ jobs:
       run: python3 configure.py --config ${{ matrix.platform }}.config
     - name: Build
       run: ninja -C bin/${{ matrix.platform }}
+    - name: Test
+      run: ninja -C bin/${{ matrix.platform }} test
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
