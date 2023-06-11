@@ -2,10 +2,10 @@ extern "C"
 [[ noreturn ]]
 void init(void)
 {
-	extern char __bss_start;
-	extern char __bss_end;
+	extern char __bss_start[];
+	extern char __bss_end[];
 
-	for (char* p = &__bss_start; p != &__bss_end; p++)
+	for (char* p = __bss_start; p < __bss_end; p++)
 		*p = 0;
 
 	/* call constructors of static objects */
