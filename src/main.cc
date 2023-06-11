@@ -2,24 +2,30 @@
 #include <uart.h>
 #include <sched/sched.h>
 
-static bool sched_test(void)
+static bool test(void)
 {
-	printf("sched_test()\n");
+	printf("task\n");
 	return true;
 }
-SANDWICH_TASK(sched_test);
+SANDWICH_TASK(test);
 
-static bool uart_task(void)
+static bool test2(void)
 {
-	printf("uart_task");
+	printf("task2\n");
 	return true;
 }
-SANDWICH_TASK(uart_task);
+SANDWICH_TASK(test2);
 
 int main(void)
 {
 	uart::init();
 	sandwich::sched::init();
+
+	sandwich::sched::wakeup(&sandwich_task_test);
+	sandwich::sched::wakeup(&sandwich_task_test2);
+
+	for (int i = 0; i < 8; i++)
+		sandwich::sched::run();
 
 	return 0;
 }

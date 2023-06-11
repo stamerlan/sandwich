@@ -1,46 +1,55 @@
 #include <sched/sched.h>
-#include <algorithm>
-#include <cstdint>
-#include <cstdio>
 #include <type_traits>
 
-static_assert(std::is_standard_layout<sandwich::sched::detail::task_t>::value);
+static_assert(std::is_standard_layout_v<sandwich::sched::task_t>);
 
-/* Defined in linker script. Array of pointers to task_t. */
-extern "C" sandwich::sched::detail::task_t * const __start_sandwich_task_ptr[];
-extern "C" sandwich::sched::detail::task_t * const __stop_sandwich_task_ptr[];
+static sandwich::sched::task_t *next_task;
 
 void sandwich::sched::init(void)
 {
-	printf("tasks ptrs section: [%p:%p]\n", __start_sandwich_task_ptr,
-		__stop_sandwich_task_ptr);
-	size_t tasks_ptrs_sz = uintptr_t(__stop_sandwich_task_ptr) -
-		uintptr_t(__start_sandwich_task_ptr);
+	next_task = nullptr;
+}
 
-	for (size_t i = 0; i < tasks_ptrs_sz; i += 16) {
-		size_t print_bytes = std::min(size_t(16), tasks_ptrs_sz - i);
+void sandwich::sched::wakeup(struct task_t *task)
+{
+	if (task->state != sandwich::sched::task_state::sleep)
+		return;
 
-		printf("0x%04zx:", i);
-
-		auto p = (const unsigned char *)__start_sandwich_task_ptr + i;
-		for (size_t j = 0; j < print_bytes; j++)
-			printf(" %02x", p[j]);
-		for (size_t j = print_bytes; j < 16; j++)
-			printf("   ");
-
-		printf(" | ");
-		for (size_t j = 0; j < print_bytes; j++) {
-			char c = p[j];
-			if (c < ' ' || c > '~')
-				c = '.';
-			printf("%c", c);
-		}
-		for (size_t j = print_bytes; j < 16; j++)
-			printf(" ");
-		printf("|\n");
+	if (!next_task) {
+		/* it's the 1st task in run queue */
+		next_task = task;
+		task->next = task->prev = task;
+	} else {
+		next_task->prev->next = task;
+		task->prev = next_task->prev;
+		task->next = next_task;
+		next_task->prev = task;
 	}
 
-	auto task_ptr = __start_sandwich_task_ptr;
-	for (; task_ptr < __stop_sandwich_task_ptr; task_ptr++)
-		printf("task@%p: %s\n", *task_ptr, (*task_ptr)->name);
+	task->state = sandwich::sched::task_state::ready;
+}
+
+void sandwich::sched::run(void)
+{
+	if (!next_task)
+		return;
+
+	next_task->state = sandwich::sched::task_state::run;
+	if (next_task->fn()) {
+		/* Task remains in run queue. */
+		next_task->state = sandwich::sched::task_state::ready;
+		next_task = next_task->next;
+	} else {
+		/* Put the task to sleep state */
+		if (next_task == next_task->next) {
+			/* Current task is the only one task*/
+			next_task = nullptr;
+		} else {
+			next_task->prev->next = next_task->next;
+			next_task->next->prev = next_task->prev;
+			next_task->state = sandwich::sched::task_state::sleep;
+
+			next_task = next_task->next;
+		}
+	}
 }

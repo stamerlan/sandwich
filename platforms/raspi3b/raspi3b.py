@@ -19,7 +19,10 @@ class Raspi3bPlatform(fwbuild.platforms.base):
 
             # Add platform-specific flags to target
             target.gen_binary = True
+
             target.cxxflags += "-march=armv8-a+crc", "-mcpu=cortex-a53"
+            target.cxxflags += "-ffreestanding"
+
             target.ldflags += "-nostartfiles", "-specs=nosys.specs"
             target.ldflags += "-flto"
             if target.toolchain.ld.version >= (2, 39):

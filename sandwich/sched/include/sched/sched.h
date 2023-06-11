@@ -3,28 +3,51 @@
 
 namespace sandwich::sched {
 
-void init(void);
+enum class task_state {
+	sleep,
+	ready,
+	run,
+};
 
-namespace detail {
 struct task_t {
 	const char *name;
-	struct task_t *next;
+	struct task_t *next, *prev;
+
+	task_state state;
 
 	bool (*fn)(void);
 };
-} /* namespace sandwich::sched::detail */
+
+/**
+ * @brief Initialize cooperative scheduler.
+ */
+void init(void);
+
+/**
+ * @brief Schedule task for execution.
+ * @param task: task to be executed.
+ *
+ * @todo Make thread-safe.
+ */
+void wakeup(struct task_t *task);
+
+/**
+ * @brief Execute next task.
+ *
+ * @todo Make thread-safe.
+ */
+void run(void);
 
 } /* namespace sandwich::sched */
 
-#define SANDWICH_TASK(handler)                                        \
-	__attribute__((used)) static       \
-	sandwich::sched::detail::task_t sandwich_task_ ## handler = { \
-		.name = #handler,                                     \
-		.next = nullptr,                                      \
-		.fn   = handler                                       \
-	}; \
-	\
-	__attribute__((section(".sandwich_task_ptr"),used)) static \
-	sandwich::sched::detail::task_t * const sandwich_task_ ## handler ## _ptr = &sandwich_task_ ## handler
+#define SANDWICH_TASK(handler)                                \
+	__attribute__((used)) static                          \
+	sandwich::sched::task_t sandwich_task_ ## handler = { \
+		.name  = #handler,                            \
+		.next  = nullptr,                             \
+		.prev  = nullptr,                             \
+		.state = sandwich::sched::task_state::sleep,  \
+		.fn    = handler                              \
+	}
 
 #endif /* SANDWICH_SCHED_H */
