@@ -69,3 +69,17 @@ extern "C" int _lseek(int file, int ptr, int dir)
 	errno = ENOSYS;
 	return -1;
 }
+
+extern "C" int _getpid(void)
+{
+	return 0;
+}
+
+extern "C" int _kill(int pid, int sig)
+{
+	(void)pid;
+	(void)sig;
+
+	errno = ENOSYS;
+	return -1;
+}
