@@ -1,19 +1,24 @@
 import fwbuild
 
-app = fwbuild.platform.cxx_app("hello")
-app.gen_dasm = True
-app.gen_map = True
+# TODO: Flags are defined for GCC toolchain only
+@fwbuild.target
+class hello(fwbuild.cxx_app):
+    def __init__(self, conf, toolchain):
+        super().__init__(conf, toolchain)
 
-app.cxxflags += "-std=c++23", "-g", "-O3"
-app.cxxflags += "-fcheck-new", "-flto", "-fno-rtti", "-fno-exceptions"
-app.cxxflags += "-fno-threadsafe-statics"
-app.cxxflags += "-Wall", "-Wextra", "-Werror", "-Weffc++"
-app.cxxflags += "-Wmultiple-inheritance", "-Wvirtual-inheritance"
-app.cxxflags += "-ffile-prefix-map=$srcdir/="
+        self.gen_dasm = True
+        self.gen_map = True
 
-app.ldflags += "-flto"
+        self.cxxflags += "-std=c++23", "-g", "-O3"
+        self.cxxflags += "-fcheck-new", "-flto", "-fno-rtti", "-fno-exceptions"
+        self.cxxflags += "-fno-threadsafe-statics"
+        self.cxxflags += "-Wall", "-Wextra", "-Werror", "-Weffc++"
+        self.cxxflags += "-Wmultiple-inheritance", "-Wvirtual-inheritance"
+        self.cxxflags += "-ffile-prefix-map=$srcdir/="
 
-app.submodule(fwbuild.topdir / "drivers")
-app.submodule(fwbuild.topdir / "sandwich")
+        self.ldflags += "-flto"
 
-app.src("main.cc")
+        self.submodule("drivers")
+        self.submodule("sandwich")
+
+        self.src("main.cc")
