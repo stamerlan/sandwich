@@ -56,7 +56,7 @@ class tool(object):
                 self._path = f
                 break
         else:
-            raise FileNotFoundError(f'Tool "{fname.as_posix()}" is not found')
+            raise FileNotFoundError(fname.as_posix())
 
     @property
     def name(self) -> str:
