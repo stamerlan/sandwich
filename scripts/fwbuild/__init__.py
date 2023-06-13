@@ -2,7 +2,7 @@ from .cxx_app import cxx_app
 from .cxx_module import cxx_module
 from .file_set import file_set
 from .kconfig import kconfig
-from .target import target
+from .target import target, targets
 from .tool import tool
 from .toolchain import toolchain
 import contextlib
