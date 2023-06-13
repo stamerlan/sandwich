@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, ItemsView
 from .tool import tool
 
 class tools_ns(object):
@@ -33,6 +33,9 @@ class tools_ns(object):
     def __delattr__(self, name: str):
         del self._tools[name]
         del self.__dict__[name]
+
+    def items(self) -> ItemsView[str, tool]:
+        return self._tools.items()
 
 
 class toolchain(object):
