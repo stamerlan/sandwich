@@ -9,7 +9,7 @@ class kconfig(object):
     def __init__(self, topdir: str | pathlib.Path,
                  kconfig: str | pathlib.Path = "Kconfig"):
         self._topdir = pathlib.Path(topdir)
-        self._deps = file_set(topdir)
+        self.deps = file_set(topdir)
 
         kconfig = pathlib.Path(kconfig)
         if kconfig.is_file():
@@ -26,7 +26,7 @@ class kconfig(object):
             os.environ["srctree"] = env_srctree
 
         for fname in self._kconf.kconfig_filenames:
-            self._deps.add(kconfig.parent, fname)
+            self.deps.add(kconfig.parent, fname)
 
         self._set_symbols()
 
@@ -61,7 +61,7 @@ class kconfig(object):
             raise FileNotFoundError(err_msg)
 
         output = self._kconf.load_config(conf_file.as_posix())
-        self._deps.add(conf_file)
+        self.deps.add(conf_file)
         self._set_symbols()
 
         if env_kconfig_config is not None:
