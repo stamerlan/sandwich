@@ -1,45 +1,40 @@
-from .file_set import file_set
+from pathlib import Path
 import kconfiglib
 import os
-import pathlib
 
 class kconfig(object):
     """ Class to load configuration from Kconfig file """
 
-    def __init__(self, topdir: str | pathlib.Path,
-                 kconfig: str | pathlib.Path = "Kconfig"):
-        self._topdir = pathlib.Path(topdir)
-        self.deps = file_set(topdir)
+    def __init__(self, topdir: str | Path, kconfig: str | Path = "Kconfig"):
+        self._topdir = Path(topdir)
+        self.deps: set[Path] = set()
 
-        kconfig = pathlib.Path(kconfig)
+        kconfig = Path(kconfig)
         if kconfig.is_file():
-            pass
+            kconfig = kconfig.absolute()
         elif (self._topdir / kconfig).is_file():
             kconfig = self._topdir / kconfig
         else:
             raise FileNotFoundError(f"Can't find \"{kconfig.as_posix()}\"")
 
-        env_srctree = os.getenv("srctree", None)
-        os.environ.pop("srctree", None)
+        env_srctree = os.environ.pop("srctree", None)
         self._kconf = kconfiglib.Kconfig(kconfig.as_posix(), warn_to_stderr=False)
         if env_srctree is not None:
             os.environ["srctree"] = env_srctree
 
         for fname in self._kconf.kconfig_filenames:
-            self.deps.add(kconfig.parent, fname)
+            self.deps.add(Path(kconfig.parent, fname))
 
         self._set_symbols()
 
-    def load_config(self, filename: str | pathlib.Path | None) -> str:
-        env_kconfig_config = os.getenv("KCONFIG_CONFIG", None)
-        os.environ.pop("KCONFIG_CONFIG", None)
-
+    def load_config(self, filename: str | Path | None) -> str:
+        env_kconfig_config = os.environ.pop("KCONFIG_CONFIG", None)
         conf_file = None
 
         if filename is None:
-            defaults = [pathlib.Path(".config"), self._topdir / ".config"]
+            defaults = [Path(".config"), self._topdir / ".config"]
             if self._kconf.defconfig_filename is not None:
-                defaults.append(pathlib.Path(self._kconf.defconfig_filename))
+                defaults.append(Path(self._kconf.defconfig_filename))
                 defaults.append(self._topdir / self._kconf.defconfig_filename)
 
             for fname in defaults:
@@ -47,7 +42,7 @@ class kconfig(object):
                     conf_file = fname
                     break
         else:
-            conf_file = pathlib.Path(filename)
+            conf_file = Path(filename)
             if not conf_file.is_file():
                 conf_file = self._topdir / filename
                 if not conf_file.is_file():
@@ -61,7 +56,7 @@ class kconfig(object):
             raise FileNotFoundError(err_msg)
 
         output = self._kconf.load_config(conf_file.as_posix())
-        self.deps.add(conf_file)
+        self.deps.add(conf_file.absolute())
         self._set_symbols()
 
         if env_kconfig_config is not None:
