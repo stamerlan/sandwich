@@ -3,15 +3,17 @@ from .cxx_module import cxx_module
 from .kconfig import kconfig
 from .node import node
 from .str_list import str_list
+import pathlib
 
 class cxx_app(cxx_module):
     """ Base class for C++ application targets """
 
-    def __init__(self, conf: kconfig, toolchain, name: str | None = None):
+    def __init__(self, conf: kconfig, toolchain, name: str | None = None,
+                 srcdir: str | pathlib.Path | None = None):
         """ TODO: toolchain type annotation """
         if name is None:
             name = self.__class__.__name__
-        super().__init__(self, name, caller().dir)
+        super().__init__(self, name, srcdir or caller().dir)
 
         self._ldflags = str_list()
         self._ldlibs  = str_list()
