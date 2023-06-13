@@ -10,7 +10,7 @@ class tools_ns(object):
 
     def __setitem__(self, name: str, value: Any):
         if not isinstance(value, tool):
-            value = tool(value)
+            value = tool(value, name=name)
 
         self._tools[name] = value
         self.__dict__[name] = value
