@@ -1,8 +1,11 @@
 from .caller import caller
-from .cxx_app import cxx_app
 from .node import node
 from .str_list import str_list
 import pathlib
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .cxx_app import cxx_app
 
 class cxx_module(object):
     """ Base class for C++ modules.
@@ -14,7 +17,7 @@ class cxx_module(object):
     TODO: Add method to add a submodule
     """
 
-    def __init__(self, target: cxx_app, name: str | None = None,
+    def __init__(self, target: "cxx_app", name: str | None = None,
                  srcdir: str | pathlib.Path | None = None):
         """ Construct C++ module
 
@@ -87,7 +90,7 @@ class cxx_module(object):
         return self._submodules
 
     @property
-    def target(self) -> cxx_app:
+    def target(self) -> "cxx_app":
         return self._target
 
     def include(self, dir: str | pathlib.Path):
