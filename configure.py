@@ -44,18 +44,11 @@ class hello(fwbuild.cxx_app):
 class test(fwbuild.cxx_gtest):
     pass
 
-host = platforms.host.host(conf)
+if conf.PLATFORM_HOST:
+    build = fwbuild.ninja(platforms.host.host(conf), "bin/host/ninja.build")
+elif conf.PLATFORM_RASPI3B:
+    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/ninja.build")
+else:
+    raise RuntimeError("Unknown platform")
 
-#@fwbuild.target
-#class hello(fwbuild.cxx_app):
-#    def init(self, conf, toolchain):
-#        super().init(conf, toolchain)
-#        self.src("main.cc")
-
-#if conf.PLATFORM_HOST:
-#    build = fwbuild.ninja(PlatformHost(conf), "bin/host/ninja.build")
-#elif conf.PLATFORM_RASPI3B:
-#    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/ninja.build")
-#else:
-#    raise RuntimeError("Unknown platform")
 #fwbuild.vscode(build, ".vscode/")

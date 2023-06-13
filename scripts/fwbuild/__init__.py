@@ -1,18 +1,19 @@
+import sys
+# Make the package available by name 'fwbuild'
+if __name__ != "fwbuild":
+    sys.modules["fwbuild"] = sys.modules[__name__]
+
 from .cxx_app import cxx_app
 from .cxx_gtest import cxx_gtest
 from .cxx_module import cxx_module
 from .kconfig import kconfig
+from .ninja import ninja
 from .target import target, targets
 from .tool import tool
 from .toolchain import toolchain
 from pathlib import Path
 import contextlib
 import os
-import sys
-
-# Make the package available by name 'fwbuild'
-if __name__ != "fwbuild":
-    sys.modules["fwbuild"] = sys.modules[__name__]
 
 # Top source directory. The directory where configuration script located
 topdir = Path(sys.modules["__main__"].__file__).parent
