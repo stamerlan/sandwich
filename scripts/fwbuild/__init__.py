@@ -3,6 +3,8 @@ from .cxx_module import cxx_module
 from .file_set import file_set
 from .kconfig import kconfig
 from .target import target
+from .tool import tool
+from .toolchain import toolchain
 import contextlib
 import os
 import pathlib
