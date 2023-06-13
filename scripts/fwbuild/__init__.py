@@ -1,5 +1,5 @@
 from .cxx_app import cxx_app
-from .files_set import files_set
+from .file_set import file_set
 from .kconfig import kconfig
 from .target import target
 import contextlib
@@ -16,7 +16,7 @@ topdir = pathlib.Path(sys.modules["__main__"].__file__).parent
 
 # Configuration script dependencies. Changes in those files trigger invoking
 # configuration script before the build.
-deps = files_set(topdir, sys.modules["__main__"].__file__)
+deps = file_set(topdir, sys.modules["__main__"].__file__)
 for root, dirs, files in os.walk(pathlib.Path(__file__).parent):
     for file in files:
         deps.add(pathlib.Path(root, file))

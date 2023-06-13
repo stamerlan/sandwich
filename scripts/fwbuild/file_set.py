@@ -1,6 +1,6 @@
 import pathlib
 
-class files_set(object):
+class file_set(object):
     """ Set of file paths.
 
         Stores file paths relative to topdir if possible.
