@@ -13,6 +13,9 @@ class file_set(object):
         for f in filenames:
             self.add(f)
 
+    def __str__(self) -> str:
+        return str(sorted([f.as_posix() for f in self._files]))
+
     @property
     def files(self) -> set[pathlib.Path]:
         return self._files
