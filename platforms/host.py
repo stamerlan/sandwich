@@ -1,3 +1,4 @@
+from fwbuild.ninja_syntax import Writer
 from pathlib import Path
 import fwbuild
 import fwbuild.toolchains
@@ -6,7 +7,7 @@ class host(object):
     def __init__(self, conf: fwbuild.kconfig):
         fwbuild.deps.add(Path(__file__))
 
-        self.targets = []
+        self.targets: list[fwbuild.cxx_module] = []
         self.toolchain = fwbuild.toolchains.gcc.find()
 
         for cls in fwbuild.build_cls:
@@ -18,3 +19,6 @@ class host(object):
                 pass
             else:
                 raise RuntimeError(f"Unexpected target {cls}")
+
+    def build_cxx_app(self, target: fwbuild.cxx_app, outdir: Path, w: Writer):
+        return self.toolchain.build_cxx_app(target, outdir, w)

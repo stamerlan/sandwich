@@ -1,3 +1,4 @@
+from fwbuild.ninja_syntax import Writer
 from pathlib import Path
 import contextlib
 import fwbuild
@@ -21,3 +22,6 @@ class gcc(fwbuild.toolchain):
         self.tools["objcopy"] = dir / (prefix + "objcopy")
         self.tools["objdump"] = dir / (prefix + "objdump")
 
+    def build_cxx_app(self, target: fwbuild.cxx_app, outdir: Path, w: Writer):
+        w.comment(f"Build {target.name} using {self}")
+        return True
