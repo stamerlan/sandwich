@@ -1,11 +1,11 @@
-targets = []
+build_cls = []
 
-def target(cls):
+def build(cls):
     """ Decorator for every build target.
 
         Used to register class during the build, skip target build or rise an
         error if some requirements are not met.
     """
-    global targets
-    targets.append(cls)
+    global build_cls
+    build_cls.append(cls)
     return cls

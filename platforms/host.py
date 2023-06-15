@@ -9,7 +9,7 @@ class host(object):
         self.targets = []
         self.toolchain = fwbuild.toolchains.gcc.find()
 
-        for cls in fwbuild.targets:
+        for cls in fwbuild.build_cls:
             if issubclass(cls, fwbuild.cxx_gtest):
                 print(f"{cls.__name__}: GTest target is not supported")
             elif issubclass(cls, fwbuild.cxx_app):

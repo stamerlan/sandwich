@@ -29,7 +29,7 @@ def print_toolchain(toolchain: fwbuild.toolchain):
     for name, tool in toolchain.tools.items():
         print(f"  {name}: {tool}")
 
-@fwbuild.target
+@fwbuild.build
 class hello(fwbuild.cxx_app):
     def __init__(self, conf, toolchain):
         super().__init__(conf, toolchain)
@@ -40,7 +40,7 @@ class hello(fwbuild.cxx_app):
         self.src("src/main.cc", cxxflags="-Os")
         self.src("drivers/uart/src/host.cc")
 
-@fwbuild.target
+@fwbuild.build
 class test(fwbuild.cxx_gtest):
     pass
 

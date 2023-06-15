@@ -8,7 +8,7 @@ from .cxx_gtest import cxx_gtest
 from .cxx_module import cxx_module
 from .kconfig import kconfig
 from .ninja import ninja
-from .target import target, targets
+from .build import build, build_cls
 from .tool import tool
 from .toolchain import toolchain
 from pathlib import Path

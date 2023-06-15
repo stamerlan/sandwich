@@ -1,7 +1,7 @@
 import fwbuild
 
 # TODO: Flags are defined for GCC toolchain only
-@fwbuild.target
+@fwbuild.build
 class hello(fwbuild.cxx_app):
     def __init__(self, conf, toolchain):
         super().__init__(conf, toolchain)
