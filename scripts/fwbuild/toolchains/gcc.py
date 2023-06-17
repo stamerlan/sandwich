@@ -130,13 +130,13 @@ class gcc(fwbuild.toolchain):
         w.newline()
 
         # Link
-        artifacts.app = w.filename.parent / target.name
+        artifacts.app = Path("$outdir", target.name)
         if self._prefix:
             artifacts.app = artifacts.app.with_suffix(".elf")
         elif sys.platform == "win32":
             artifacts.app = artifacts.app.with_suffix(".exe")
 
-        w.comment(f"Link {artifacts.app.as_posix()}")
+        w.comment(f"Link {artifacts.app.name}")
         w.variable("ldflags", target.ldflags)
         w.variable("ldlibs", " ".join(["-l" + lib for lib in target.ldlibs]))
         w.newline()
@@ -150,13 +150,16 @@ class gcc(fwbuild.toolchain):
         }
 
         if target.ldscript:
-            ld_vars["implicit"].append(str(target.ldscript))
-            ld_vars["variables"]["ldflags"].append(f"-T {target.ldscript}")
+            ldscript = fwbuild.relative_path(target.ldscript,
+                outdir=topout, topout=topout, srcdir=target.srcdir,
+                topdir=fwbuild.topdir)
+            ld_vars["implicit"].append(ldscript.as_posix())
+            ld_vars["variables"]["ldflags"].append(f"-T {ldscript.as_posix()}")
         if target.mapfile:
             artifacts.map = artifacts.app.with_suffix(".map")
             ld_vars["implicit"].append(artifacts.map.as_posix())
             ld_vars["variables"]["ldflags"].append(
-                f"-Xlinker -Map={artifacts.map.as_posix()}")
+                f"-Xlinker -Map={artifacts.map.name}")
 
         ld_vars["variables"] = {k: v for k, v in ld_vars["variables"].items() if v}
         for name, value in ld_vars["variables"].items():
