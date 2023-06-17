@@ -1,4 +1,5 @@
 from .caller import caller
+from .mkpath import mkpath
 from .node import node
 from .str_list import str_list
 import pathlib
@@ -95,12 +96,10 @@ class cxx_module(object):
 
     def include(self, dir: str | pathlib.Path):
         """ Add a directory to C preprocessor search path """
-        dir = pathlib.Path(dir)
-        if not dir.is_absolute():
-            dir = pathlib.Path(caller().dir, dir)
+        dir = mkpath(dir, default=caller().dir)
         self._includes.append(node(dir))
 
-    def src(self, *sources, **meta):
+    def src(self, *sources, **vars):
         """ Add source files to sources list """
         for s in sources:
-            self._src.append(node(s, **meta))
+            self._src.append(node(mkpath(s, default=caller().dir), **vars))
