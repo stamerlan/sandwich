@@ -1,4 +1,3 @@
-from fwbuild.ninja_syntax import Writer
 from itertools import chain
 from pathlib import Path
 import contextlib
@@ -16,11 +15,11 @@ class build_artifacts(object):
         # Default build files
         self.defaults: list[str] = []
 
-def _build_compile(w: Writer, module: fwbuild.cxx_module, outdir: Path,
+def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
                    reset_flags: bool = False) -> list[Path]:
     w.comment(f"Module: {module}")
     w.variable("srcdir", module.srcdir)
-    w.variable("outdir", outdir.as_posix())
+    w.variable("outdir", w.filename.parent.as_posix())
 
     flags = {
         "asflags" : str(module.asflags),
@@ -37,22 +36,24 @@ def _build_compile(w: Writer, module: fwbuild.cxx_module, outdir: Path,
     objs = []
     for src in module.sources:
         obj_fname = Path("$outdir", src.path.stem).with_suffix(".o")
+        obj_fullpath = Path(w.filename.parent, *obj_fname.parts[1:])
 
         if src.path.suffix in (".cc", ".cxx", ".cpp"):
             w.build(obj_fname.as_posix(), "cxx", str(src), **src.vars)
         elif src.path.suffix in (".S"):
             w.build(obj_fname.as_posix(), "as", str(src), **src.vars)
         else:
-            raise RuntimeError(f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
+            raise RuntimeError(
+                f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
 
-        objs.append(Path(outdir, *obj_fname.parts[1:]))
+        objs.append(obj_fullpath)
 
     for mod in module.submodules:
-        buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
+        buildfile = w.filename.parent / mod.name / f"{mod.name}-build.ninja"
         w.subninja(buildfile.as_posix())
 
-        with open(buildfile, "w") as f:
-            objs.extend(compile(Writer(f), mod, buildfile.parent))
+        with fwbuild.ninja_writer(buildfile) as subninja:
+            objs.extend(compile(subninja, mod, buildfile.parent))
 
     return objs
 
@@ -76,7 +77,7 @@ class gcc(fwbuild.toolchain):
         self.tools.objcopy = fwbuild.tool(dir, prefix + "objcopy", name="objcopy")
         self.tools.objdump = fwbuild.tool(dir, prefix + "objdump", name="objdump")
 
-    def build_cxx_app(self, target: fwbuild.cxx_app, outdir: Path, w: Writer):
+    def build_cxx_app(self, target: fwbuild.cxx_app, w: fwbuild.ninja_writer):
         w.comment(f'Build target "{target.name}" using {self}')
         w.newline()
 
@@ -114,11 +115,11 @@ class gcc(fwbuild.toolchain):
 
         # Compile
         artifacts = build_artifacts()
-        artifacts.objs = _build_compile(w, target, outdir, True)
+        artifacts.objs = _build_compile(w, target, True)
         print(artifacts.objs)
 
         # Link
-        artifacts.app = outdir / target.name
+        artifacts.app = w.filename.parent / target.name
         if self._prefix:
             artifacts.app = artifacts.app.with_suffix(".elf")
         elif sys.platform == "win32":

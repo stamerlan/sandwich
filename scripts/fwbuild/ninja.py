@@ -3,6 +3,20 @@ import fwbuild
 import fwbuild.ninja_syntax
 import sys
 
+class ninja_writer(fwbuild.ninja_syntax.Writer):
+    def __init__(self, filename: str | Path, width=78):
+        super().__init__(None, width)
+        self.filename = Path(filename)
+        self.file = None
+
+    def __enter__(self):
+        self.filename.parent.mkdir(parents=True, exist_ok=True)
+        self.output = open(self.filename, "w")
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.output.close()
+
 def write_subninja(platform, target, filename: Path):
     if isinstance(target, fwbuild.cxx_gtest):
         return None
@@ -13,9 +27,8 @@ def write_subninja(platform, target, filename: Path):
     else:
         raise RuntimeError(f'"{target}" has unexpected class {type(target)}')
 
-    with open(filename, "w") as f:
-        w = fwbuild.ninja_syntax.Writer(f)
-        return platform.build_cxx_app(target, filename.parent, w)
+    with ninja_writer(filename) as w:
+        return platform.build_cxx_app(target, w)
 
 
 def ninja(platform, buildfile_name: str | Path):
@@ -34,11 +47,12 @@ def ninja(platform, buildfile_name: str | Path):
         w.newline()
 
         for target in platform.targets:
-            name = buildfile_name.parent / f"{target.name}-build.ninja"
+            name = Path(buildfile_name.parent, target.name,
+                f"{target.name}-build.ninja")
 
             build = write_subninja(platform, target, name)
             if build is not None:
-                w.subninja(f"{target.name}-build.ninja")
+                w.subninja(f"{target.name}/{target.name}-build.ninja")
         w.newline()
 
         w.comment("Regenerate build files if configuration script changed")
