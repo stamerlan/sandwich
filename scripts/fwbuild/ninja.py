@@ -20,7 +20,8 @@ def write_subninja(platform, target, filename: Path):
 
 def ninja(platform, buildfile_name: str | Path):
     buildfile_name = Path(buildfile_name)
-    buildfile_name.parent.mkdir(parents=True, exist_ok=True)
+    builddir = buildfile_name.parent
+    builddir.mkdir(parents=True, exist_ok=True)
 
     with open(buildfile_name, "w") as buildfile:
         w = fwbuild.ninja_syntax.Writer(buildfile)
@@ -38,3 +39,23 @@ def ninja(platform, buildfile_name: str | Path):
             build = write_subninja(platform, target, name)
             if build is not None:
                 w.subninja(f"{target.name}-build.ninja")
+        w.newline()
+
+        w.comment("Regenerate build files if configuration script changed")
+        conf_cmd = fwbuild.shellcmd()
+        conf_cmd.cd(Path.cwd())
+        conf_cmd.cmd(sys.executable, *sys.argv)
+
+        main = Path(sys.modules["__main__"].__file__)
+        w.rule("configure", command=conf_cmd, generator=True,
+                description=main.name, depfile="build.ninja.deps")
+        w.build("build.ninja", "configure")
+
+    # Write dependencies
+    with open(builddir / "build.ninja.deps", "w") as f:
+        f.write(buildfile_name.name + ": \\\n")
+        for dep in fwbuild.deps:
+            f.write(f"  {dep.as_posix()} \\\n")
+        f.write("\n")
+        for dep in fwbuild.deps:
+                f.write(f"{dep.as_posix()}:\n\n")
