@@ -9,6 +9,8 @@ class hello(fwbuild.cxx_app):
         self.gen_dasm = True
         self.gen_map = True
 
+        self.include(".")
+
         self.cxxflags += "-std=c++23", "-g", "-O3"
         self.cxxflags += "-fcheck-new", "-flto", "-fno-rtti", "-fno-exceptions"
         self.cxxflags += "-fno-threadsafe-statics"
