@@ -13,6 +13,7 @@ args = parser.parse_args()
 # Load configuration
 conf = fwbuild.kconfig(fwbuild.topdir)
 print(conf.load_config(args.config))
+fwbuild.deps |= conf.deps
 
 def print_cxx_app(app: fwbuild.cxx_app):
     print(app)
