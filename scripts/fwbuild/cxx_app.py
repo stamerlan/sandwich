@@ -15,6 +15,8 @@ class cxx_app(cxx_module):
             name = self.__class__.__name__
         super().__init__(self, name, srcdir or caller().dir)
 
+        self.conf = conf
+
         self._ldflags = str_list()
         self._ldlibs  = str_list()
         self._ldscript: Path | None = None
