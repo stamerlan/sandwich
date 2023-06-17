@@ -64,6 +64,11 @@ class kconfig(object):
 
         return output
 
+    def write_autoconf(self, filename: str | Path, header: str | None = None):
+        filename = Path(filename)
+        filename.parent.mkdir(parents=True, exist_ok=True)
+        self._kconf.write_autoconf(filename, header)
+
     def _set_symbols(self):
         for name, sym in self._kconf.syms.items():
             if name == "MODULES":
