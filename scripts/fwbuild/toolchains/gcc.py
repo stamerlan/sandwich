@@ -151,7 +151,7 @@ class gcc(fwbuild.toolchain):
 
         if target.ldscript:
             ldscript = fwbuild.relative_path(target.ldscript,
-                outdir=topout, topout=topout, srcdir=target.srcdir,
+                outdir=w.filename.parent, topout=topout, srcdir=target.srcdir,
                 topdir=fwbuild.topdir)
             ld_vars["implicit"].append(ldscript.as_posix())
             ld_vars["variables"]["ldflags"].append(f"-T {ldscript.as_posix()}")
@@ -166,10 +166,14 @@ class gcc(fwbuild.toolchain):
             ld_vars["variables"][name] = \
                 ' '.join(ld_vars["variables"][name]) + f" ${name}"
 
+        objs = []
+        for p in artifacts.objs:
+            objs.append(fwbuild.relative_path(p, outdir=w.filename.parent,
+                topout=topout, srcdir=target.srcdir, topdir=fwbuild.topdir).
+                    as_posix())
+
         artifacts.defaults.append(artifacts.app.as_posix())
-        w.build(artifacts.app.as_posix(), "ld",
-            [p.as_posix() for p in artifacts.objs],
-            **ld_vars)
+        w.build(artifacts.app.as_posix(), "ld", objs, **ld_vars)
 
         # Binary
         if target.binary:
