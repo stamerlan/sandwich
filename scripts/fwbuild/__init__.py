@@ -7,7 +7,7 @@ from .cxx_app import cxx_app
 from .cxx_gtest import cxx_gtest
 from .cxx_module import cxx_module
 from .kconfig import kconfig
-from .ninja import ninja
+from .ninja import ninja, ninja_writer
 from .build import build, build_cls
 from .shellcmd import shellcmd
 from .tool import tool

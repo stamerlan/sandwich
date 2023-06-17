@@ -1,4 +1,3 @@
-from fwbuild.ninja_syntax import Writer
 from pathlib import Path
 import fwbuild
 import fwbuild.toolchains
@@ -20,5 +19,5 @@ class host(object):
             else:
                 raise RuntimeError(f"Unexpected target {cls}")
 
-    def build_cxx_app(self, target: fwbuild.cxx_app, outdir: Path, w: Writer):
-        return self.toolchain.build_cxx_app(target, outdir, w)
+    def build_cxx_app(self, target: fwbuild.cxx_app, w: fwbuild.ninja_writer):
+        return self.toolchain.build_cxx_app(target, w)
