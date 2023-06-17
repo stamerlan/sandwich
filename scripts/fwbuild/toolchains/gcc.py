@@ -15,12 +15,12 @@ class gcc(fwbuild.toolchain):
         super().__init__(prefix + "gcc")
         self._prefix = prefix
 
-        self.tools["cc"]      = dir / (prefix + "gcc")
-        self.tools["ar"]      = dir / (prefix + "ar")
-        self.tools["cxx"]     = dir / (prefix + "g++")
-        self.tools["ld"]      = dir / (prefix + "ld")
-        self.tools["objcopy"] = dir / (prefix + "objcopy")
-        self.tools["objdump"] = dir / (prefix + "objdump")
+        self.tools.cc      = fwbuild.tool(dir, prefix + "gcc",     name="cc")
+        self.tools.ar      = fwbuild.tool(dir, prefix + "ar",      name="ar")
+        self.tools.cxx     = fwbuild.tool(dir, prefix + "g++",     name="cxx")
+        self.tools.ld      = fwbuild.tool(dir, prefix + "ld",      name="ld")
+        self.tools.objcopy = fwbuild.tool(dir, prefix + "objcopy", name="objcopy")
+        self.tools.objdump = fwbuild.tool(dir, prefix + "objdump", name="objdump")
 
     def build_cxx_app(self, target: fwbuild.cxx_app, outdir: Path, w: Writer):
         w.comment(f"Build {target.name} using {self}")
