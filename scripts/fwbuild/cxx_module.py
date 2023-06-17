@@ -27,7 +27,10 @@ class cxx_module(object):
         srcdir: module sources directory. If none it's set to caller's dirname.
         """
         if name is None:
-            name = caller().stem
+            if caller().cls is not None:
+                name = caller().cls.__name__
+            else:
+                name = caller().stem
         self._name = name
 
         if srcdir is None:
