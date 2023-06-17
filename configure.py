@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import scripts.fwbuild as fwbuild
-import fwbuild.toolchains
-import platforms.host
 import argparse
+
+import drivers.build
+import platforms.host
+import sandwich.build
+import src.build
 
 # Parse command line
 parser = argparse.ArgumentParser(description="Sandwich configuration script")
@@ -15,41 +18,11 @@ conf = fwbuild.kconfig(fwbuild.topdir)
 print(conf.load_config(args.config))
 fwbuild.deps |= conf.deps
 
-def print_cxx_app(app: fwbuild.cxx_app):
-    print(app)
-    print(f"  cxxflags: {app.cxxflags}")
-    print(f"  includes: {[str(i) for i in app.includes]}")
-    for s in app.sources:
-        print(f"  {s.path.as_posix()}", end='')
-        if s.meta:
-            print(f" {s.meta}", end='')
-        print()
-
-def print_toolchain(toolchain: fwbuild.toolchain):
-    print(f"{toolchain.name}@{toolchain.tools.cc.path.parent.as_posix()}")
-    for name, tool in toolchain.tools.items():
-        print(f"  {name}: {tool}")
-
-@fwbuild.build
-class hello(fwbuild.cxx_app):
-    def __init__(self, conf, toolchain):
-        super().__init__(conf, toolchain)
-
-        self.cxxflags += "-Wall", "-Wextra"
-        self.include("drivers/uart/include")
-        self.mapfile = True
-
-        self.src("src/main.cc", variables={"cxxflags": "-Os"})
-        self.src("drivers/uart/src/host.cc")
-
-@fwbuild.build
-class test(fwbuild.cxx_gtest):
-    pass
-
+# Write build files
 if conf.PLATFORM_HOST:
     build = fwbuild.ninja(platforms.host.host(conf), "bin/host/build.ninja")
-elif conf.PLATFORM_RASPI3B:
-    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/build.ninja")
+#elif conf.PLATFORM_RASPI3B:
+#    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/build.ninja")
 else:
     raise RuntimeError("Unknown platform")
 
