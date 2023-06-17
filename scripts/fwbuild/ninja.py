@@ -37,4 +37,4 @@ def ninja(platform, buildfile_name: str | Path):
 
             build = write_subninja(platform, target, name)
             if build is not None:
-                w.subninja(name.as_posix())
+                w.subninja(f"{target.name}-build.ninja")

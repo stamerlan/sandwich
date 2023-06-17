@@ -36,6 +36,7 @@ class hello(fwbuild.cxx_app):
 
         self.cxxflags += "-Wall", "-Wextra"
         self.include("drivers/uart/include")
+        self.mapfile = True
 
         self.src("src/main.cc", variables={"cxxflags": "-Os"})
         self.src("drivers/uart/src/host.cc")
@@ -45,9 +46,9 @@ class test(fwbuild.cxx_gtest):
     pass
 
 if conf.PLATFORM_HOST:
-    build = fwbuild.ninja(platforms.host.host(conf), "bin/host/ninja.build")
+    build = fwbuild.ninja(platforms.host.host(conf), "bin/host/build.ninja")
 elif conf.PLATFORM_RASPI3B:
-    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/ninja.build")
+    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/build.ninja")
 else:
     raise RuntimeError("Unknown platform")
 
