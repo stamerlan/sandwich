@@ -6,6 +6,11 @@ class caller(object):
         frame_info = inspect.stack()[frame_nr + 1]
         self._filename = pathlib.Path(frame_info.filename)
         self._lineno = frame_info.lineno
+        self._cls = frame_info.frame.f_locals.get("__class__", None)
+
+    @property
+    def cls(self) -> type | None:
+        return self._cls
 
     @property
     def filename(self) -> pathlib.Path:
