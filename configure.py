@@ -37,7 +37,7 @@ class hello(fwbuild.cxx_app):
         self.cxxflags += "-Wall", "-Wextra"
         self.include("drivers/uart/include")
 
-        self.src("src/main.cc", cxxflags="-Os")
+        self.src("src/main.cc", variables={"cxxflags": "-Os"})
         self.src("drivers/uart/src/host.cc")
 
 @fwbuild.build
