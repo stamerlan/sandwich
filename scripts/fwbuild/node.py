@@ -1,7 +1,5 @@
 import pathlib
 
-_WELL_KNOWN_DIRS = ("$outdir", "$srcdir", "$topdir")
-
 class node(object):
     """ Represents a single file path.
 
@@ -10,14 +8,7 @@ class node(object):
     """
 
     def __init__(self, path: str | pathlib.Path, **vars):
-        path = pathlib.Path(path)
-        if len(path.parts) == 0 or path.is_absolute() or path.parts[0] in _WELL_KNOWN_DIRS:
-            self._path = path
-        elif path.parts[0] == "topout":
-            self._path = pathlib.Path(*path.parts[1:])
-        else:
-            self._path = pathlib.Path("$srcdir", path)
-
+        self._path = pathlib.Path(path)
         self._vars = {**vars}
 
     @property

@@ -9,6 +9,7 @@ from .cxx_module import cxx_module
 from .kconfig import kconfig
 from .ninja import ninja, ninja_writer
 from .build import build, build_cls
+from .mkpath import mkpath, relative_path
 from .shellcmd import shellcmd
 from .tool import tool
 from .toolchain import toolchain
