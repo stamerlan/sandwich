@@ -16,10 +16,10 @@ class build_artifacts(object):
         self.defaults: list[str] = []
 
 def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
-                   reset_flags: bool = False) -> list[Path]:
+        outdir: Path, topout: Path, reset_flags: bool = False) -> list[Path]:
     w.comment(f"Module: {module}")
-    w.variable("srcdir", module.srcdir)
-    w.variable("outdir", w.filename.parent.as_posix())
+    w.variable("srcdir", module.srcdir.as_posix())
+    w.variable("outdir", outdir.relative_to(topout).as_posix())
 
     flags = {
         "asflags" : str(module.asflags),
@@ -33,27 +33,34 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
             w.variable(name, f"${name} {value}")
     w.newline()
 
+    suffix_rules = {
+        ".cc":  "cxx",
+        ".cxx": "cxx",
+        ".cpp": "cxx",
+        ".S":   "as"
+    }
+
     objs = []
     for src in module.sources:
-        obj_fname = Path("$outdir", src.path.stem).with_suffix(".o")
-        obj_fullpath = Path(w.filename.parent, *obj_fname.parts[1:])
+        src_path = fwbuild.relative_path(src.path, outdir=outdir, topout=topout,
+            srcdir=module.srcdir, topdir=fwbuild.topdir)
+        obj_path = Path("$outdir", src_path.stem).with_suffix(".o")
 
-        if src.path.suffix in (".cc", ".cxx", ".cpp"):
-            w.build(obj_fname.as_posix(), "cxx", str(src), **src.vars)
-        elif src.path.suffix in (".S"):
-            w.build(obj_fname.as_posix(), "as", str(src), **src.vars)
-        else:
+        if src_path.suffix not in suffix_rules:
             raise RuntimeError(
                 f"{module.name}@{module.srcdir}: Unsupported source file suffix '{src}'")
 
-        objs.append(obj_fullpath)
+        w.build(obj_path.as_posix(), suffix_rules[src_path.suffix],
+                src_path.as_posix(), **src.vars)
+
+        objs.append(outdir / obj_path.name)
 
     for mod in module.submodules:
-        buildfile = w.filename.parent / mod.name / f"{mod.name}-build.ninja"
+        buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
         w.subninja(buildfile.as_posix())
 
         with fwbuild.ninja_writer(buildfile) as subninja:
-            objs.extend(compile(subninja, mod, buildfile.parent))
+            objs.extend(_build_compile(subninja, mod, buildfile.parent, topout))
 
     return objs
 
@@ -77,7 +84,8 @@ class gcc(fwbuild.toolchain):
         self.tools.objcopy = fwbuild.tool(dir, prefix + "objcopy", name="objcopy")
         self.tools.objdump = fwbuild.tool(dir, prefix + "objdump", name="objdump")
 
-    def build_cxx_app(self, target: fwbuild.cxx_app, w: fwbuild.ninja_writer):
+    def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
+                      w: fwbuild.ninja_writer):
         w.comment(f'Build target "{target.name}" using {self}')
         w.newline()
 
@@ -115,8 +123,9 @@ class gcc(fwbuild.toolchain):
 
         # Compile
         artifacts = build_artifacts()
-        artifacts.objs = _build_compile(w, target, True)
-        print(artifacts.objs)
+        artifacts.objs = _build_compile(w, target, w.filename.parent,
+            topout, True)
+        w.newline()
 
         # Link
         artifacts.app = w.filename.parent / target.name

@@ -17,7 +17,7 @@ class ninja_writer(fwbuild.ninja_syntax.Writer):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.output.close()
 
-def write_subninja(platform, target, filename: Path):
+def write_subninja(platform, target, filename: Path, topout: Path):
     if isinstance(target, fwbuild.cxx_gtest):
         return None
     elif isinstance(target, fwbuild.cxx_app):
@@ -28,7 +28,7 @@ def write_subninja(platform, target, filename: Path):
         raise RuntimeError(f'"{target}" has unexpected class {type(target)}')
 
     with ninja_writer(filename) as w:
-        return platform.build_cxx_app(target, w)
+        return platform.build_cxx_app(topout, target, w)
 
 
 def ninja(platform, buildfile_name: str | Path):
@@ -50,7 +50,7 @@ def ninja(platform, buildfile_name: str | Path):
             name = Path(buildfile_name.parent, target.name,
                 f"{target.name}-build.ninja")
 
-            build = write_subninja(platform, target, name)
+            build = write_subninja(platform, target, name, builddir)
             if build is not None:
                 w.subninja(f"{target.name}/{target.name}-build.ninja")
         w.newline()
