@@ -59,7 +59,7 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
 
     for mod in module.submodules:
         buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
-        w.subninja(buildfile.as_posix())
+        w.subninja(f"$outdir/{mod.name}/{mod.name}-build.ninja")
 
         with fwbuild.ninja_writer(buildfile) as subninja:
             objs.extend(_build_compile(subninja, mod, buildfile.parent, topout))
