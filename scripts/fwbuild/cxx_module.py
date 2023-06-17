@@ -37,7 +37,7 @@ class cxx_module(object):
         self._asflags  = str_list()
         self._cxxflags = str_list()
         self._defines  = str_list()
-        self._includes: list[node] = []
+        self._includes: list[pathlib.Path] = []
         self._src:      list[node] = []
 
         self._target = target
@@ -71,7 +71,7 @@ class cxx_module(object):
         self._defines = str_list(value)
 
     @property
-    def includes(self) -> list[node]:
+    def includes(self) -> list[pathlib.Path]:
         return self._includes
 
     @property
@@ -97,7 +97,7 @@ class cxx_module(object):
     def include(self, dir: str | pathlib.Path):
         """ Add a directory to C preprocessor search path """
         dir = mkpath(dir, default=caller().dir)
-        self._includes.append(node(dir))
+        self._includes.append(dir)
 
     def src(self, *sources, **vars):
         """ Add source files to sources list """
