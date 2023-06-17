@@ -1,15 +1,15 @@
 from .caller import caller
 from .cxx_module import cxx_module
 from .kconfig import kconfig
-from .node import node
+from .mkpath import mkpath
 from .str_list import str_list
-import pathlib
+from pathlib import Path
 
 class cxx_app(cxx_module):
     """ Base class for C++ application targets """
 
     def __init__(self, conf: kconfig, toolchain, name: str | None = None,
-                 srcdir: str | pathlib.Path | None = None):
+                 srcdir: str | Path | None = None):
         """ TODO: toolchain type annotation """
         if name is None:
             name = self.__class__.__name__
@@ -17,11 +17,11 @@ class cxx_app(cxx_module):
 
         self._ldflags = str_list()
         self._ldlibs  = str_list()
-        self._ldscript: node | None = None
+        self._ldscript: Path | None = None
 
-        self.binary = False
+        self.binary      = False
         self.disassembly = False
-        self.mapfile = False
+        self.mapfile     = False
 
         self.default = True
 
@@ -42,7 +42,7 @@ class cxx_app(cxx_module):
         self._ldlibs = str_list(value)
 
     @property
-    def ldscript(self) -> node | None:
+    def ldscript(self) -> Path | None:
         return self._ldscript
 
     @ldscript.setter
@@ -50,4 +50,4 @@ class cxx_app(cxx_module):
         if value is None:
             self._ldscript = None
         else:
-            self._ldscript = node(value)
+            self._ldscript = mkpath(value, default=caller().dir)
