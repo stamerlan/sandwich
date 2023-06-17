@@ -3,10 +3,18 @@ from itertools import chain
 from pathlib import Path
 import contextlib
 import fwbuild
+import sys
 
 class build_artifacts(object):
     def __init__(self):
-        objs: list[Path] = []
+        self.app : Path | None = None
+        self.objs: list[Path]  = []
+        self.bin : Path | None = None
+        self.dasm: Path | None = None
+        self.map : Path | None = None
+
+        # Default build files
+        self.defaults: list[str] = []
 
 def _build_compile(w: Writer, module: fwbuild.cxx_module, outdir: Path,
                    reset_flags: bool = False) -> list[Path]:
@@ -29,7 +37,6 @@ def _build_compile(w: Writer, module: fwbuild.cxx_module, outdir: Path,
     objs = []
     for src in module.sources:
         obj_fname = Path("$outdir", src.path.stem).with_suffix(".o")
-        print(f"{src}->{obj_fname.as_posix()}{f' {src.vars}' if src.vars else ''}")
 
         if src.path.suffix in (".cc", ".cxx", ".cpp"):
             w.build(obj_fname.as_posix(), "cxx", str(src), **src.vars)
@@ -110,4 +117,63 @@ class gcc(fwbuild.toolchain):
         artifacts.objs = _build_compile(w, target, outdir, True)
         print(artifacts.objs)
 
-        return True
+        # Link
+        artifacts.app = outdir / target.name
+        if self._prefix:
+            artifacts.app = artifacts.app.with_suffix(".elf")
+        elif sys.platform == "win32":
+            artifacts.app = artifacts.app.with_suffix(".exe")
+
+        w.comment(f"Link {artifacts.app.as_posix()}")
+        w.variable("ldflags", target.ldflags)
+        w.variable("ldlibs", " ".join(["-l" + lib for lib in target.ldlibs]))
+        w.newline()
+
+        ld_vars = {
+            "implicit": [],
+            "implicit_outputs": [],
+            "variables": {
+                "ldflags": []
+            }
+        }
+
+        if target.ldscript:
+            ld_vars["implicit"].append(str(target.ldscript))
+            ld_vars["variables"]["ldflags"].append(f"-T {target.ldscript}")
+        if target.mapfile:
+            artifacts.map = artifacts.app.with_suffix(".map")
+            ld_vars["implicit"].append(artifacts.map.as_posix())
+            ld_vars["variables"]["ldflags"].append(
+                f"-Xlinker -Map={artifacts.map.as_posix()}")
+
+        ld_vars["variables"] = {k: v for k, v in ld_vars["variables"].items() if v}
+        for name, value in ld_vars["variables"].items():
+            ld_vars["variables"][name] = \
+                ' '.join(ld_vars["variables"][name]) + f" ${name}"
+
+        artifacts.defaults.append(artifacts.app.as_posix())
+        w.build(artifacts.app.as_posix(), "ld",
+            [p.as_posix() for p in artifacts.objs],
+            **ld_vars)
+
+        # Binary
+        if target.binary:
+            artifacts.bin = artifacts.app.with_suffix(".bin")
+            w.build(artifacts.bin.as_posix(), "objcopy",
+                    artifacts.app.as_posix())
+            artifacts.defaults.append(artifacts.bin.as_posix())
+
+        # Disassemble
+        if target.disassembly:
+            artifacts.dasm = artifacts.app.with_suffix(".asm")
+            w.build(artifacts.dasm.as_posix(), "objdump",
+                    artifacts.app.as_posix())
+            artifacts.defaults.append(artifacts.dasm.as_posix())
+
+        w.newline()
+
+        # Add files to be build by default
+        if target.default:
+            w.default(artifacts.defaults)
+
+        return artifacts
