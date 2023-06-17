@@ -21,10 +21,12 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
     w.variable("srcdir", module.srcdir.as_posix())
     w.variable("outdir", outdir.relative_to(topout).as_posix())
 
+    includes = [fwbuild.relative_path(inc, outdir=outdir, topout=topout,
+        srcdir=module.srcdir, topdir=fwbuild.topdir) for inc in module.includes]
     flags = {
         "asflags" : str(module.asflags),
         "cxxflags": " ".join(chain(module.cxxflags,
-                                   ['-I' + str(i) for i in module.includes]))
+                                ['-I' + str(i.as_posix()) for i in includes]))
     }
     for name, value in flags.items():
         if reset_flags:
