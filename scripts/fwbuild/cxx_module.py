@@ -1,3 +1,4 @@
+from .build import build_cls
 from .caller import caller
 from .mkpath import mkpath
 from .node import node
@@ -31,6 +32,7 @@ class cxx_module(object):
                 name = caller().cls.__name__
             else:
                 name = caller().stem
+
         self._name = name
 
         if srcdir is None:
@@ -106,3 +108,11 @@ class cxx_module(object):
         """ Add source files to sources list """
         for s in sources:
             self._src.append(node(mkpath(s, default=caller().dir), **vars))
+
+    def submodule(self, name: str) -> "cxx_module":
+        for cls in build_cls:
+            if cls.__name__ == name:
+                mod = cls(self.target)
+                self._submodules.append(mod)
+                return mod
+        raise RuntimeError(f'Submodule "{name}" not found')
