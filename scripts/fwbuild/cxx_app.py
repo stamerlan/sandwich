@@ -5,6 +5,17 @@ import fwbuild
 class cxx_app(cxx_module):
     """ Base class for C++ application targets """
 
+    class artifacts(object):
+        """ Artifacts produced by building cxx_app """
+
+        def __init__(self):
+            self.app : Path | None = None
+            self.objs: list[Path]  = []
+            self.bin : Path | None = None
+            self.dasm: Path | None = None
+            self.map : Path | None = None
+
+
     def __init__(self, conf: "fwbuild.kconfig", toolchain: "fwbuild.toolchain",
                  name: str | None = None, srcdir: str | Path | None = None):
         if name is None:

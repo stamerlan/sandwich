@@ -1,5 +1,6 @@
 import fwbuild
 
+# Classes registered to participiate in the build
 build_cls = []
 
 def build(cls):

@@ -5,16 +5,7 @@ import fwbuild
 import subprocess
 import sys
 
-class build_artifacts(object):
-    def __init__(self):
-        self.app : Path | None = None
-        self.objs: list[Path]  = []
-        self.bin : Path | None = None
-        self.dasm: Path | None = None
-        self.map : Path | None = None
-
-
-class ld_tool(fwbuild.tool):
+class _ld_tool(fwbuild.tool):
     @property
     def version(self):
         if not hasattr(self, "_version"):
@@ -71,7 +62,8 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
         w.subninja(f"$outdir/{mod.name}/{mod.name}-build.ninja")
 
         with fwbuild.ninja_writer(buildfile) as subninja:
-            objs.extend(_build_compile(subninja, mod, outdir / mod.name, topout))
+            objs.extend(
+                _build_compile(subninja, mod, outdir / mod.name, topout))
 
     return objs
 
@@ -91,12 +83,14 @@ class gcc(fwbuild.toolchain):
         self.tools.cc      = fwbuild.tool(dir, prefix + "gcc",     name="cc")
         self.tools.ar      = fwbuild.tool(dir, prefix + "ar",      name="ar")
         self.tools.cxx     = fwbuild.tool(dir, prefix + "g++",     name="cxx")
-        self.tools.ld      = ld_tool     (dir, prefix + "ld",      name="ld")
+        self.tools.ld      = _ld_tool     (dir, prefix + "ld",     name="ld")
         self.tools.objcopy = fwbuild.tool(dir, prefix + "objcopy", name="objcopy")
         self.tools.objdump = fwbuild.tool(dir, prefix + "objdump", name="objdump")
 
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
-                      w: fwbuild.ninja_writer):
+                      w: fwbuild.ninja_writer) -> fwbuild.cxx_app.artifacts:
+        artifacts = fwbuild.cxx_app.artifacts()
+
         w.comment(f'Build target "{target.name}" using {self}')
         w.newline()
 
@@ -133,7 +127,6 @@ class gcc(fwbuild.toolchain):
         w.newline()
 
         # Compile
-        artifacts = build_artifacts()
         artifacts.objs = _build_compile(w, target,
             w.filename.parent.relative_to(topout), topout, True)
         w.newline()
@@ -169,9 +162,10 @@ class gcc(fwbuild.toolchain):
             artifacts.map = artifacts.app.with_suffix(".map")
             ld_vars["implicit_outputs"].append(artifacts.map.as_posix())
             ld_vars["variables"]["ldflags"].append(
-                f"-Xlinker -Map={artifacts.map.as_posix()}")
+                f"-Xlinker -Map=$outdir/{artifacts.map.name}")
 
-        ld_vars["variables"] = {k: v for k, v in ld_vars["variables"].items() if v}
+        ld_vars["variables"] = \
+            {k: v for k, v in ld_vars["variables"].items() if v}
         for name, value in ld_vars["variables"].items():
             ld_vars["variables"][name] = \
                 ' '.join(ld_vars["variables"][name]) + f" ${name}"
@@ -188,14 +182,14 @@ class gcc(fwbuild.toolchain):
         # Binary
         if target.binary:
             artifacts.bin = artifacts.app.with_suffix(".bin")
-            defaults += w.build(artifacts.bin.as_posix(), "objcopy",
-                                artifacts.app.as_posix())
+            defaults += w.build(f"$outdir/{artifacts.bin.name}", "objcopy",
+                                f"$outdir/{artifacts.app.name}")
 
         # Disassemble
         if target.disassembly:
             artifacts.dasm = artifacts.app.with_suffix(".asm")
-            defaults +=  w.build(artifacts.dasm.as_posix(), "objdump",
-                                 artifacts.app.as_posix())
+            defaults +=  w.build(f"$outdir/{artifacts.dasm.name}", "objdump",
+                                 f"$outdir/{artifacts.app.name}")
 
         w.newline()
 

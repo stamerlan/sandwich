@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 import fwbuild
 import fwbuild.ninja_syntax
 import sys
@@ -19,7 +20,8 @@ class ninja_writer(fwbuild.ninja_syntax.Writer):
 
 
 def write_subninja(platform: "fwbuild.platform_base",
-                   target: "fwbuild.cxx_module", filename: Path, topout: Path):
+        target: "fwbuild.cxx_module", filename: Path, topout: Path) -> \
+            Optional["fwbuild.cxx_app.artifacts"]:
     if isinstance(target, fwbuild.cxx_app):
         pass
     elif isinstance(target, fwbuild.cxx_module):
@@ -31,8 +33,9 @@ def write_subninja(platform: "fwbuild.platform_base",
         return platform.build_cxx_app(topout, target, w)
 
 
-def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
-    build_artifacts = {}
+def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path) -> \
+        dict["fwbuild.cxx_app", "fwbuild.cxx_app.artifacts"]:
+    build_artifacts: dict["fwbuild.cxx_app", "fwbuild.cxx_app.artifacts"] = {}
 
     buildfile_name = Path(buildfile_name)
     builddir = buildfile_name.parent
@@ -48,7 +51,7 @@ def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
         w.variable("topdir", fwbuild.topdir.as_posix())
         w.newline()
 
-        tests = []
+        tests: list["fwbuild.cxx_app.artifacts"] = []
 
         for target in platform.targets:
             name = Path(buildfile_name.parent, target.name,

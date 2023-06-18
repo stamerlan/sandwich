@@ -48,5 +48,5 @@ class raspi3b(fwbuild.platform_base):
                 raise RuntimeError(f"Unexpected target {cls}")
 
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
-                      w: fwbuild.ninja_writer):
+                      w: fwbuild.ninja_writer) -> fwbuild.cxx_app.artifacts:
         return target.toolchain.build_cxx_app(topout, target, w)

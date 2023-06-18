@@ -8,5 +8,5 @@ class platform_base(object):
         self.name = fwbuild.caller().cls.__name__
 
     def build_cxx_app(self, topout: Path, target: "fwbuild.cxx_app",
-                      w: "fwbuild.ninja_writer"):
+                      w: "fwbuild.ninja_writer") -> "fwbuild.cxx_app.artifacts":
         raise NotImplementedError("fwbuild.platform_base.build_cxx_app()")
