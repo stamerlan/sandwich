@@ -1,10 +1,11 @@
+from .base import base
 from pathlib import Path
 import fwbuild
 import fwbuild.toolchains
 
-class host(object):
+class host(base):
     def __init__(self, conf: fwbuild.kconfig):
-        fwbuild.deps.add(Path(__file__))
+        super().__init__(conf)
 
         self.targets: list[fwbuild.cxx_module] = []
         self.toolchain = fwbuild.toolchains.gcc.find()

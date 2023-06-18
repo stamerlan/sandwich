@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import scripts.fwbuild as fwbuild
 import argparse
+import fwbuild.platforms
 
 import drivers.build
-import platforms.host
 import sandwich.build
 import src.build
 
@@ -21,7 +21,7 @@ fwbuild.deps |= conf.deps
 # Write build files
 if conf.PLATFORM_HOST:
     conf.write_autoconf("bin/host/config.h")
-    build = fwbuild.ninja(platforms.host.host(conf), "bin/host/build.ninja")
+    build = fwbuild.ninja(fwbuild.platforms.host(conf), "bin/host/build.ninja")
 #elif conf.PLATFORM_RASPI3B:
 #    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/build.ninja")
 else:
