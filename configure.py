@@ -2,6 +2,7 @@
 import scripts.fwbuild as fwbuild
 import argparse
 import fwbuild.platforms
+import platforms
 
 import drivers.build
 import sandwich.build
@@ -22,8 +23,9 @@ fwbuild.deps |= conf.deps
 if conf.PLATFORM_HOST:
     conf.write_autoconf("bin/host/config.h")
     build = fwbuild.ninja(fwbuild.platforms.host(conf), "bin/host/build.ninja")
-#elif conf.PLATFORM_RASPI3B:
-#    build = fwbuild.ninja(PlatformRaspi3b(conf), "bin/raspi3b/build.ninja")
+elif conf.PLATFORM_RASPI3B:
+    conf.write_autoconf("bin/raspi3b/config.h")
+    build = fwbuild.ninja(platforms.raspi3b(conf), "bin/raspi3b/build.ninja")
 else:
     raise RuntimeError("Unknown platform")
 

@@ -12,6 +12,7 @@ class cxx_app(cxx_module):
         super().__init__(self, name, srcdir or fwbuild.caller().dir)
 
         self.conf = conf
+        self.toolchain = toolchain
 
         self._ldflags = fwbuild.str_list()
         self._ldlibs  = fwbuild.str_list()
