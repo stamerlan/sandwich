@@ -2,6 +2,7 @@ from itertools import chain
 from pathlib import Path
 import contextlib
 import fwbuild
+import subprocess
 import sys
 
 class build_artifacts(object):
@@ -14,6 +15,17 @@ class build_artifacts(object):
 
         # Default build files
         self.defaults: list[str] = []
+
+
+class ld_tool(fwbuild.tool):
+    @property
+    def version(self):
+        if not hasattr(self, "_version"):
+            version_str = subprocess.check_output([str(self), "-v"]).decode()
+            version_str = version_str.split()[-1]
+            self._version = tuple([int(i) for i in version_str.split('.')])
+        return self._version
+
 
 def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
         outdir: Path, topout: Path, reset_flags: bool = False) -> list[Path]:
@@ -82,7 +94,7 @@ class gcc(fwbuild.toolchain):
         self.tools.cc      = fwbuild.tool(dir, prefix + "gcc",     name="cc")
         self.tools.ar      = fwbuild.tool(dir, prefix + "ar",      name="ar")
         self.tools.cxx     = fwbuild.tool(dir, prefix + "g++",     name="cxx")
-        self.tools.ld      = fwbuild.tool(dir, prefix + "ld",      name="ld")
+        self.tools.ld      = ld_tool     (dir, prefix + "ld",      name="ld")
         self.tools.objcopy = fwbuild.tool(dir, prefix + "objcopy", name="objcopy")
         self.tools.objdump = fwbuild.tool(dir, prefix + "objdump", name="objdump")
 
