@@ -9,7 +9,8 @@ class sched(fwbuild.cxx_module):
 
 @fwbuild.build
 class sched_test(fwbuild.cxx_gtest):
-    def __init__(self, conf: fwbuild.kconfig, toolchain):
+    def __init__(self, conf: fwbuild.kconfig, toolchain: fwbuild.toolchain):
+        super().__init__(conf, toolchain)
         self.include("include")
         self.ldlibs += "gtest_main"
 
