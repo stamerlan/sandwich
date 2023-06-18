@@ -157,9 +157,9 @@ class gcc(fwbuild.toolchain):
             ld_vars["variables"]["ldflags"].append(f"-T {ldscript.as_posix()}")
         if target.mapfile:
             artifacts.map = artifacts.app.with_suffix(".map")
-            ld_vars["implicit"].append(artifacts.map.as_posix())
+            ld_vars["implicit_outputs"].append(artifacts.map.as_posix())
             ld_vars["variables"]["ldflags"].append(
-                f"-Xlinker -Map={artifacts.map.name}")
+                f"-Xlinker -Map={artifacts.map.as_posix()}")
 
         ld_vars["variables"] = {k: v for k, v in ld_vars["variables"].items() if v}
         for name, value in ld_vars["variables"].items():

@@ -6,8 +6,8 @@ class hello(fwbuild.cxx_app):
     def __init__(self, conf: fwbuild.kconfig, toolchain):
         super().__init__(conf, toolchain)
 
-        self.gen_dasm = True
-        self.gen_map = True
+        self.disassembly = True
+        self.mapfile = True
 
         self.include(".")
 
