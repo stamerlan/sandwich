@@ -87,6 +87,10 @@ class gcc(fwbuild.toolchain):
         self.tools.objcopy = fwbuild.tool(dir, prefix + "objcopy", name="objcopy")
         self.tools.objdump = fwbuild.tool(dir, prefix + "objdump", name="objdump")
 
+    @property
+    def prefix(self) -> str:
+        return self._prefix
+
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
                       w: fwbuild.ninja_writer) -> fwbuild.cxx_app.artifacts:
         artifacts = fwbuild.cxx_app.artifacts()
