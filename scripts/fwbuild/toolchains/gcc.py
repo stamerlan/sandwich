@@ -70,11 +70,11 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
         objs.append(outdir / obj_path.name)
 
     for mod in module.submodules:
-        buildfile = outdir / mod.name / f"{mod.name}-build.ninja"
+        buildfile = topout / outdir / mod.name / f"{mod.name}-build.ninja"
         w.subninja(f"$outdir/{mod.name}/{mod.name}-build.ninja")
 
         with fwbuild.ninja_writer(buildfile) as subninja:
-            objs.extend(_build_compile(subninja, mod, buildfile.parent, topout))
+            objs.extend(_build_compile(subninja, mod, outdir / mod.name, topout))
 
     return objs
 
