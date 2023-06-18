@@ -20,9 +20,7 @@ class ninja_writer(fwbuild.ninja_syntax.Writer):
 
 def write_subninja(platform: "fwbuild.platform_base",
                    target: "fwbuild.cxx_module", filename: Path, topout: Path):
-    if isinstance(target, fwbuild.cxx_gtest):
-        return None
-    elif isinstance(target, fwbuild.cxx_app):
+    if isinstance(target, fwbuild.cxx_app):
         pass
     elif isinstance(target, fwbuild.cxx_module):
         return None
@@ -48,6 +46,8 @@ def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
         w.variable("topdir", fwbuild.topdir.as_posix())
         w.newline()
 
+        tests = []
+
         for target in platform.targets:
             name = Path(buildfile_name.parent, target.name,
                 f"{target.name}-build.ninja")
@@ -55,7 +55,21 @@ def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
             build = write_subninja(platform, target, name, builddir)
             if build is not None:
                 w.subninja(f"{target.name}/{target.name}-build.ninja")
+                if isinstance(target, fwbuild.cxx_gtest):
+                    tests.append(build)
         w.newline()
+
+        if tests:
+            cmd = fwbuild.shellcmd()
+            inputs = []
+            for test in tests:
+                cmd.cmd(test.app)
+                inputs.append(test.app.as_posix())
+
+            w.comment("Run all tests")
+            w.rule("test", command=cmd, description="run tests")
+            w.build("test", "test", inputs)
+            w.newline()
 
         w.comment("Regenerate build files if configuration script changed")
         conf_cmd = fwbuild.shellcmd()
