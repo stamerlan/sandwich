@@ -3,6 +3,7 @@ import sys
 if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
+from .caller import caller
 from .cxx_app import cxx_app
 from .cxx_gtest import cxx_gtest
 from .cxx_module import cxx_module
