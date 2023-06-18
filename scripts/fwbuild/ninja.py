@@ -17,7 +17,8 @@ class ninja_writer(fwbuild.ninja_syntax.Writer):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.output.close()
 
-def write_subninja(platform, target, filename: Path, topout: Path):
+def write_subninja(platform: "fwbuild.platform_base", target, filename: Path,
+                   topout: Path):
     if isinstance(target, fwbuild.cxx_gtest):
         return None
     elif isinstance(target, fwbuild.cxx_app):
@@ -31,7 +32,7 @@ def write_subninja(platform, target, filename: Path, topout: Path):
         return platform.build_cxx_app(topout, target, w)
 
 
-def ninja(platform, buildfile_name: str | Path):
+def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
     buildfile_name = Path(buildfile_name)
     builddir = buildfile_name.parent
     builddir.mkdir(parents=True, exist_ok=True)

@@ -3,14 +3,15 @@ import sys
 if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
+from .build import build, build_cls
 from .caller import caller
 from .cxx_app import cxx_app
 from .cxx_gtest import cxx_gtest
 from .cxx_module import cxx_module
 from .kconfig import kconfig
 from .ninja import ninja, ninja_writer
-from .build import build, build_cls
 from .mkpath import mkpath, relative_path
+from .platform_base import platform_base
 from .shellcmd import shellcmd
 from .tool import tool
 from .toolchain import toolchain

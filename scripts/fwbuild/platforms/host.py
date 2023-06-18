@@ -1,9 +1,8 @@
-from .base import base
 from pathlib import Path
 import fwbuild
 import fwbuild.toolchains
 
-class host(base):
+class host(fwbuild.platform_base):
     def __init__(self, conf: fwbuild.kconfig):
         super().__init__(conf)
 
