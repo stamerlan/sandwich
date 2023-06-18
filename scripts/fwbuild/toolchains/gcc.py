@@ -31,7 +31,7 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
         outdir: Path, topout: Path, reset_flags: bool = False) -> list[Path]:
     w.comment(f"Module: {module}")
     w.variable("srcdir", module.srcdir.as_posix())
-    w.variable("outdir", outdir.relative_to(topout).as_posix())
+    w.variable("outdir", outdir.as_posix())
 
     includes = [fwbuild.relative_path(inc, outdir=outdir, topout=topout,
         srcdir=module.srcdir, topdir=fwbuild.topdir) for inc in module.includes]
@@ -137,8 +137,8 @@ class gcc(fwbuild.toolchain):
 
         # Compile
         artifacts = build_artifacts()
-        artifacts.objs = _build_compile(w, target, w.filename.parent,
-            topout, True)
+        artifacts.objs = _build_compile(w, target,
+            w.filename.parent.relative_to(topout), topout, True)
         w.newline()
 
         # Link
