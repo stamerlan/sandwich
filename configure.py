@@ -19,14 +19,17 @@ conf = fwbuild.kconfig(fwbuild.topdir)
 print(conf.load_config(args.config))
 fwbuild.deps |= conf.deps
 
-# Write build files
+# Load platform
 if conf.PLATFORM_HOST:
-    conf.write_autoconf("bin/host/config.h")
-    build = fwbuild.ninja(fwbuild.platforms.host(conf), "bin/host/build.ninja")
+    target_platform = fwbuild.platforms.host(conf)
 elif conf.PLATFORM_RASPI3B:
-    conf.write_autoconf("bin/raspi3b/config.h")
-    build = fwbuild.ninja(platforms.raspi3b(conf), "bin/raspi3b/build.ninja")
+    target_platform = platforms.raspi3b(conf)
 else:
     raise RuntimeError("Unknown platform")
 
-#fwbuild.vscode(build, ".vscode/")
+# Write build files
+builddir = f"bin/{target_platform.name}"
+conf.write_autoconf(f"{builddir}/config.h")
+artifacts = fwbuild.ninja(target_platform, f"{builddir}/build.ninja")
+
+#fwbuild.vscode(artifacts, ".vscode/")
