@@ -32,6 +32,8 @@ def write_subninja(platform: "fwbuild.platform_base",
 
 
 def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
+    build_artifacts = {}
+
     buildfile_name = Path(buildfile_name)
     builddir = buildfile_name.parent
     builddir.mkdir(parents=True, exist_ok=True)
@@ -52,11 +54,12 @@ def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
             name = Path(buildfile_name.parent, target.name,
                 f"{target.name}-build.ninja")
 
-            build = write_subninja(platform, target, name, builddir)
-            if build is not None:
+            artifacts = write_subninja(platform, target, name, builddir)
+            if artifacts is not None:
+                build_artifacts[target] = artifacts
                 w.subninja(f"{target.name}/{target.name}-build.ninja")
                 if isinstance(target, fwbuild.cxx_gtest):
-                    tests.append(build)
+                    tests.append(artifacts)
         w.newline()
 
         if tests:
@@ -89,3 +92,5 @@ def ninja(platform: "fwbuild.platform_base", buildfile_name: str | Path):
         f.write("\n")
         for dep in fwbuild.deps:
                 f.write(f"{dep.as_posix()}:\n\n")
+
+    return build_artifacts
