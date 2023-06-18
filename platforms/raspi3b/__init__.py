@@ -35,7 +35,7 @@ class raspi3b(fwbuild.platform_base):
             if issubclass(cls, fwbuild.cxx_gtest):
                 if self.host_toolchain is None:
                     self.host_toolchain = fwbuild.toolchains.gcc.find()
-                print(f"{cls.__name__}: GTest target is not supported")
+                self.targets.append(cls(conf, self.host_toolchain))
             elif issubclass(cls, fwbuild.cxx_app):
                 if self.toolchain is None:
                     self.toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
@@ -49,4 +49,4 @@ class raspi3b(fwbuild.platform_base):
 
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
                       w: fwbuild.ninja_writer):
-        return self.toolchain.build_cxx_app(topout, target, w)
+        return target.toolchain.build_cxx_app(topout, target, w)

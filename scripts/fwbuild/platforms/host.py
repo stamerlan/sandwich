@@ -10,9 +10,7 @@ class host(fwbuild.platform_base):
         self.toolchain = fwbuild.toolchains.gcc.find()
 
         for cls in fwbuild.build_cls:
-            if issubclass(cls, fwbuild.cxx_gtest):
-                print(f"{cls.__name__}: GTest target is not supported")
-            elif issubclass(cls, fwbuild.cxx_app):
+            if issubclass(cls, fwbuild.cxx_app):
                 self.targets.append(cls(conf, self.toolchain))
             elif issubclass(cls, fwbuild.cxx_module):
                 pass
@@ -21,4 +19,4 @@ class host(fwbuild.platform_base):
 
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
                       w: fwbuild.ninja_writer):
-        return self.toolchain.build_cxx_app(topout, target, w)
+        return target.toolchain.build_cxx_app(topout, target, w)
