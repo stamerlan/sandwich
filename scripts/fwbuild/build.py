@@ -1,4 +1,3 @@
-from .caller import caller
 import fwbuild
 
 build_cls = []
@@ -12,6 +11,6 @@ def build(cls):
     global build_cls
     build_cls.append(cls)
 
-    fwbuild.deps.add(caller().filename)
+    fwbuild.deps.add(fwbuild.caller().filename)
 
     return cls

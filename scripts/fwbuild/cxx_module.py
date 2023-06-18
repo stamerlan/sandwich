@@ -1,13 +1,5 @@
-from .build import build_cls
-from .caller import caller
-from .mkpath import mkpath
-from .node import node
-from .str_list import str_list
-import pathlib
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from .cxx_app import cxx_app
+from pathlib import Path
+import fwbuild
 
 class cxx_module(object):
     """ Base class for C++ modules.
@@ -15,12 +7,10 @@ class cxx_module(object):
     C++ module is a set of files which usually are stored at the same directory
     and have some common set of flags. Modules also can have submodules. Module
     is compiled-in to target image.
-
-    TODO: Add method to add a submodule
     """
 
-    def __init__(self, target: "cxx_app", name: str | None = None,
-                 srcdir: str | pathlib.Path | None = None):
+    def __init__(self, target: "fwbuild.cxx_app", name: str | None = None,
+                 srcdir: str | Path | None = None):
         """ Construct C++ module
 
         target: target object the module compiled-in.
@@ -28,22 +18,22 @@ class cxx_module(object):
         srcdir: module sources directory. If none it's set to caller's dirname.
         """
         if name is None:
-            if caller().cls is not None:
-                name = caller().cls.__name__
+            if fwbuild.caller().cls is not None:
+                name = fwbuild.caller().cls.__name__
             else:
-                name = caller().stem
+                name = fwbuild.caller().stem
 
         self._name = name
 
         if srcdir is None:
-            srcdir = caller().dir
-        self._srcdir = pathlib.Path(srcdir)
+            srcdir = fwbuild.caller().dir
+        self._srcdir = Path(srcdir)
 
-        self._asflags  = str_list()
-        self._cxxflags = str_list()
-        self._defines  = str_list()
-        self._includes: list[pathlib.Path] = []
-        self._src:      list[node] = []
+        self._asflags  = fwbuild.str_list()
+        self._cxxflags = fwbuild.str_list()
+        self._defines  = fwbuild.str_list()
+        self._includes: list[Path] = []
+        self._src:      list[fwbuild.node] = []
 
         self._target = target
         self._submodules: list["cxx_module"] = []
@@ -52,31 +42,31 @@ class cxx_module(object):
         return f"{self._name}@{self._srcdir.as_posix()}"
 
     @property
-    def asflags(self) -> str_list:
+    def asflags(self) -> "fwbuild.str_list":
         return self._asflags
 
     @asflags.setter
     def asflags(self, value):
-        self._asflags = str_list(value)
+        self._asflags = fwbuild.str_list(value)
 
     @property
-    def cxxflags(self) -> str_list:
+    def cxxflags(self) -> "fwbuild.str_list":
         return self._cxxflags
 
     @cxxflags.setter
     def cxxflags(self, value):
-        self._cxxflags = str_list(value)
+        self._cxxflags = fwbuild.str_list(value)
 
     @property
-    def defines(self) -> str_list:
+    def defines(self) -> "fwbuild.str_list":
         return self._defines
 
     @defines.setter
     def defines(self, value):
-        self._defines = str_list(value)
+        self._defines = fwbuild.str_list(value)
 
     @property
-    def includes(self) -> list[pathlib.Path]:
+    def includes(self) -> list[Path]:
         return self._includes
 
     @property
@@ -84,11 +74,11 @@ class cxx_module(object):
         return self._name
 
     @property
-    def sources(self) -> list[node]:
+    def sources(self) -> list["fwbuild.node"]:
         return self._src
 
     @property
-    def srcdir(self) -> pathlib.Path:
+    def srcdir(self) -> Path:
         return self._srcdir
 
     @property
@@ -96,21 +86,22 @@ class cxx_module(object):
         return self._submodules
 
     @property
-    def target(self) -> "cxx_app":
+    def target(self) -> "fwbuild.cxx_app":
         return self._target
 
-    def include(self, dir: str | pathlib.Path):
+    def include(self, dir: str | Path):
         """ Add a directory to C preprocessor search path """
-        dir = mkpath(dir, default=caller().dir)
+        dir = fwbuild.mkpath(dir, default=fwbuild.caller().dir)
         self._includes.append(dir)
 
     def src(self, *sources, **vars):
         """ Add source files to sources list """
         for s in sources:
-            self._src.append(node(mkpath(s, default=caller().dir), **vars))
+            src = fwbuild.mkpath(s, default=fwbuild.caller().dir)
+            self._src.append(fwbuild.node(src, **vars))
 
     def submodule(self, name: str) -> "cxx_module":
-        for cls in build_cls:
+        for cls in fwbuild.build_cls:
             if cls.__name__ == name:
                 mod = cls(self.target)
                 self._submodules.append(mod)
