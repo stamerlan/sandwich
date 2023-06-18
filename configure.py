@@ -28,8 +28,9 @@ else:
     raise RuntimeError("Unknown platform")
 
 # Write build files
-builddir = f"bin/{target_platform.name}"
-conf.write_autoconf(f"{builddir}/config.h")
-artifacts = fwbuild.ninja(target_platform, f"{builddir}/build.ninja")
+topout = f"bin/{target_platform.name}"
+conf.write_autoconf(f"{topout}/config.h")
+artifacts = fwbuild.ninja(target_platform, f"{topout}/build.ninja")
 
-#fwbuild.vscode(artifacts, ".vscode/")
+# Update files for IDE
+fwbuild.vscode(target_platform, artifacts, topout)

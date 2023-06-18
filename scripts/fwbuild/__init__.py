@@ -17,6 +17,7 @@ from .shellcmd import shellcmd
 from .str_list import str_list
 from .tool import tool
 from .toolchain import toolchain
+from .vscode import vscode
 from pathlib import Path
 import contextlib
 import os
