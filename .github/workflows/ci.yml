@@ -18,12 +18,12 @@ jobs:
         include:
           - platform: host
             artifacts_name: host-binaries
-            artifacts_path: bin/host/hello
+            artifacts_path: bin/host/hello/hello
           - platform: raspi3b
             artifacts_name: raspi3b-binaries
             artifacts_path: |
-              bin/raspi3b/kernel8.elf
-              bin/raspi3b/kernel8.bin
+              bin/raspi3b/hello/hello.elf
+              bin/raspi3b/hello/hello.bin
 
     steps:
     - name: Check out repo main branch
