@@ -13,9 +13,6 @@ class build_artifacts(object):
         self.dasm: Path | None = None
         self.map : Path | None = None
 
-        # Default build files
-        self.defaults: list[str] = []
-
 
 class ld_tool(fwbuild.tool):
     @property
@@ -142,7 +139,7 @@ class gcc(fwbuild.toolchain):
         w.newline()
 
         # Link
-        artifacts.app = Path("$outdir", target.name)
+        artifacts.app = w.filename.parent.relative_to(topout) / target.name
         if self._prefix:
             artifacts.app = artifacts.app.with_suffix(".elf")
         elif sys.platform == "win32":
@@ -153,6 +150,7 @@ class gcc(fwbuild.toolchain):
         w.variable("ldlibs", " ".join(["-l" + lib for lib in target.ldlibs]))
         w.newline()
 
+        defaults = [] # Files to be built by default
         ld_vars = {
             "implicit": [],
             "implicit_outputs": [],
@@ -184,27 +182,25 @@ class gcc(fwbuild.toolchain):
                 topout=topout, srcdir=target.srcdir, topdir=fwbuild.topdir).
                     as_posix())
 
-        artifacts.defaults.append(artifacts.app.as_posix())
-        w.build(artifacts.app.as_posix(), "ld", objs, **ld_vars)
+        defaults += w.build(f"$outdir/{artifacts.app.name}", "ld", objs,
+                            **ld_vars)
 
         # Binary
         if target.binary:
             artifacts.bin = artifacts.app.with_suffix(".bin")
-            w.build(artifacts.bin.as_posix(), "objcopy",
-                    artifacts.app.as_posix())
-            artifacts.defaults.append(artifacts.bin.as_posix())
+            defaults += w.build(artifacts.bin.as_posix(), "objcopy",
+                                artifacts.app.as_posix())
 
         # Disassemble
         if target.disassembly:
             artifacts.dasm = artifacts.app.with_suffix(".asm")
-            w.build(artifacts.dasm.as_posix(), "objdump",
-                    artifacts.app.as_posix())
-            artifacts.defaults.append(artifacts.dasm.as_posix())
+            defaults +=  w.build(artifacts.dasm.as_posix(), "objdump",
+                                 artifacts.app.as_posix())
 
         w.newline()
 
         # Add files to be build by default
         if target.default:
-            w.default(artifacts.defaults)
+            w.default(defaults)
 
         return artifacts
