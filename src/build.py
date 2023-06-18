@@ -3,7 +3,7 @@ import fwbuild
 # TODO: Flags are defined for GCC toolchain only
 @fwbuild.build
 class hello(fwbuild.cxx_app):
-    def __init__(self, conf: fwbuild.kconfig, toolchain):
+    def __init__(self, conf: fwbuild.kconfig, toolchain: fwbuild.toolchain):
         super().__init__(conf, toolchain)
 
         self.disassembly = True
