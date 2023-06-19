@@ -16,6 +16,7 @@ class hello(fwbuild.cxx_app):
         self.cxxflags += "-fno-threadsafe-statics"
         self.cxxflags += "-Wall", "-Wextra", "-Werror", "-Weffc++"
         self.cxxflags += "-Wmultiple-inheritance", "-Wvirtual-inheritance"
+        self.cxxflags += "-ffile-prefix-map=$topdir/="
 
         self.ldflags += "-flto", "-g"
 
