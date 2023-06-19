@@ -151,6 +151,17 @@ def write_tasks_json(filename: Path, topout: Path, workspace: Path,
     tasks["tasks"] = merge_conf(tasks["tasks"], build_task,
                                 label=build_task["label"])
 
+    # test task
+    test_task = {
+        "label": f"{platform.name}: test",
+        "group": "test",
+        "command": "ninja",
+        "args": ["-C", topout.as_posix(), "test"],
+        "dependsOn": [conf_task["label"]]
+    }
+    tasks["tasks"] = merge_conf(tasks["tasks"], test_task,
+                                label=test_task["label"])
+
     # Write updated file
     filename.parent.mkdir(parents=True, exist_ok=True)
     with open(filename, "w") as f:
