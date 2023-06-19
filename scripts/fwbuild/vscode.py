@@ -11,6 +11,35 @@ class JSONWithCommentsDecoder(json.JSONDecoder):
         s = '\n'.join(l if not l.lstrip().startswith('//') else '' for l in s.split('\n'))
         return super().decode(s)
 
+
+def merge_conf(conf_list: list[dict[str, str]], new_conf: dict[str, str],
+                **properties) -> list[dict[str, str]]:
+    """ Look for item in conf_list which has specific properties set and equal
+        to the value. If found merge the conf with new_conf, otherwise add conf
+        to the end of conf_list.
+    """
+    new_conf_list = []
+    found = False
+    for conf in conf_list:
+        for k, v in properties.items():
+            if conf.get(k, None) != v:
+                break
+        else:
+            print("Update", conf)
+            print("New value:", conf | new_conf)
+
+            found = True
+            new_conf_list.append(conf | new_conf)
+            continue
+
+        new_conf_list.append(conf)
+
+    if not found:
+        new_conf_list.append(new_conf)
+
+    return new_conf_list
+
+
 def vscode(platform: "fwbuild.platform_base",
            artifacts: dict["fwbuild.cxx_app", "fwbuild.cxx_app.artifacts"],
            topout: str | Path, vscode_dir: str | Path = ".vscode"):
@@ -67,17 +96,8 @@ def vscode(platform: "fwbuild.platform_base",
             except FileNotFoundError:
                 pass
 
-        found = False
-        configurations = []
-        for conf in launch["configurations"]:
-            if conf.get("name", None) == conf_name:
-                conf |= launch_conf
-                found = True
-            configurations.append(conf)
-        if not found:
-            configurations.append(launch_conf)
-
-        launch["configurations"] = configurations
+        launch["configurations"] = merge_conf(launch["configurations"],
+            launch_conf, name=conf_name)
 
     launch_json.parent.mkdir(parents=True, exist_ok=True)
     with open(launch_json, "w") as f:
