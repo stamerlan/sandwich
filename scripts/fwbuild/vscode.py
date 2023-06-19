@@ -151,21 +151,61 @@ def write_tasks_json(filename: Path, topout: Path, workspace: Path,
     tasks["tasks"] = merge_conf(tasks["tasks"], build_task,
                                 label=build_task["label"])
 
-    # test task
-    test_task = {
-        "label": f"{platform.name}: test",
-        "group": "test",
-        "command": "ninja",
-        "args": ["-C", topout.as_posix(), "test"],
-        "dependsOn": [conf_task["label"]]
-    }
-    tasks["tasks"] = merge_conf(tasks["tasks"], test_task,
-                                label=test_task["label"])
+    # check if any task target present
+    tests_present = False
+    for target, build in artifacts.items():
+        if isinstance(target, fwbuild.cxx_gtest):
+            tests_present = True
+            break
+
+    if tests_present:
+        # test task
+        test_task = {
+            "label": f"{platform.name}: test",
+            "group": "test",
+            "command": "ninja",
+            "args": ["-C", topout.as_posix(), "test"],
+            "dependsOn": [conf_task["label"]]
+        }
+        tasks["tasks"] = merge_conf(tasks["tasks"], test_task,
+                                    label=test_task["label"])
 
     # Write updated file
     filename.parent.mkdir(parents=True, exist_ok=True)
     with open(filename, "w") as f:
         json.dump(tasks, f, indent=4)
+
+
+def write_settings_json(filename: Path, topout: Path, workspace: Path,
+        platform: "fwbuild.platform_base",
+        artifacts: dict["fwbuild.cxx_app", "fwbuild.cxx_app.artifacts"]):
+    # check if any task target present
+    test_targets = []
+    for target, build in artifacts.items():
+        if isinstance(target, fwbuild.cxx_gtest):
+            test_targets.append(target)
+
+    if not test_targets:
+        return
+
+    settings = {}
+    if filename.is_file():
+        with open(filename, "r") as f:
+            with contextlib.suppress(json.decoder.JSONDecodeError):
+                settings = json.load(f, cls=JSONWithCommentsDecoder)
+
+    if "gtest-adapter.debugConfig" not in settings:
+        settings["gtest-adapter.debugConfig"] = []
+
+    for target in test_targets:
+        conf_name = f"{platform.name}: test {target.name}"
+        if conf_name not in settings["gtest-adapter.debugConfig"]:
+            settings["gtest-adapter.debugConfig"].append(conf_name)
+
+    # Write updated file
+    filename.parent.mkdir(parents=True, exist_ok=True)
+    with open(filename, "w") as f:
+        json.dump(settings, f, indent=4)
 
 
 def vscode(platform: "fwbuild.platform_base",
@@ -185,3 +225,5 @@ def vscode(platform: "fwbuild.platform_base",
                       platform, artifacts)
     write_tasks_json(vscode_dir / "tasks.json", topout, workspace_folder,
                      platform, artifacts)
+    write_settings_json(vscode_dir / "settings.json", topout, workspace_folder,
+                        platform, artifacts)
