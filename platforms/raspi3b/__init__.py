@@ -84,4 +84,13 @@ class raspi3b(fwbuild.platform_base):
             ]
         }
 
+        qemu = None
+        with contextlib.suppress(FileNotFoundError):
+            qemu = fwbuild.tool.find("qemu-system-aarch64")
+        if qemu is not None:
+            launch_conf["debugServerPath"] = str(qemu)
+            launch_conf["debugServerArgs"] = \
+                f"-M raspi3b -kernel {(topout / artifacts.app).as_posix()} -serial null -serial stdio -s -S -d cpu_reset"
+            launch_conf["filterStderr"] = True
+
         return launch_conf
