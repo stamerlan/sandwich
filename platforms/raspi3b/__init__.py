@@ -1,5 +1,7 @@
 from pathlib import Path
+import contextlib
 import fwbuild
+import fwbuild.toolchains
 
 @fwbuild.build
 class raspi3b_platform(fwbuild.cxx_module):
@@ -50,3 +52,36 @@ class raspi3b(fwbuild.platform_base):
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
                       w: fwbuild.ninja_writer) -> fwbuild.cxx_app.artifacts:
         return target.toolchain.build_cxx_app(topout, target, w)
+
+    def vscode_launch(self, topout: Path, target: "fwbuild.cxx_app",
+            artifacts: "fwbuild.cxx_app.artifacts") -> \
+                dict[str, str] | None:
+        gdb = None
+        if isinstance(target.toolchain, fwbuild.toolchains.gcc):
+            with contextlib.suppress(FileNotFoundError):
+                gdb = fwbuild.tool(target.toolchain.tools.cc.path.parent,
+                                   target.toolchain.prefix + "gdb")
+        if gdb is None:
+            return None
+
+        launch_conf = {
+            "type": "cppdbg",
+            "request": "launch",
+            "externalConsole": False,
+            "program": topout / artifacts.app,
+            "args": [],
+            "stopAtEntry": True,
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "miDebuggerPath": str(gdb),
+            "miDebuggerServerAddress": "127.0.0.1:1234",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": True
+                }
+            ]
+        }
+
+        return launch_conf
