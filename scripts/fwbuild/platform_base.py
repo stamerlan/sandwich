@@ -10,3 +10,8 @@ class platform_base(object):
     def build_cxx_app(self, topout: Path, target: "fwbuild.cxx_app",
                       w: "fwbuild.ninja_writer") -> "fwbuild.cxx_app.artifacts":
         raise NotImplementedError("fwbuild.platform_base.build_cxx_app()")
+
+    def vscode_launch(self, topout: Path, target: "fwbuild.cxx_app",
+            artifacts: "fwbuild.cxx_app.artifacts") -> \
+                dict[str, str] | None:
+        return None
