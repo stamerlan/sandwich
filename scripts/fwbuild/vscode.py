@@ -36,7 +36,11 @@ def vscode(platform: "fwbuild.platform_base",
         launch["configurations"] = []
 
     for target, build in artifacts.items():
-        conf_name = f"{platform.name}-{target.name}"
+        if isinstance(target, fwbuild.cxx_gtest):
+            conf_name = f"{platform.name}: test {target.name}"
+        else:
+            conf_name = f"{platform.name}: {target.name}"
+
         launch_conf = {
             "name": conf_name,
             "type":"cppdbg",
