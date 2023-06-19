@@ -3,6 +3,7 @@ import contextlib
 import fwbuild
 import fwbuild.toolchains
 import json
+import sys
 
 class JSONWithCommentsDecoder(json.JSONDecoder):
     def __init__(self, **kwargs):
@@ -77,7 +78,8 @@ def write_launch_json(filename: Path, topout: Path, workspace: Path,
     launch = {}
     if filename.is_file():
         with open(filename, "r") as f:
-            launch = json.load(f, cls=JSONWithCommentsDecoder)
+            with contextlib.suppress(json.decoder.JSONDecodeError):
+                launch = json.load(f, cls=JSONWithCommentsDecoder)
 
     if "version" not in launch:
         launch["version"] = "0.2.0"
@@ -110,6 +112,51 @@ def write_launch_json(filename: Path, topout: Path, workspace: Path,
         json.dump(launch, f, indent=4)
 
 
+def write_tasks_json(filename: Path, topout: Path, workspace: Path,
+        platform: "fwbuild.platform_base",
+        artifacts: dict["fwbuild.cxx_app", "fwbuild.cxx_app.artifacts"]):
+    tasks = {}
+
+    if filename.is_file():
+        with open(filename, "r") as f:
+            with contextlib.suppress(json.decoder.JSONDecodeError):
+                tasks = json.load(f, cls=JSONWithCommentsDecoder)
+
+    if "version" not in tasks:
+        tasks["version"] = "2.0.0"
+    if "tasks" not in tasks:
+        tasks["tasks"] = []
+
+    # configure task
+    conf_task = {
+        "label": f"{platform.name}: configure",
+        "type": "shell",
+        "command": sys.executable,
+        "args": sys.argv,
+        "options": {
+            "cwd": Path.cwd().as_posix()
+        }
+    }
+    tasks["tasks"] = merge_conf(tasks["tasks"], conf_task,
+                                label=conf_task["label"])
+
+    # build task
+    build_task = {
+        "label": f"{platform.name}: build",
+        "group": "build",
+        "command": "ninja",
+        "args": ["-C", topout.as_posix()],
+        "dependsOn": [conf_task["label"]]
+    }
+    tasks["tasks"] = merge_conf(tasks["tasks"], build_task,
+                                label=build_task["label"])
+
+    # Write updated file
+    filename.parent.mkdir(parents=True, exist_ok=True)
+    with open(filename, "w") as f:
+        json.dump(tasks, f, indent=4)
+
+
 def vscode(platform: "fwbuild.platform_base",
            artifacts: dict["fwbuild.cxx_app", "fwbuild.cxx_app.artifacts"],
            topout: str | Path, vscode_dir: str | Path = ".vscode"):
@@ -125,3 +172,5 @@ def vscode(platform: "fwbuild.platform_base",
 
     write_launch_json(vscode_dir / "launch.json", topout, workspace_folder,
                       platform, artifacts)
+    write_tasks_json(vscode_dir / "tasks.json", topout, workspace_folder,
+                     platform, artifacts)
