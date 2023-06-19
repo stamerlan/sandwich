@@ -16,9 +16,8 @@ class hello(fwbuild.cxx_app):
         self.cxxflags += "-fno-threadsafe-statics"
         self.cxxflags += "-Wall", "-Wextra", "-Werror", "-Weffc++"
         self.cxxflags += "-Wmultiple-inheritance", "-Wvirtual-inheritance"
-        self.cxxflags += "-ffile-prefix-map=$srcdir/="
 
-        self.ldflags += "-flto"
+        self.ldflags += "-flto", "-g"
 
         self.submodule("drivers")
         self.submodule("sandwich")
