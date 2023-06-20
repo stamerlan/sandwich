@@ -1,1 +1,1 @@
-from .raspi3b import raspi3b
+from .raspi3b.build import raspi3b

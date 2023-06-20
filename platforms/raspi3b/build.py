@@ -4,7 +4,7 @@ import fwbuild
 import fwbuild.toolchains
 
 @fwbuild.target
-class raspi3b_platform(fwbuild.cxx_module):
+class platform_raspi3b(fwbuild.cxx_module):
     def __init__(self, target: fwbuild.cxx_app):
         super().__init__(target, name="platform")
 
@@ -42,7 +42,7 @@ class raspi3b(fwbuild.platform_base):
                 if self.toolchain is None:
                     self.toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
                 app = cls(conf, self.toolchain)
-                app.submodule("raspi3b_platform")
+                app.submodule("platform_raspi3b")
                 self.targets.append(app)
 
 
