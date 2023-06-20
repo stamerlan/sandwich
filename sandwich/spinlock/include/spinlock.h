@@ -6,12 +6,23 @@
 namespace sandwich {
 
 /**
- * @brief Simple spinlock implementation.
- * May be used to synchronize different CPUs. Disables interrupts while lock is
- * held.
+ * @brief Spinlock.
+ * The most basic primitive for locking. A spinlock is a lock that causes a CPU
+ * trying to acquire it to simply wait in a loop ("spin") while repeatedly
+ * checking whether the lock is available.
  *
- * @todo: Disable interrupts until unlock() called.
- * @todo: Don't use atomic variable on uniprocessor systems.
+ * Spinlocks are used when wait times are expected to be short and when
+ * contention is minimal.
+ *
+ * If you have a case where you have to protect a data structure across several
+ * CPU's you can use spinlock IF you know that the spinlocks are never used in
+ * interrupt handlers. Otherwise you need to disable interrupts first:
+ * @msc
+ *   task,ISR
+ *   task box task [label="spinlock.lock()"]
+ *   task->ISR     [label="IRQ"]
+ *   ISR box ISR   [label="spinlock.lock(); DEADLOCK"]
+ * @endmsc
  */
 class spinlock_t {
 public:
