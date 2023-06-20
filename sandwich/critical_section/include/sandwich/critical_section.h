@@ -11,15 +11,15 @@ namespace sandwich {
  * section. Interrupts on local CPU are disabled for the duration of a scoped
  * block.
  */
-class critical_section {
+class critical_section_t {
 public:
-	critical_section(void) : flags(arch::irq::disable()) {}
-	critical_section(const critical_section&) = delete;
-	critical_section(critical_section&&) = delete;
-	critical_section& operator=(const critical_section&) = delete;
-	critical_section& operator=(critical_section&&) = delete;
+	critical_section_t(void) : flags(arch::irq::disable()) {}
+	critical_section_t(const critical_section_t&) = delete;
+	critical_section_t(critical_section_t&&) = delete;
+	critical_section_t& operator=(const critical_section_t&) = delete;
+	critical_section_t& operator=(critical_section_t&&) = delete;
 
-	~critical_section(void)
+	~critical_section_t(void)
 	{
 		arch::irq::enable(flags);
 	}
