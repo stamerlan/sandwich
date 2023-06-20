@@ -14,7 +14,7 @@ from .mkpath import mkpath, relative_path
 from .platform_base import platform_base
 from .shellcmd import shellcmd
 from .str_list import str_list
-from .target import target, target_cls
+from .target import target, target_cls, module_cls
 from .tool import tool
 from .toolchain import toolchain
 from .vscode import vscode

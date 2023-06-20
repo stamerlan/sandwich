@@ -38,16 +38,13 @@ class raspi3b(fwbuild.platform_base):
                 if self.host_toolchain is None:
                     self.host_toolchain = fwbuild.toolchains.gcc.find()
                 self.targets.append(cls(conf, self.host_toolchain))
-            elif issubclass(cls, fwbuild.cxx_app):
+            else: #issubclass(cls, fwbuild.cxx_app)
                 if self.toolchain is None:
                     self.toolchain = fwbuild.toolchains.gcc.find("aarch64-none-elf-")
                 app = cls(conf, self.toolchain)
                 app.submodule("raspi3b_platform")
                 self.targets.append(app)
-            elif issubclass(cls, fwbuild.cxx_module):
-                pass
-            else:
-                raise RuntimeError(f"Unexpected target {cls}")
+
 
     def build_cxx_app(self, topout: Path, target: fwbuild.cxx_app,
                       w: fwbuild.ninja_writer) -> fwbuild.cxx_app.artifacts:
