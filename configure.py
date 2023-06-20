@@ -10,8 +10,8 @@ import src.build
 
 # Parse command line
 parser = argparse.ArgumentParser(description="Sandwich configuration script")
-parser.add_argument("-c", "--config", "--cfg", "--conf",
-    help="Filename to load configuration from")
+parser.add_argument("config", default="host.config", nargs='?',
+                    help="Filename to load configuration from")
 args = parser.parse_args()
 
 # Load configuration
