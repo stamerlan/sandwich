@@ -162,21 +162,31 @@ def write_tasks_json(filename: Path, topout: Path, workspace: Path,
     tasks["tasks"] = merge_conf(tasks["tasks"], build_task,
                                 label=build_task["label"])
 
-    # check if any task target present
-    tests_present = False
-    for target, build in artifacts.items():
-        if isinstance(target, fwbuild.cxx_gtest):
-            tests_present = True
-            break
 
-    if tests_present:
+    test_exe = []
+    for target, target_artifacts in artifacts.items():
+        if isinstance(target, fwbuild.cxx_gtest):
+            test_exe.append(target_artifacts.app.as_posix())
+
+    if test_exe:
+        # build test task
+        build_test_task = {
+            "label": f"{platform.name}: build test",
+            "group": "build",
+            "command": "ninja",
+            "args": ["-C", topout.as_posix()] + test_exe,
+            "dependsOn": [conf_task["label"]]
+        }
+        tasks["tasks"] = merge_conf(tasks["tasks"], build_test_task,
+                                    label=build_test_task["label"])
+
         # test task
         test_task = {
             "label": f"{platform.name}: test",
             "group": "test",
             "command": "ninja",
             "args": ["-C", topout.as_posix(), "test"],
-            "dependsOn": [conf_task["label"]]
+            "dependsOn": [build_test_task["label"]]
         }
         tasks["tasks"] = merge_conf(tasks["tasks"], test_task,
                                     label=test_task["label"])
