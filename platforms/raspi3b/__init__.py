@@ -3,7 +3,7 @@ import contextlib
 import fwbuild
 import fwbuild.toolchains
 
-@fwbuild.build
+@fwbuild.target
 class raspi3b_platform(fwbuild.cxx_module):
     def __init__(self, target: fwbuild.cxx_app):
         super().__init__(target, name="platform")
@@ -33,7 +33,7 @@ class raspi3b(fwbuild.platform_base):
         self.toolchain:      fwbuild.toolchain = None
         self.host_toolchain: fwbuild.toolchain = None
 
-        for cls in fwbuild.build_cls:
+        for cls in fwbuild.target_cls:
             if issubclass(cls, fwbuild.cxx_gtest):
                 if self.host_toolchain is None:
                     self.host_toolchain = fwbuild.toolchains.gcc.find()

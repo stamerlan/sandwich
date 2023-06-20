@@ -10,7 +10,7 @@ class host(fwbuild.platform_base):
         self.targets: list[fwbuild.cxx_module] = []
         self.toolchain = fwbuild.toolchains.gcc.find()
 
-        for cls in fwbuild.build_cls:
+        for cls in fwbuild.target_cls:
             if issubclass(cls, fwbuild.cxx_app):
                 self.targets.append(cls(conf, self.toolchain))
             elif issubclass(cls, fwbuild.cxx_module):

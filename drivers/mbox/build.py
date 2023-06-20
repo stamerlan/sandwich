@@ -1,6 +1,6 @@
 import fwbuild
 
-@fwbuild.build
+@fwbuild.target
 class mbox(fwbuild.cxx_module):
     def __init__(self, target: fwbuild.cxx_app):
         super().__init__(target)

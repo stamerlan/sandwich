@@ -1,16 +1,16 @@
 import fwbuild
 
 # Classes registered to participiate in the build
-build_cls = []
+target_cls = []
 
-def build(cls):
+def target(cls):
     """ Decorator for every build target.
 
         Used to register class during the build, skip target build or rise an
         error if some requirements are not met.
     """
-    global build_cls
-    build_cls.append(cls)
+    global target_cls
+    target_cls.append(cls)
 
     fwbuild.deps.add(fwbuild.caller().filename)
 

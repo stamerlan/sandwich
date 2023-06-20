@@ -3,7 +3,6 @@ import sys
 if __name__ != "fwbuild":
     sys.modules["fwbuild"] = sys.modules[__name__]
 
-from .build import build, build_cls
 from .caller import caller
 from .cxx_app import cxx_app
 from .cxx_gtest import cxx_gtest
@@ -15,6 +14,7 @@ from .mkpath import mkpath, relative_path
 from .platform_base import platform_base
 from .shellcmd import shellcmd
 from .str_list import str_list
+from .target import target, target_cls
 from .tool import tool
 from .toolchain import toolchain
 from .vscode import vscode

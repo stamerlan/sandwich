@@ -1,13 +1,13 @@
 import fwbuild
 
-@fwbuild.build
+@fwbuild.target
 class sched(fwbuild.cxx_module):
     def __init__(self, target: fwbuild.cxx_app):
         super().__init__(target)
         target.include("include")
         self.src("src/sched.cc")
 
-@fwbuild.build
+@fwbuild.target
 class sched_test(fwbuild.cxx_gtest):
     def __init__(self, conf: fwbuild.kconfig, toolchain: fwbuild.toolchain):
         super().__init__(conf, toolchain)

@@ -101,7 +101,7 @@ class cxx_module(object):
             self._src.append(fwbuild.node(src, **vars))
 
     def submodule(self, name: str) -> "cxx_module":
-        for cls in fwbuild.build_cls:
+        for cls in fwbuild.target_cls:
             if cls.__name__ == name:
                 mod = cls(self.target)
                 self._submodules.append(mod)
