@@ -6,13 +6,13 @@ namespace arch::irq {
 /**
  * @brief Integral type to represent an interrupt subsystem state.
  */
-using flags = unsigned long;
+using flags_t = unsigned long;
 
 /**
  * @brief Disable interrupt handling.
  * @return current interrupt subsystem state.
  */
-flags disable(void);
+flags_t disable(void);
 
 /**
  * @brief Enable interrupt handling.
@@ -20,7 +20,7 @@ flags disable(void);
  * disabled.
  * @param flags: flags returned by disable() call.
  */
-void enable(flags flags);
+void enable(flags_t flags);
 
 } /* namespace arch::irq */
 
