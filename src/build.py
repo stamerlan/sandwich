@@ -20,6 +20,7 @@ class hello(fwbuild.cxx_app):
 
         self.ldflags += "-flto", "-g"
 
+        self.submodule("arch")
         self.submodule("drivers")
         self.submodule("sandwich")
 

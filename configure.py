@@ -4,6 +4,7 @@ import argparse
 import fwbuild.platforms
 import platforms
 
+import arch.build
 import drivers.build
 import sandwich.build
 import src.build

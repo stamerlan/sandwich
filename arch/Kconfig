@@ -1,0 +1,2 @@
+config ARCH_AARCH64
+    bool

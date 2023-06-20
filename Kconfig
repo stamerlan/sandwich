@@ -7,8 +7,10 @@ choice
 
     config PLATFORM_RASPI3B
         bool "Raspberry pi 3B"
+        select ARCH_AARCH64
         select HAVE_BCM2837_MBOX
         select HAVE_BCM2837_UART1
 endchoice
 
+rsource "arch/Kconfig"
 rsource "drivers/Kconfig"
