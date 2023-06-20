@@ -58,6 +58,9 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
         objs.append(outdir / obj_path.name)
 
     for mod in module.submodules:
+        if not mod.sources and not mod.submodules:
+            continue
+
         buildfile = topout / outdir / mod.name / f"{mod.name}-build.ninja"
         w.subninja(f"$outdir/{mod.name}/{mod.name}-build.ninja")
 
