@@ -66,6 +66,7 @@ public:
 
 protected:
 	std::atomic<bool> atom{ false };
+	static_assert(decltype(atom)::is_always_lock_free);
 };
 
 } /* namespace sandwich */
