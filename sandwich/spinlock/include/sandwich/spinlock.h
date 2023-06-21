@@ -18,10 +18,10 @@ namespace sandwich {
  * CPU's you can use spinlock IF you know that the spinlocks are never used in
  * interrupt handlers. Otherwise you need to disable interrupts first:
  * @msc
- *   task,ISR
- *   task box task [label="spinlock.lock()"]
- *   task->ISR     [label="IRQ"]
- *   ISR box ISR   [label="spinlock.lock(); DEADLOCK"]
+ *   task,ISR;
+ *   task box task [label="spinlock.lock()"];
+ *   task->ISR     [label="IRQ"];
+ *   ISR box ISR   [label="spinlock.lock(); DEADLOCK"];
  * @endmsc
  */
 class spinlock_t {
