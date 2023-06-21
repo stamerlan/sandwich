@@ -129,6 +129,20 @@ def write_tasks_json(filename: Path, topout: Path, workspace: Path,
     if "tasks" not in tasks:
         tasks["tasks"] = []
 
+    # build documentation task
+    docs_build_task = {
+        "label": "docs-build",
+        "group": "build",
+        "type": "shell",
+        "command": "python",
+        "args": ["${workspaceFolder}/build-docs.py"],
+        "options": {
+            "cwd": "${workspaceFolder}"
+        }
+    }
+    tasks["tasks"] = merge_conf(tasks["tasks"], docs_build_task,
+                                label=docs_build_task["label"])
+
     # configure task
     conf_task = {
         "label": f"{platform.name}: configure",
