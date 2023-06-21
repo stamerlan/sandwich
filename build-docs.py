@@ -39,7 +39,8 @@ except subprocess.CalledProcessError as e:
 # Run sphinx
 try:
     subprocess.check_call(["sphinx-build",
-                           topdir / "doc",
+                           topdir,
+                           "-c", topdir / "doc",
                            "-Dbreathe_projects.Sandwich=" + str(args.outdir / "doxy-xml"),
                            "-Dbreathe_default_project=Sandwich",
                            "."],
