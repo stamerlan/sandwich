@@ -22,7 +22,7 @@ else:
     args.outdir = Path(args.outdir).absolute()
 
 # Make Doxyfile from docs/Doxyfile.in
-with open(topdir / "doc" / "Doxyfile.in") as f:
+with open(topdir / "docs" / "Doxyfile.in") as f:
     doxyfile = f.read()
 doxyfile = doxyfile.replace("@topdir@", topdir.as_posix())
 args.outdir.mkdir(parents=True, exist_ok=True)
@@ -38,14 +38,14 @@ except subprocess.CalledProcessError as e:
 
 # Run sphinx
 try:
-    subprocess.check_call(["sphinx-build",
-                           topdir,
-                           "-c", topdir / "doc",
-                           "-Dbreathe_projects.Sandwich=" + str(args.outdir / "doxy-xml"),
-                           "-Dbreathe_default_project=Sandwich",
-                           "."],
-                           stdout=sys.stdout, stderr=sys.stderr,
-                           shell=True,
-                           cwd=args.outdir)
+    subprocess.check_call([
+        "sphinx-build",
+        topdir / "docs",
+        "-D", "breathe_projects.Sandwich=" + str(args.outdir / "doxy-xml"),
+        "-D", "breathe_default_project=Sandwich",
+        "."],
+        stdout=sys.stdout, stderr=sys.stderr,
+        shell=True,
+        cwd=args.outdir)
 except subprocess.CalledProcessError as e:
     sys.exit(e.returncode)
