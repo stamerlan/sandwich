@@ -1,10 +1,8 @@
-Sandwich
-========
+Welcome to sandwich's documentation!
+====================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-index.rst section
------------------
-The index.rst content
+.. include:: ../README.rst
