@@ -81,13 +81,9 @@ el1_entry: /* CPU at EL1 */
 
 
 	.weak	_cpu_init_hook
-_cpu_init_hook:
-	ret
-
 	.weak	_init
-_init:
-	ret
-
 	.weak	_fini
+_cpu_init_hook:
+_init:
 _fini:
 	ret
