@@ -60,7 +60,34 @@ el2_entry: /* CPU at EL2 */
 
 el1_entry: /* CPU at EL1 */
 	/* Setup stack */
-	ldr	x0, =__stack_top
+	ldr	x0, =__stack_base__
 	mov	sp, x0
 
-	b	init
+	/* Hook function to init memory */
+	bl	_cpu_init_hook
+
+	/* Zero the memory in the .bss section */
+	ldr	x0, =__bss_start__ /* memset first arg: start of memory block */
+	mov	w1, #0             /* memset second arg: fill balue */
+	ldr	x2, =__bss_end__
+	sub	x2, x2, x0         /* memset third arg" length of block */
+	bl	memset
+
+	/* Init standard library */
+	bl	__libc_init_array
+
+	bl	main
+	b	exit
+
+
+	.weak	_cpu_init_hook
+_cpu_init_hook:
+	ret
+
+	.weak	_init
+_init:
+	ret
+
+	.weak	_fini
+_fini:
+	ret

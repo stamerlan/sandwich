@@ -8,7 +8,7 @@ SECTIONS
 {
 	/* Startup code should be placed first and located at 0x80000 */
 	.startup 0x80000 : {
-		__stack_top = .;
+		__stack_base__ = .;
 		*(.startup)
 	} > SDRAM
 
@@ -25,10 +25,10 @@ SECTIONS
 	.data : { *(.data*) } > SDRAM
 
 	.bss (NOLOAD) : {
-		__bss_start = .;
+		__bss_start__ = .;
 		*(.bss*)
 		*(COMMON)
-		__bss_end = .;
+		__bss_end__ = .;
 	} > SDRAM
 
 
