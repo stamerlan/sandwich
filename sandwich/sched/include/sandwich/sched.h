@@ -1,8 +1,6 @@
 #ifndef SANDWICH_SCHED_H
 #define SANDWICH_SCHED_H
 
-#include <functional>
-
 /**
  * @page scheduling Scheduling
  *
@@ -60,7 +58,7 @@ namespace sandwich::sched {
 
 class task_t final {
 public:
-	task_t(const char *name, void (*handler)(void));
+	task_t(const char *name_, void (*handler_)(void));
 	task_t(const task_t&) = delete;
 	task_t(task_t&&) = delete;
 	task_t& operator=(const task_t&) = delete;
@@ -111,10 +109,10 @@ public:
 	 *   to sleep state.
 	 * @return The value returned by predicate.
 	 */
-	bool sleep(std::function<bool(void)> const&& predicate);
+	bool sleep(bool (*predicate)(void));
 
 private:
-	const char name[16];
+	char name[16];
 	void (* const handler)(void);
 
 	volatile task_t *prev;
