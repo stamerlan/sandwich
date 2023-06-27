@@ -41,8 +41,8 @@ try:
     subprocess.check_call([
         "sphinx-build",
         topdir / "docs",
-        "-D", "breathe_projects.Sandwich=" + str(args.outdir / "doxy-xml"),
-        "-D", "breathe_default_project=Sandwich",
+        "-D", "breathe_projects.sandwich=" + str(args.outdir / "doxy-xml"),
+        "-D", "breathe_default_project=sandwich",
         "."],
         stdout=sys.stdout, stderr=sys.stderr,
         shell=True,
