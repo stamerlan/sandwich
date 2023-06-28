@@ -1,33 +1,38 @@
 #include <gtest/gtest.h>
 #include <sandwich/sched.h>
 
-static bool task_a_ret;
-static int task_a_cnt;
-static bool task_b_ret;
-static int task_b_cnt;
+static void task_a_handler(void);
+static void task_b_handler(void);
 
-static bool task_a(void)
+static int task_a_cnt = 0;
+static bool task_a_sleep = false;
+static sandwich::sched::task_t task_a{"task_a", task_a_handler};
+
+static int task_b_cnt = 0;
+static bool task_b_sleep = false;
+static sandwich::sched::task_t task_b{"task_b", task_b_handler};
+
+static void task_a_handler(void)
 {
 	task_a_cnt++;
-	return task_a_ret;
+	if (task_a_sleep)
+		task_a.sleep();
 }
-SANDWICH_TASK(task_a);
 
-static bool task_b(void)
+static void task_b_handler(void)
 {
 	task_b_cnt++;
-	return task_b_ret;
+	if (task_b_sleep)
+		task_b.sleep();
 }
-SANDWICH_TASK(task_b);
 
 class sched_test : public testing::Test {
 protected:
 	void SetUp(void) override
 	{
 		sandwich::sched::init();
-
-		task_a_ret = task_b_ret = false;
 		task_a_cnt = task_b_cnt = 0;
+		task_a_sleep = task_b_sleep = false;
 	}
 };
 
@@ -35,83 +40,102 @@ TEST_F(sched_test, empty)
 {
 	/* Scheduler run queue is empty. Nothing expected to happen. */
 	sandwich::sched::run();
+	ASSERT_EQ(0, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
 }
 
-TEST_F(sched_test, wakeup)
+TEST_F(sched_test, run_task)
 {
-	/* Schedule a single task. Check if task handler executed. */
-	sandwich::sched::wakeup(&sandwich_task_task_a);
-	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-}
-
-TEST_F(sched_test, run_once)
-{
-	/* Schedule a single task. Task handler returns false, so it shouldn't
-	 * be scheduled again.
+	/* Schedule a single task. Check if task handler executed as many times
+	 * as scheduler run.
 	 */
-	sandwich::sched::wakeup(&sandwich_task_task_a);
-	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
+	task_a.wakeup();
+
+	for (int run_cnt = 1; run_cnt < 5; run_cnt++) {
+		sandwich::sched::run();
+		ASSERT_EQ(run_cnt, task_a_cnt);
+		ASSERT_EQ(0, task_b_cnt);
+	}
 }
 
-TEST_F(sched_test, run_cont)
+TEST_F(sched_test, run_two_tasks)
 {
-	/* Schedule a single task. Task handler returns true, so it should be
-	 * scheduled again.
+	/* Schedule two tasks. Tasks should be executed one-by-one on each
+	 * scheduler run. */
+	task_a.wakeup();
+	task_b.wakeup();
+
+	for (int run_cnt = 1; run_cnt < 10; run_cnt++) {
+		sandwich::sched::run();
+		ASSERT_EQ(run_cnt / 2 + (run_cnt % 2), task_a_cnt);
+		ASSERT_EQ(run_cnt / 2, task_b_cnt);
+	}
+}
+
+TEST_F(sched_test, run_task_forever_and_other_once)
+{
+	/* Schedule two tasks. One task runs forever, while other sleep after
+	 * the first run.
 	 */
-	task_a_ret = true;
-	sandwich::sched::wakeup(&sandwich_task_task_a);
+	task_a.wakeup();
+	task_b.wakeup();
+	task_b_sleep = true;
+
 	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+
 	sandwich::sched::run();
-	EXPECT_EQ(2, task_a_cnt);
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(1, task_b_cnt);
+
+	for (int run_cnt = 2; run_cnt < 5; run_cnt++) {
+		sandwich::sched::run();
+		ASSERT_EQ(run_cnt, task_a_cnt);
+		ASSERT_EQ(1, task_b_cnt);
+	}
 }
 
-TEST_F(sched_test, run_two)
+TEST_F(sched_test, sleep)
 {
-	/* Schedule two tasks. Check if both tasks executed once */
-	sandwich::sched::wakeup(&sandwich_task_task_a);
-	sandwich::sched::wakeup(&sandwich_task_task_b);
-
-	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-	EXPECT_EQ(0, task_b_cnt);
-
-	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-	EXPECT_EQ(1, task_b_cnt);
-
-	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-	EXPECT_EQ(1, task_b_cnt);
-}
-
-TEST_F(sched_test, run_once_and_cont)
-{
-	/* Schedule two tasks. task_a runs forever, task_b - only once. Check
-	 * after task_b executed it is removed from run queue, only task_a
-	 * remains.
+	/* Schedule a single task. Task handler puts task to sleep state, it
+	 * shouldn't be executed again.
 	 */
-	task_a_ret = true;
-	sandwich::sched::wakeup(&sandwich_task_task_a);
-	sandwich::sched::wakeup(&sandwich_task_task_b);
+	task_a.wakeup();
+	task_a_sleep = true;
 
 	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-	EXPECT_EQ(0, task_b_cnt);
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
 
 	sandwich::sched::run();
-	EXPECT_EQ(1, task_a_cnt);
-	EXPECT_EQ(1, task_b_cnt);
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+}
+
+TEST_F(sched_test, wakeup_twice)
+{
+	/* Schedule a single task. Task handler puts task to sleep state. Task
+	 * is woken up twice. It should be executed only once, enter sleep state
+	 * and shouldn't be run until woken up again.
+	 */
+	task_a.wakeup();
+	task_a_sleep = true;
 
 	sandwich::sched::run();
-	EXPECT_EQ(2, task_a_cnt);
-	EXPECT_EQ(1, task_b_cnt);
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+
+	/* wake up twice */
+	task_a.wakeup();
+	task_a.wakeup();
 
 	sandwich::sched::run();
-	EXPECT_EQ(3, task_a_cnt);
-	EXPECT_EQ(1, task_b_cnt);
+	ASSERT_EQ(2, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+
+	/* run again to ensure task is sleeping */
+	sandwich::sched::run();
+	ASSERT_EQ(2, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
 }

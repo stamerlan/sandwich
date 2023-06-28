@@ -11,6 +11,10 @@ class sched(fwbuild.cxx_module):
 class sched_test(fwbuild.cxx_gtest):
     def __init__(self, conf: fwbuild.kconfig, toolchain: fwbuild.toolchain):
         super().__init__(conf, toolchain)
+
+        self.submodule("arch")
+        self.submodule("critical_section")
+
         self.include("include")
 
         self.cxxflags += "-g"
