@@ -4,6 +4,10 @@
 #include <sandwich/sched.h>
 #include <uart.h>
 
+#include <cstdint>
+static volatile uint32_t* const arm_intr = (uint32_t *)0x3F00'B200;
+static volatile uint32_t* const arm_base_irq_en = (uint32_t *)0x3F00'B218;
+
 static void sched_task(void)
 {
 	printf("task\n");
@@ -18,6 +22,11 @@ int main(void)
 	sandwich::sched::task_t task("task", sched_task);
 	task.wakeup();
 
+	/* Set to enable ARM Mailbox IRQ. Write 1b set register */
+	*arm_base_irq_en = 1u << 1;
+	printf("ARM INTR: 0x%08x\n", *arm_intr);
+
+#if 0
 	alignas(16) volatile char get_serial_msg[] = {
 		0x20, 0x00, 0x00, 0x00, /* message size in bytes */
 		0x00, 0x00, 0x00, 0x00, /* request code */
@@ -30,7 +39,23 @@ int main(void)
 
 		0x00, 0x00, 0x00, 0x00, /* end tag */
 	};
+
 	while (bcm2837::mbox::send(get_serial_msg) == -EAGAIN);
+#else
+	alignas(16) volatile char get_board_rev_msg[] = {
+		0x1C, 0x00, 0x00, 0x00, /* message size in bytes */
+		0x00, 0x00, 0x00, 0x00, /* request code */
+
+		0x02, 0x00, 0x01, 0x00, /* get board revision tag */
+		0x04, 0x00, 0x00, 0x00, /* buffer size for response */
+		0x00, 0x00, 0x00, 0x00, /* request */
+		0x00, 0x00, 0x00, 0x00, /* response buffer */
+
+		0x00, 0x00, 0x00, 0x00, /* end tag */
+	};
+	while (bcm2837::mbox::send(get_board_rev_msg) == -EAGAIN);
+#endif
+	printf("ARM INTR: 0x%08x\n", *arm_intr);
 
 	for (int i = 0; i < 8; i++)
 		sandwich::sched::run();

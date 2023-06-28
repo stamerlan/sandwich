@@ -26,6 +26,12 @@ static const volatile uint32_t * const mbox_status =
 static constexpr uint32_t mbox_status_empty = 1u << 30;
 static constexpr uint32_t mbox_status_full = 1u << 31;
 
+/* Mailbox 0 configuration register.
+ * Bits:
+ * [0]: Enable interrupts.
+ */
+static volatile uint32_t * const mbox_conf = (uint32_t *)(mbox_base + 0x1C);
+
 /* The write register for mailbox 0. Tthis is actually the read register for
  * mailbox 1.
  * Bits:
@@ -53,6 +59,7 @@ static sandwich::sched::task_t mbox_task("bcm2837_mbox", sched_mbox);
 void bcm2837::mbox::init(void)
 {
 	mbox_task.wakeup();
+	*mbox_conf = 1;
 }
 
 int bcm2837::mbox::send(volatile void *msg)
