@@ -8,7 +8,10 @@ class arch(fwbuild.cxx_module):
         super().__init__(target)
         target.include("include")
 
-        if target.conf.ARCH_AARCH64:
+        if isinstance(target, fwbuild.cxx_gtest):
+            # Always use arch_host for unit test
+            self.submodule("arch_host")
+        elif target.conf.ARCH_AARCH64:
             self.submodule("arch_aarch64")
         else:
             self.submodule("arch_host")
