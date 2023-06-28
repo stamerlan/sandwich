@@ -1,4 +1,0 @@
-#ifndef DRIVERS_MAILBOX_H
-#define DRIVERS_MAILBOX_H
-
-#endif /* DRIVERS_MAILBOX_H */

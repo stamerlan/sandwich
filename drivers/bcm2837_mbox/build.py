@@ -1,10 +1,10 @@
 import fwbuild
 
 @fwbuild.target
-class mbox(fwbuild.cxx_module):
+class bcm2837_mbox(fwbuild.cxx_module):
     def __init__(self, target: fwbuild.cxx_app):
         super().__init__(target)
-        if target.conf.HOST_UART:
-            self.src("src/mbox.cc")
+        if target.conf.BCM2837_MBOX:
+            self.src("src/bcm2837_mbox.cc")
 
         target.include("include")

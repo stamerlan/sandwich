@@ -1,4 +1,4 @@
 menu "Drivers"
-rsource "mbox/Kconfig"
+rsource "bcm2837_mbox/Kconfig"
 rsource "uart/Kconfig"
 endmenu
