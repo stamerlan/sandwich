@@ -54,8 +54,14 @@
  * for execution or executing. Typically tasks are defined at compile time and
  * exist whole application life-time.
  */
+
+/** Task scheduler. */
 namespace sandwich::sched {
 
+/**
+ * @brief Task representation.
+ * @see For more details see @ref sandwich_sched_tasks.
+ */
 class task_t final {
 public:
 	task_t(const char *name_, void (*handler_)(void));
@@ -108,6 +114,8 @@ public:
 	 * @param predicate: Condition to check. If condition is true put task
 	 *   to sleep state.
 	 * @return The value returned by predicate.
+	 *
+	 * @note Safe to call from ISR.
 	 */
 	bool sleep(bool (*predicate)(void));
 
