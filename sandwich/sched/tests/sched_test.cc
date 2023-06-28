@@ -113,6 +113,40 @@ TEST_F(sched_test, sleep)
 	ASSERT_EQ(0, task_b_cnt);
 }
 
+TEST_F(sched_test, sleep_if_predicate_true)
+{
+	/* Schedule a single task. Call task sleep with predicate true. Expected
+	 * task is in sleep state.
+	 */
+	task_a.wakeup();
+
+	sandwich::sched::run();
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+
+	task_a.sleep([](void){ return true; });
+	sandwich::sched::run();
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+}
+
+TEST_F(sched_test, sleep_if_predicate_false)
+{
+	/* Schedule a single task. Call task sleep with predicate false. Expected
+	 * task is in running state.
+	 */
+	task_a.wakeup();
+
+	sandwich::sched::run();
+	ASSERT_EQ(1, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+
+	task_a.sleep([](void){ return false; });
+	sandwich::sched::run();
+	ASSERT_EQ(2, task_a_cnt);
+	ASSERT_EQ(0, task_b_cnt);
+}
+
 TEST_F(sched_test, wakeup_twice)
 {
 	/* Schedule a single task. Task handler puts task to sleep state. Task

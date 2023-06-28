@@ -55,7 +55,7 @@ bool sandwich::sched::task_t::sleep(bool (*predicate)(void))
 	critical_section_t irq_disable;
 
 	bool rc = predicate();
-	if (predicate)
+	if (rc)
 		sleep();
 
 	return rc;
