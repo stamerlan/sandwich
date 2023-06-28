@@ -2,7 +2,7 @@
 #define SANDWICH_SCHED_H
 
 /**
- * @page scheduling Scheduling
+ * @page sandwich_sched Scheduling
  *
  * Sandwich uses cooperative scheduler. The scheduler determines which task is
  * allowed to execute at any point in time on current CPU. This task is known as
@@ -43,12 +43,12 @@
  * }
  * @endcode
  *
- * @section scheduling_algo Scheduling Algorithm
+ * @section sandwich_sched_algo Scheduling Algorithm
  * Scheduler read queue implemented as a simple list. Selecting next task to
  * execute, add task to run queue and remove task from run queue is done for
  * O(1).
  *
- * @section scheduling_tasks Tasks
+ * @section sandwich_sched_tasks Tasks
  * Task is a unit of execution or unit of work. It is represented by
  * sandwich::sched::task_t. The task object must exist while task is scheduled
  * for execution or executing. Typically tasks are defined at compile time and

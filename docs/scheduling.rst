@@ -1,7 +1,7 @@
 Scheduling
 ==========
 
-.. doxygenpage:: scheduling
+.. doxygenpage:: sandwich_sched
     :content-only:
 
 API Reference
