@@ -8,6 +8,13 @@
 static volatile uint32_t* const arm_intr = (uint32_t *)0x3F00'B200;
 static volatile uint32_t* const arm_base_irq_en = (uint32_t *)0x3F00'B218;
 
+static unsigned get_current_el(void)
+{
+	unsigned current_el;
+	__asm volatile("mrs	%0, CurrentEL\n\t" : "=r"(current_el));
+	return (current_el & 0xC) >> 2;
+}
+
 static void sched_task(void)
 {
 	printf("task\n");
@@ -21,6 +28,8 @@ int main(void)
 
 	sandwich::sched::task_t task("task", sched_task);
 	task.wakeup();
+
+	printf("cpu0 EL%u\n", get_current_el());
 
 	/* Set to enable ARM Mailbox IRQ. Write 1b set register */
 	*arm_base_irq_en = 1u << 1;
