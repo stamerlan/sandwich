@@ -16,6 +16,11 @@ flags_t disable(void);
 
 /**
  * @brief Enable interrupt handling.
+ */
+void enable(void);
+
+/**
+ * @brief Enable interrupt handling if flags.
  * If interrupts where disabled before disable() call, interrupts remain
  * disabled.
  * @param flags: flags returned by disable() call.
