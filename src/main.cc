@@ -4,8 +4,9 @@
 #include <sandwich/sched.h>
 #include <uart.h>
 
+#include <arch/irq.h>
 #include <cstdint>
-static volatile uint32_t* const arm_intr = (uint32_t *)0x3F00'B200;
+static volatile uint32_t* const arm_base_irq_pending = (uint32_t *)0x3F00'B200;
 static volatile uint32_t* const arm_base_irq_en = (uint32_t *)0x3F00'B218;
 
 static unsigned get_current_el(void)
@@ -73,6 +74,35 @@ extern "C" void curr_el_spx_sync(uint64_t esr, uint64_t elr, uint64_t spsr,
 	for (;;);
 }
 
+extern "C" void curr_el_spx_irq(uint64_t esr, uint64_t elr, uint64_t spsr,
+	uint64_t far)
+{
+	(void)esr;
+	(void)elr;
+	(void)spsr;
+	(void)far;
+
+	static constexpr uintptr_t perepherial_base = 0x3F00'0000;
+	static constexpr uintptr_t mbox_base = perepherial_base + 0x0000'B880;
+	static const volatile uint32_t* const mbox_read =
+		(uint32_t *)(mbox_base + 0x00);
+	static const volatile uint32_t * const mbox_status =
+		(uint32_t *)(mbox_base + 0x18);
+	static constexpr uint32_t mbox_status_empty = 1u << 30;
+
+	uint32_t pending = *arm_base_irq_pending;
+	printf("[IRQ] ARM IRQ PEND: 0x%08x%s\n", pending,
+		pending & 0x02 ? " (arm mailbox irq)" : "");
+
+	while (!(*mbox_status & mbox_status_empty)) {
+		uint32_t msg_addr = *mbox_read;
+		unsigned channel = msg_addr & 0xFu;
+		void *msg = reinterpret_cast<void *>(msg_addr & ~0xFu);
+
+		printf("[IRQ] mbox ch:%u@%p\n", channel, msg);
+	}
+}
+
 int main(void)
 {
 	uart::init();
@@ -84,12 +114,16 @@ int main(void)
 
 	printf("cpu0 EL%u\n", get_current_el());
 
+	printf("vectors@%p\n", vectors);
+	set_vbar_el1(vectors);
+	arch::irq::enable();
+
 	/* Set to enable ARM Mailbox IRQ. Write 1b set register */
 	*arm_base_irq_en = 1u << 1;
-	printf("ARM INTR: 0x%08x\n", *arm_intr);
+	printf("ARM IRQ PEND: 0x%08x\n", *arm_base_irq_pending);
 
 #if 0
-	alignas(16) volatile char get_serial_msg[] = {
+	alignas(16) volatile char mbox_msg[] = {
 		0x20, 0x00, 0x00, 0x00, /* message size in bytes */
 		0x00, 0x00, 0x00, 0x00, /* request code */
 
@@ -101,10 +135,8 @@ int main(void)
 
 		0x00, 0x00, 0x00, 0x00, /* end tag */
 	};
-
-	while (bcm2837::mbox::send(get_serial_msg) == -EAGAIN);
 #else
-	alignas(16) volatile char get_board_rev_msg[] = {
+	alignas(16) volatile char mbox_msg[] = {
 		0x1C, 0x00, 0x00, 0x00, /* message size in bytes */
 		0x00, 0x00, 0x00, 0x00, /* request code */
 
@@ -115,15 +147,13 @@ int main(void)
 
 		0x00, 0x00, 0x00, 0x00, /* end tag */
 	};
-	while (bcm2837::mbox::send(get_board_rev_msg) == -EAGAIN);
 #endif
-	printf("ARM INTR: 0x%08x\n", *arm_intr);
+	printf("send mbox msg@%p...\n", mbox_msg);
+	while (bcm2837::mbox::send(mbox_msg) == -EAGAIN);
 
+	printf("run scheduler...\n");
 	for (int i = 0; i < 8; i++)
 		sandwich::sched::run();
-
-	printf("vectors@%p\n", vectors);
-	set_vbar_el1(vectors);
 
 	printf("Trigger data abort...\n");
 	volatile int *r = (int *)0xFFFFFFFF00000000;
