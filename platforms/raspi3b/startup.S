@@ -40,7 +40,6 @@ el3_entry: /* CPU0 at EL3 */
 	eret
 
 el2_entry: /* CPU at EL2 */
-#if 0
 	/* Initialize the SCTLR_EL1 register before entering EL1 */
 	msr	SCTLR_EL1, xzr
 
@@ -48,17 +47,24 @@ el2_entry: /* CPU at EL2 */
 	mrs	x0, HCR_EL2
 	orr	x0, x0, #(1<<31) /* RW=1 EL1 Execution state is AArch64 */
 	msr	HCR_EL2, x0
-	mov	x0, #0b00101     /* DAIF=0000 */
-	msr	SPSR_EL2, x0     /* M[4:0]=00101 EL1h must match HCR_EL2.RW */
+	mov	x0, 0x3c5        /* M=EL1h with interrupts disabled */
+	msr	SPSR_EL2, x0
 
 	/* Determine EL1 entry */
 	adr	x0, el1_entry    /* el1_entry points to the first instruction */
 	msr	ELR_EL2, x0      /* of EL1 code */
 
 	eret
-#endif
 
 el1_entry: /* CPU at EL1 */
+	/* Disable trap on advanced SIMD and floating-point registers access.
+	 * Disable trap on SVE instructions and ZCR_EL1 system register access.
+	 */
+	mrs	x0, CPACR_EL1
+	orr	x0, x0, #(3<<20) /* CPACR_EL1.FPEN=0b11 */
+	orr	x0, x0, #(3<<16) /* CPACR_EL1.ZEN=0b11 */
+	msr	CPACR_EL1, x0
+
 	/* Setup stack */
 	ldr	x0, =__stack_base__
 	mov	sp, x0
