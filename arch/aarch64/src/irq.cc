@@ -13,6 +13,11 @@ arch::irq::flags_t arch::irq::disable(void)
 	return flags;
 }
 
+void arch::irq::enable(void)
+{
+	asm volatile("msr	daifclr, #2" ::: "memory");
+}
+
 void arch::irq::enable(arch::irq::flags_t flags)
 {
 	if (flags & DAIF_I_BIT)
