@@ -2,6 +2,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
+#include <arch/irq.h>
 #include <sandwich/sched.h>
 
 static constexpr uintptr_t perepherial_base = 0x3F00'0000;
@@ -56,10 +57,24 @@ static void sched_mbox(void)
 }
 static sandwich::sched::task_t mbox_task("bcm2837_mbox", sched_mbox);
 
+static void mbox_isr(void)
+{
+	while (!(*mbox_status & mbox_status_empty)) {
+		uint32_t msg_addr = *mbox_read;
+		unsigned channel = msg_addr & 0xFu;
+		void *msg = reinterpret_cast<void *>(msg_addr & ~0xFu);
+
+		printf("[IRQ] mbox ch:%u@%p\n", channel, msg);
+	}
+
+}
+
 void bcm2837::mbox::init(void)
 {
 	mbox_task.wakeup();
 	*mbox_conf = 1;
+
+	arch::irq::irq_en(1, mbox_isr);
 }
 
 int bcm2837::mbox::send(volatile void *msg)
