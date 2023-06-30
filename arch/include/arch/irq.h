@@ -9,6 +9,24 @@ namespace arch::irq {
 using flags_t = unsigned long;
 
 /**
+ * @brief Initialize interrupt controller and setup interrupt vectors.
+ */
+void init(void);
+
+/**
+ * @brief Enable IRQ.
+ * @param irq_nr: irq number.
+ */
+void irq_en(unsigned irq_nr);
+
+/**
+ * @brief Enable IRQ and set handler.
+ * @param irq_nr: irq number.
+ * @param isr: interrupt handler.
+ */
+void irq_en(unsigned irq_nr, void (*isr)(void));
+
+/**
  * @brief Disable interrupt handling.
  * @return current interrupt subsystem state.
  */
