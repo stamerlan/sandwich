@@ -78,35 +78,25 @@ int main(void)
 
 	arch::irq::enable();
 
-	/* Set to enable ARM Mailbox IRQ. Write 1b set register */
-#if 0
-	alignas(16) volatile char mbox_msg[] = {
-		0x20, 0x00, 0x00, 0x00, /* message size in bytes */
-		0x00, 0x00, 0x00, 0x00, /* request code */
+	auto mbox_msg_ptr = bcm2837::mbox::msg_t::alloc(28,
+		[](bcm2837::mbox::msg_t& self) {
+			printf("mbox board revision:");
+			for (size_t i = 0; i < 7; i++)
+				printf(" %08x", self[i]);
+			printf("\n");
+			self.free(self);
+		});
+	auto& mbox_msg = *mbox_msg_ptr;
+	mbox_msg[0] = 0x1c;     /* message size in bytes */
+	mbox_msg[1] = 0x00;     /* request code */
+	mbox_msg[2] = 0x010002; /* get board revision tag */
+	mbox_msg[3] = 0x04;     /* buffer size for response */
+	mbox_msg[4] = 0x00;     /* request */
+	mbox_msg[5] = 0x00;     /* response buffer */
+	mbox_msg[6] = 0x00;     /* end tag */
 
-		0x04, 0x00, 0x01, 0x00, /* get serial tag */
-		0x08, 0x00, 0x00, 0x00, /* buffer size for serial */
-		0x00, 0x00, 0x00, 0x00, /* request */
-		0x00, 0x00, 0x00, 0x00, /* buffer for serial number */
-		0x00, 0x00, 0x00, 0x00,
-
-		0x00, 0x00, 0x00, 0x00, /* end tag */
-	};
-#else
-	alignas(16) volatile char mbox_msg[] = {
-		0x1C, 0x00, 0x00, 0x00, /* message size in bytes */
-		0x00, 0x00, 0x00, 0x00, /* request code */
-
-		0x02, 0x00, 0x01, 0x00, /* get board revision tag */
-		0x04, 0x00, 0x00, 0x00, /* buffer size for response */
-		0x00, 0x00, 0x00, 0x00, /* request */
-		0x00, 0x00, 0x00, 0x00, /* response buffer */
-
-		0x00, 0x00, 0x00, 0x00, /* end tag */
-	};
-#endif
-	printf("send mbox msg@%p...\n", mbox_msg);
-	while (bcm2837::mbox::send(mbox_msg) == -EAGAIN);
+	printf("send mbox msg@%p...\n", mbox_msg_ptr);
+	while (mbox_msg.send() == -EAGAIN);
 
 	printf("run scheduler...\n");
 	for (int i = 0; i < 8; i++)
