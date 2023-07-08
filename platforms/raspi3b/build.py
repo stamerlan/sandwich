@@ -8,7 +8,7 @@ class platform_raspi3b(fwbuild.cxx_module):
     def __init__(self, target: fwbuild.cxx_app):
         super().__init__(target, name="platform")
 
-        self.src("startup.S", "vectors.S")
+        self.src("startup.S", "vectors.S", "exception.cc")
         self.src("retarget.cc", variables={"cxxflags": "$cxxflags -fno-lto"})
 
         # Add platform-specific flags to target
