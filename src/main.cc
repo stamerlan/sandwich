@@ -6,13 +6,6 @@
 #include <sandwich/sched.h>
 #include <uart.h>
 
-static unsigned get_current_el(void)
-{
-	unsigned current_el;
-	asm volatile("mrs	%0, CurrentEL\n\t" : "=r"(current_el));
-	return (current_el & 0xC) >> 2;
-}
-
 static void sched_task(void)
 {
 	printf("task\n");
@@ -25,7 +18,6 @@ int main(void)
 	uart::init();
 	bcm2837::mbox::init();
 
-	printf("cpu0 EL%u\n", get_current_el());
 	sandwich::sched::task_t task("task", sched_task);
 	task.wakeup();
 
