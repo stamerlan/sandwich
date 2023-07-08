@@ -53,14 +53,14 @@ static constexpr uint32_t mbox_channel_props_out = 8u;
 static void sched_mbox(void);
 static sandwich::sched::task_t mbox_task("bcm2837_mbox", sched_mbox);
 
-static struct msg_data_t : public bcm2837::mbox::msg_t {
+static struct request_t : public bcm2837::mbox::msg_t {
 	void (*cb)(struct bcm2837::mbox::msg_t& self);
 	bool used;
 	bool completed;
 	alignas(16) volatile uint32_t buffer[mbox_size_u32];
 } mbox_msg;
 /* need for containerof usage */
-static_assert(std::is_standard_layout_v<msg_data_t>);
+static_assert(std::is_standard_layout_v<request_t>);
 
 static void sched_mbox(void)
 {
