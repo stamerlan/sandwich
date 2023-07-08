@@ -4,3 +4,8 @@ config HAVE_BCM2837_MBOX
 config BCM2837_MBOX
     bool "BCM2837 mailbox"
     depends on HAVE_BCM2837_MBOX
+
+config BCM2837_MBOX_SIZE
+    int "Mailbox message pool size"
+    default "32"
+    depends on BCM2837_MBOX

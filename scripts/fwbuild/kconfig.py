@@ -79,9 +79,9 @@ class kconfig(object):
             elif sym.type is kconfiglib.STRING:
                 setattr(self, name, sym.str_value)
             elif sym.type is kconfiglib.INT:
-                setattr(self, name, int(sym.str_value))
+                setattr(self, name, int(sym.str_value or 0))
             elif sym.type is kconfiglib.HEX:
-                setattr(self, name, int(sym.str_value, 16))
+                setattr(self, name, int(sym.str_value or 0, 16))
             else:
                 type_str = kconfiglib.TYPE_TO_STR.get(sym.type, None)
                 if type_str is None:
