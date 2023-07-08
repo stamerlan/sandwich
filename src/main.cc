@@ -47,9 +47,5 @@ int main(void)
 	for (int i = 0; i < 8; i++)
 		sandwich::sched::run();
 
-	printf("Trigger data abort...\n");
-	volatile int *r = (int *)0xFFFFFFFF00000000;
-	*r = 0x100500;
-
 	return 0;
 }
