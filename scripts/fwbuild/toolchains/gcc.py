@@ -26,7 +26,8 @@ def _build_compile(w: fwbuild.ninja_writer, module: fwbuild.cxx_module,
     flags = {
         "asflags" : str(module.asflags),
         "cxxflags": " ".join(chain(module.cxxflags,
-                                ['-I' + str(i.as_posix()) for i in includes]))
+                                ['-I' + str(i.as_posix()) for i in includes],
+                                ['-D' + d for d in module.defines]))
     }
     for name, value in flags.items():
         if reset_flags:
