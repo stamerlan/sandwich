@@ -10,7 +10,7 @@ namespace bcm2837::mbox {
 struct msg_t {
 	static struct msg_t *alloc(size_t msg_sz,
 		void (*cb)(struct msg_t& self)) noexcept;
-	static void free(struct msg_t& msg) noexcept;
+	static void free(struct msg_t *msg) noexcept;
 
 	msg_t(void) = default;
 	msg_t(const msg_t&) = delete;
