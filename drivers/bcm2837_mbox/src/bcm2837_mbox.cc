@@ -5,9 +5,8 @@
 #include <arch/irq.h>
 #include <sandwich/sched.h>
 
-#define CONFIG_MBOX_SIZE 32u
 static constexpr size_t mbox_size_u32 =
-	(CONFIG_MBOX_SIZE + sizeof(uint32_t) - 1) / sizeof(uint32_t);
+	(CONFIG_BCM2837_MBOX_SIZE + sizeof(uint32_t) - 1) / sizeof(uint32_t);
 
 static constexpr uintptr_t perepherial_base = 0x3F00'0000;
 static constexpr uintptr_t mbox_base = perepherial_base + 0x0000'B880;
@@ -17,7 +16,7 @@ static constexpr uintptr_t mbox_base = perepherial_base + 0x0000'B880;
  * [31-4]: The 28 bits of data sent to the CPU.
  * [3-0]:  The mailbox channel number from which the data came from.
  */
-static const volatile uint32_t* const mbox_read =
+static const volatile uint32_t * const mbox_read =
 	(uint32_t *)(mbox_base + 0x00);
 
 /* Status register for mailbox 0.
@@ -88,7 +87,7 @@ bcm2837::mbox::msg_t::alloc(size_t msg_sz,
 {
 	if (mbox_msg.used)
 		return nullptr;
-	if (msg_sz > CONFIG_MBOX_SIZE)
+	if (msg_sz > CONFIG_BCM2837_MBOX_SIZE)
 		return nullptr;
 
 	mbox_msg.used = true;
