@@ -25,17 +25,10 @@ struct msg_t {
 #ifdef CONFIG_BCM2837_MBOX
 
 void init(void);
-int send(volatile void *msg);
 
 #else /* CONFIG_BCM2837_MBOX */
 
-#include <cerrno>
-
 static void init(void) {}
-static int send(volatile void *msg) {
-	(void)msg;
-	return -ENOSYS;
-}
 
 #endif /* CONFIG_BCM2837_MBOX */
 
