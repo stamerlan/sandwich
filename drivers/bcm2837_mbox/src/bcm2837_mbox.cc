@@ -1,8 +1,6 @@
 #include <bcm2837_mbox.h>
 #include <cassert>
 #include <cerrno>
-#include <cstdint>
-#include <cstdio>
 #include <type_traits>
 #include <arch/irq.h>
 #include <sandwich/sched.h>
