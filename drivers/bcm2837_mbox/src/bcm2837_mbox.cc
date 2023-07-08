@@ -98,9 +98,12 @@ bcm2837::mbox::msg_t::alloc(size_t msg_sz,
 	return &mbox_msg;
 }
 
-void bcm2837::mbox::msg_t::free(struct bcm2837::mbox::msg_t& msg)
+void bcm2837::mbox::msg_t::free(struct bcm2837::mbox::msg_t *msg)
 {
-	assert(&msg == &mbox_msg);
+	if (!msg)
+		return;
+
+	assert(msg == &mbox_msg);
 
 	mbox_msg.used = false;
 	mbox_msg.completed = false;
