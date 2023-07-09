@@ -1,10 +1,13 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
+
 #include <arch/irq.h>
 #include <bcm2837_mbox.h>
 #include <sandwich/sched.h>
 #include <uart.h>
+
+#include <display.h>
 
 static void sched_task(void)
 {
@@ -19,6 +22,9 @@ int main(void)
 
 	bcm2837::mbox::init();
 	while (!uart::init())
+		sandwich::sched::run();
+
+	while (!display::init())
 		sandwich::sched::run();
 
 	sandwich::sched::task_t task("task", sched_task);

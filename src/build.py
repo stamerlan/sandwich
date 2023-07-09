@@ -1,4 +1,5 @@
 import fwbuild
+import src.display.build
 
 # TODO: Flags are defined for GCC toolchain only
 @fwbuild.target
@@ -23,5 +24,6 @@ class hello(fwbuild.cxx_app):
         self.submodule("arch")
         self.submodule("drivers")
         self.submodule("sandwich")
+        self.submodule("display")
 
         self.src("main.cc")
