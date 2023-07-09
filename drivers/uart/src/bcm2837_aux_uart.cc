@@ -61,7 +61,7 @@ static void delay(unsigned cycles)
 		asm volatile("nop");
 }
 
-void uart::init(void)
+bool uart::init(void)
 {
 	/* TODO: Calculate baud rate depending on cpu freq.
 	 * See "BCM2837 ARM Peripherals" section 2.2.1 "Mini UART implementation
@@ -102,6 +102,8 @@ void uart::init(void)
 
 	/* Enable uart receiver and transmitter */
 	*AUX_MU_CNTL_REG = 3;
+
+	return true;
 }
 
 int uart::putchar(int c)

@@ -1,5 +1,4 @@
 #include <uart.h>
-#include <stdio.h>
 
 bool uart::init(void)
 {
@@ -8,5 +7,5 @@ bool uart::init(void)
 
 int uart::putchar(int c)
 {
-	return ::putchar(c);
+	return c;
 }

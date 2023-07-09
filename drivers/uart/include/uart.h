@@ -6,10 +6,10 @@
 namespace uart {
 
 #ifdef CONFIG_UART
-void init(void);
+bool init(void);
 int putchar(int c);
 #else
-static inline void init(void) {}
+static inline bool init(void) { return true; }
 static inline int putchar(int c) { return (unsigned char)c; }
 #endif
 

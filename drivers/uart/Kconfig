@@ -1,5 +1,7 @@
 config HAVE_HOST_UART
     bool
+config HAVE_BCM2837_UART0
+    bool
 config HAVE_BCM2837_UART1
     bool
 config UART
@@ -16,9 +18,15 @@ choice
         help
             Standard library putchar() implementation
 
+    config BCM2837_UART0
+        bool "BCM2837 UART0"
+        depends on HAVE_BCM2837_UART0 && BCM2837_MBOX
+        help
+            BCM2837 UART0
+
     config BCM2837_UART1
         bool "BCM2837 UART1"
         depends on HAVE_BCM2837_UART1
         help
-           BCM2837 auxiliary mini UART1
+           BCM2837 auxiliary mini UART1 on GPIO14 and GPIO15
 endchoice

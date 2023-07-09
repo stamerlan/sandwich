@@ -9,6 +9,7 @@ choice
         bool "Raspberry pi 3B"
         select ARCH_AARCH64
         select HAVE_BCM2837_MBOX
+        select HAVE_BCM2837_UART0
         select HAVE_BCM2837_UART1
 endchoice
 

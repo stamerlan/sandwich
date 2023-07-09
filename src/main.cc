@@ -15,10 +15,11 @@ int main(void)
 {
 	arch::irq::init();
 	sandwich::sched::init();
-	uart::init();
-	bcm2837::mbox::init();
-
 	arch::irq::enable();
+
+	bcm2837::mbox::init();
+	while (!uart::init())
+		sandwich::sched::run();
 
 	sandwich::sched::task_t task("task", sched_task);
 	task.wakeup();

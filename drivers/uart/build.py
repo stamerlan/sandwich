@@ -6,6 +6,8 @@ class uart(fwbuild.cxx_module):
         super().__init__(target)
         if target.conf.HOST_UART:
             self.src("src/host.cc")
+        elif target.conf.BCM2837_UART0:
+            self.src("src/bcm2837_uart.cc")
         elif target.conf.BCM2837_UART1:
             self.src("src/bcm2837_aux_uart.cc")
 
