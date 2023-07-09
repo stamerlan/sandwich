@@ -68,12 +68,12 @@ Start QEMU
 ~~~~~~~~~~~
 To execute application use the following command::
 
-    qemu-system-aarch64 -M raspi3b -kernel bin/raspi3b/hello/hello.elf -serial null -serial stdio
+    qemu-system-aarch64 -M raspi3b -kernel bin/raspi3b/hello/hello.elf
 
 Also it's possible to start QEMU GDB server for debugging. GDB server is run on
 TCP port 1234 and virtual machine is stopped at the very first instruction::
 
-    qemu-system-aarch64 -M raspi3b -kernel bin/raspi3b/hello/hello.elf -serial null -serial stdio -s -S
+    qemu-system-aarch64 -M raspi3b -kernel bin/raspi3b/hello/hello.elf -s -S
 
 .. _docker build: https://docs.docker.com/engine/reference/commandline/build/
 .. _docker images: https://docs.docker.com/engine/reference/commandline/images/

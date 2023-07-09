@@ -6,7 +6,7 @@ config HAVE_BCM2837_UART1
     bool
 config UART
     bool
-    default HOST_UART || BCM2837_UART1
+    default HOST_UART || HAVE_BCM2837_UART0 || BCM2837_UART1
 
 choice
     prompt "UART"
