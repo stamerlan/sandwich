@@ -108,6 +108,11 @@ void bcm2837::mbox::msg_t::free(struct bcm2837::mbox::msg_t *msg)
 	mbox_msg.completed = false;
 }
 
+void bcm2837::mbox::msg_t::free(struct bcm2837::mbox::msg_t& msg) noexcept
+{
+	bcm2837::mbox::msg_t::free(&msg);
+}
+
 volatile uint32_t& bcm2837::mbox::msg_t::operator[](size_t ofs) noexcept
 {
 	assert(ofs < mbox_size_u32);
